@@ -1,0 +1,1547 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Variables & Data Types in Java</title>
+<style>
+  /* ── TOKENS ─────────────────────────────────────────────── */
+  :root {
+    --bg:        #0d1117;
+    --surface:   #161b22;
+    --surface2:  #1f2937;
+    --border:    #30363d;
+    --accent:    #f89820;
+    --accent2:   #4fa3e0;
+    --accent3:   #58d68d;
+    --accent4:   #e74c3c;
+    --accent5:   #c678dd;
+    --text:      #e6edf3;
+    --text2:     #8b949e;
+    --text3:     #c9d1d9;
+    --tab-bg:    #161b22;
+    --tab-active:#1f2937;
+    --code-bg:   #0d1117;
+    --radius:    10px;
+    --shadow:    0 4px 24px rgba(0,0,0,.45);
+    --font-mono: 'Courier New', Courier, monospace;
+  }
+  [data-theme="light"] {
+    --bg:        #f0f4f8;
+    --surface:   #ffffff;
+    --surface2:  #e8eef5;
+    --border:    #d1d9e0;
+    --text:      #1a202c;
+    --text2:     #4a5568;
+    --text3:     #2d3748;
+    --tab-bg:    #e8eef5;
+    --tab-active:#ffffff;
+    --code-bg:   #e2e8f0;
+    --shadow:    0 4px 24px rgba(0,0,0,.12);
+  }
+
+  /* ── RESET ──────────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    transition: background .3s, color .3s;
+    line-height: 1.65;
+  }
+
+  /* ── HEADER ─────────────────────────────────────────────── */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 62px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 1px 0 var(--border);
+  }
+  .logo {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 1.05rem; font-weight: 700; letter-spacing: -.3px;
+  }
+  .logo-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--accent), #e05a00);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 900; color: #fff;
+  }
+  .badge {
+    font-size: .68rem; font-weight: 600; padding: 2px 8px;
+    border-radius: 20px; background: var(--accent2); color: #000;
+    text-transform: uppercase; letter-spacing: .5px;
+  }
+  .header-right { display: flex; align-items: center; gap: 12px; }
+  #themeToggle {
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text); border-radius: 8px; padding: 6px 14px;
+    cursor: pointer; font-size: .85rem; transition: all .2s;
+  }
+  #themeToggle:hover { border-color: var(--accent); color: var(--accent); }
+  .module-nav {
+    display: flex; align-items: center; gap: 6px;
+    font-size: .78rem; color: var(--text2);
+  }
+  .module-nav a {
+    color: var(--accent2); text-decoration: none; font-weight: 600;
+    padding: 4px 10px; border: 1px solid var(--border); border-radius: 6px;
+    transition: all .2s;
+  }
+  .module-nav a:hover { border-color: var(--accent2); background: rgba(79,163,224,.08); }
+
+  /* ── LAYOUT ─────────────────────────────────────────────── */
+  .container { max-width: 1100px; margin: 0 auto; padding: 32px 20px 80px; }
+
+  /* ── HERO ───────────────────────────────────────────────── */
+  .hero {
+    background: linear-gradient(135deg, var(--surface) 0%, var(--surface2) 100%);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 36px 40px;
+    margin-bottom: 28px;
+    display: flex; align-items: center; gap: 28px;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; top: -60px; right: -60px;
+    width: 240px; height: 240px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(79,163,224,.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-icon { font-size: 64px; flex-shrink: 0; filter: drop-shadow(0 4px 16px rgba(79,163,224,.4)); }
+  .hero-text h1 { font-size: 1.75rem; font-weight: 800; line-height: 1.2; }
+  .hero-text h1 span { color: var(--accent2); }
+  .hero-text p { color: var(--text2); margin-top: 8px; font-size: .95rem; }
+  .hero-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .pill {
+    padding: 4px 12px; border-radius: 20px; font-size: .78rem; font-weight: 600;
+    border: 1px solid; display: flex; align-items: center; gap: 5px;
+  }
+  .pill-orange { color: var(--accent);  border-color: rgba(248,152,32,.35); background: rgba(248,152,32,.08); }
+  .pill-blue   { color: var(--accent2); border-color: rgba(79,163,224,.35);  background: rgba(79,163,224,.08); }
+  .pill-green  { color: var(--accent3); border-color: rgba(88,214,141,.35);  background: rgba(88,214,141,.08); }
+  .pill-purple { color: var(--accent5); border-color: rgba(198,120,221,.35); background: rgba(198,120,221,.08); }
+
+  /* ── BREADCRUMB ─────────────────────────────────────────── */
+  .breadcrumb {
+    display: flex; align-items: center; gap: 8px;
+    font-size: .8rem; color: var(--text2); margin-bottom: 20px;
+  }
+  .breadcrumb span { color: var(--accent2); font-weight: 600; }
+  .breadcrumb .sep { color: var(--border); }
+
+  /* ── TABS ───────────────────────────────────────────────── */
+  .tabs-wrapper {
+    background: var(--tab-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .tab-nav {
+    display: flex; overflow-x: auto;
+    border-bottom: 1px solid var(--border);
+    scrollbar-width: none;
+  }
+  .tab-nav::-webkit-scrollbar { display: none; }
+  .tab-btn {
+    flex-shrink: 0;
+    padding: 14px 22px;
+    background: none; border: none;
+    color: var(--text2); font-size: .88rem; font-weight: 600;
+    cursor: pointer; position: relative;
+    transition: color .2s; letter-spacing: .1px;
+    display: flex; align-items: center; gap: 7px;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: var(--accent2); background: var(--tab-active); }
+  .tab-btn.active::after {
+    content: '';
+    position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+    background: var(--accent2); border-radius: 2px 2px 0 0;
+  }
+  .tab-icon { font-size: 1rem; }
+  .tab-content { display: none; padding: 32px; }
+  .tab-content.active { display: block; animation: fadeIn .25s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  /* ── SECTION HEADINGS ───────────────────────────────────── */
+  .section-title {
+    font-size: 1.2rem; font-weight: 800; margin-bottom: 6px;
+    display: flex; align-items: center; gap: 9px;
+  }
+  .section-title .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent2); }
+  .section-title .dot-orange { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
+  .section-sub { color: var(--text2); font-size: .9rem; margin-bottom: 22px; }
+
+  /* ── CARDS ──────────────────────────────────────────────── */
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px,1fr)); gap: 16px; margin-bottom: 28px; }
+  .cards-2 { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px,1fr)); gap: 16px; margin-bottom: 28px; }
+  .card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px;
+    transition: border-color .2s, transform .2s;
+  }
+  .card:hover { border-color: var(--accent2); transform: translateY(-2px); }
+  .card-icon { font-size: 1.6rem; margin-bottom: 10px; }
+  .card h3 { font-size: .95rem; font-weight: 700; margin-bottom: 6px; }
+  .card p { font-size: .83rem; color: var(--text2); line-height: 1.55; }
+  .card code {
+    font-family: var(--font-mono); font-size: .78rem;
+    background: var(--code-bg); padding: 1px 6px; border-radius: 4px;
+    color: var(--accent3); border: 1px solid var(--border);
+  }
+
+  /* ── INFO BOX ───────────────────────────────────────────── */
+  .info-box {
+    border-radius: var(--radius); padding: 16px 20px;
+    font-size: .875rem; margin-bottom: 20px;
+    border-left: 4px solid; display: flex; gap: 12px; align-items: flex-start;
+  }
+  .info-box .ib-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 1px; }
+  .info-box.blue   { background: rgba(79,163,224,.1);  border-color: var(--accent2); }
+  .info-box.orange { background: rgba(248,152,32,.1);  border-color: var(--accent);  }
+  .info-box.green  { background: rgba(88,214,141,.1);  border-color: var(--accent3); }
+  .info-box.red    { background: rgba(231,76,60,.1);   border-color: var(--accent4); }
+  .info-box.purple { background: rgba(198,120,221,.1); border-color: var(--accent5); }
+
+  /* ── CODE BLOCK ─────────────────────────────────────────── */
+  .code-wrap {
+    background: var(--code-bg); border: 1px solid var(--border);
+    border-radius: var(--radius); overflow: hidden; margin: 16px 0;
+  }
+  .code-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 16px; border-bottom: 1px solid var(--border);
+    background: rgba(255,255,255,.03);
+  }
+  .code-lang { font-size: .75rem; color: var(--text2); font-weight: 600; display: flex; align-items: center; gap: 8px; }
+  .code-dots { display: flex; gap: 5px; }
+  .code-dots span { width: 11px; height: 11px; border-radius: 50%; }
+  .code-dots .r { background: #ff5f57; }
+  .code-dots .y { background: #ffbd2e; }
+  .code-dots .g { background: #28c840; }
+  pre {
+    padding: 20px; overflow-x: auto; font-family: var(--font-mono);
+    font-size: .85rem; line-height: 1.75; color: #abb2bf;
+  }
+  pre code { background: none; border: none; padding: 0; font-size: inherit; color: inherit; }
+  .kw  { color: #c678dd; font-weight: 600; }
+  .cls { color: #e5c07b; }
+  .fn  { color: #61afef; }
+  .str { color: #98c379; }
+  .cmt { color: #5c6370; font-style: italic; }
+  .num { color: #d19a66; }
+  .op  { color: #56b6c2; }
+
+  /* ── STEPS ──────────────────────────────────────────────── */
+  .steps { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+  .step {
+    display: flex; gap: 14px; align-items: flex-start;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 18px;
+    transition: border-color .2s;
+  }
+  .step:hover { border-color: var(--accent2); }
+  .step-num {
+    flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%;
+    background: var(--accent2); color: #000; font-weight: 800; font-size: .8rem;
+    display: flex; align-items: center; justify-content: center; margin-top: 1px;
+  }
+  .step-body h4 { font-size: .9rem; font-weight: 700; margin-bottom: 3px; }
+  .step-body p  { font-size: .83rem; color: var(--text2); }
+  .step-body code {
+    font-family: var(--font-mono); font-size: .8rem;
+    background: var(--code-bg); padding: 1px 6px; border-radius: 4px;
+    color: var(--accent3); border: 1px solid var(--border);
+  }
+
+  /* ── SYNTAX ANATOMY ─────────────────────────────────────── */
+  .syntax-anatomy {
+    background: var(--code-bg); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 24px 28px; margin: 20px 0;
+    font-family: var(--font-mono); font-size: 1.1rem; text-align: center;
+    position: relative; overflow: visible;
+  }
+  .syntax-row {
+    display: flex; align-items: center; justify-content: center;
+    flex-wrap: wrap; gap: 6px; font-size: 1rem;
+  }
+  .syn-part {
+    position: relative; display: inline-flex; flex-direction: column;
+    align-items: center;
+  }
+  .syn-token {
+    padding: 6px 14px; border-radius: 7px; font-weight: 700; font-size: .95rem;
+    border: 2px solid transparent; cursor: default;
+    transition: transform .15s;
+  }
+  .syn-token:hover { transform: translateY(-2px); }
+  .syn-label {
+    font-family: 'Segoe UI', sans-serif; font-size: .68rem; font-weight: 600;
+    margin-top: 8px; text-transform: uppercase; letter-spacing: .5px;
+    color: var(--text2);
+  }
+  .st-type   { background: rgba(198,120,221,.18); border-color: rgba(198,120,221,.4); color: #c678dd; }
+  .st-name   { background: rgba(79,163,224,.18);  border-color: rgba(79,163,224,.4);  color: #4fa3e0; }
+  .st-eq     { background: rgba(86,182,194,.18);  border-color: rgba(86,182,194,.4);  color: #56b6c2; }
+  .st-val    { background: rgba(152,195,121,.18); border-color: rgba(152,195,121,.4); color: #98c379; }
+  .st-semi   { background: rgba(248,152,32,.18);  border-color: rgba(248,152,32,.4);  color: var(--accent); }
+  .syn-space { padding: 6px 4px; color: var(--text2); }
+
+  /* ── NAMING RULES ───────────────────────────────────────── */
+  .naming-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0;
+  }
+  .naming-col { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; }
+  .naming-col.good { border-top: 3px solid var(--accent3); }
+  .naming-col.bad  { border-top: 3px solid var(--accent4); }
+  .naming-col h4 { font-size: .88rem; font-weight: 800; margin-bottom: 12px; display: flex; align-items: center; gap: 7px; }
+  .naming-item {
+    display: flex; align-items: center; gap: 9px;
+    padding: 7px 10px; border-radius: 7px; margin-bottom: 7px;
+    font-family: var(--font-mono); font-size: .82rem;
+    background: var(--code-bg); border: 1px solid var(--border);
+  }
+  .naming-item .ni-icon { font-size: .9rem; flex-shrink: 0; }
+  .naming-item .ni-reason { font-family: 'Segoe UI', sans-serif; font-size: .75rem; color: var(--text2); margin-left: auto; }
+
+  /* ── DATA TYPE CARDS ────────────────────────────────────── */
+  .dtype-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(210px,1fr));
+    gap: 16px; margin: 20px 0;
+  }
+  .dtype-card {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--radius); overflow: hidden;
+    transition: border-color .2s, transform .2s;
+    cursor: pointer;
+  }
+  .dtype-card:hover { transform: translateY(-2px); }
+  .dtype-card.active { border-color: var(--accent2); }
+  .dtype-top {
+    padding: 14px 16px 10px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .dtype-badge {
+    font-family: var(--font-mono); font-size: .75rem; font-weight: 800;
+    padding: 3px 10px; border-radius: 5px; flex-shrink: 0;
+  }
+  .dtype-title { font-size: .9rem; font-weight: 700; }
+  .dtype-body { padding: 0 16px 14px; }
+  .dtype-body p { font-size: .82rem; color: var(--text2); margin-bottom: 8px; }
+  .dtype-ex {
+    font-family: var(--font-mono); font-size: .8rem;
+    background: var(--code-bg); padding: 6px 10px; border-radius: 6px;
+    border: 1px solid var(--border); color: #98c379;
+  }
+  .dtype-tag {
+    display: inline-block; font-size: .7rem; font-weight: 600;
+    padding: 2px 8px; border-radius: 4px; margin-top: 8px;
+    background: rgba(79,163,224,.12); color: var(--accent2); border: 1px solid rgba(79,163,224,.25);
+  }
+
+  /* dtype colour variants */
+  .dt-int    { background: rgba(198,120,221,.18); color: #c678dd; }
+  .dt-double { background: rgba(209,154,102,.18); color: #d19a66; }
+  .dt-bool   { background: rgba(86,182,194,.18);  color: #56b6c2; }
+  .dt-char   { background: rgba(152,195,121,.18); color: #98c379; }
+  .dt-string { background: rgba(79,163,224,.18);  color: #4fa3e0; }
+
+  /* ── DETAIL PANEL ───────────────────────────────────────── */
+  .detail-panel {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 22px 26px;
+    margin-top: 6px; animation: fadeIn .2s ease;
+    display: none;
+  }
+  .detail-panel.active { display: block; }
+  .detail-panel h3 { font-size: 1rem; font-weight: 800; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .detail-meta {
+    display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px;
+  }
+  .dmeta-item {
+    background: var(--code-bg); border: 1px solid var(--border);
+    border-radius: 7px; padding: 7px 14px; font-size: .8rem;
+  }
+  .dmeta-item strong { color: var(--accent2); font-family: var(--font-mono); }
+
+  /* ── COMPARE MINI CARDS ─────────────────────────────────── */
+  .compare-pair {
+    display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px;
+    align-items: stretch; margin-bottom: 20px;
+  }
+  .cmp-card {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px;
+    transition: border-color .2s;
+  }
+  .cmp-card:hover { border-color: var(--accent2); }
+  .cmp-title { font-family: var(--font-mono); font-weight: 800; font-size: .9rem; margin-bottom: 8px; }
+  .cmp-card p { font-size: .82rem; color: var(--text2); margin-bottom: 6px; }
+  .cmp-ex { font-family: var(--font-mono); font-size: .79rem; color: #98c379; }
+  .cmp-vs {
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: .85rem; color: var(--text2);
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 50%; width: 40px; height: 40px; flex-shrink: 0;
+    align-self: center;
+  }
+
+  /* ── COMPARE TABLE ──────────────────────────────────────── */
+  .compare-table { width: 100%; border-collapse: collapse; font-size: .875rem; margin-top: 16px; }
+  .compare-table th {
+    text-align: left; padding: 10px 16px;
+    background: var(--surface2); color: var(--text2); font-weight: 700; font-size: .78rem;
+    text-transform: uppercase; letter-spacing: .5px; border-bottom: 1px solid var(--border);
+  }
+  .compare-table td { padding: 11px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  .compare-table tr:last-child td { border-bottom: none; }
+  .compare-table tr:hover td { background: rgba(255,255,255,.02); }
+  .yes { color: var(--accent3); font-weight: 700; }
+  .no  { color: var(--text2); }
+  .mono { font-family: var(--font-mono); font-size: .82rem; color: var(--accent3); }
+
+  /* ── PLAYGROUND ─────────────────────────────────────────── */
+  .playground {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--radius); overflow: hidden;
+  }
+  .pg-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 13px 20px; background: rgba(255,255,255,.03);
+    border-bottom: 1px solid var(--border); font-weight: 700; font-size: .88rem;
+  }
+  .pg-body { padding: 24px; }
+  .pg-row { display: grid; grid-template-columns: 180px 1fr; gap: 12px; margin-bottom: 14px; align-items: start; }
+  .pg-label { font-size: .82rem; font-weight: 700; color: var(--text2); padding-top: 10px; }
+  .pg-select, .pg-input {
+    width: 100%; padding: 10px 14px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--code-bg);
+    color: var(--text); font-size: .88rem; font-family: var(--font-mono);
+    outline: none; transition: border-color .2s;
+  }
+  .pg-select:focus, .pg-input:focus { border-color: var(--accent2); }
+  .pg-select option { background: var(--surface); }
+
+  .result-pills { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; min-height: 36px; }
+  .rpill {
+    display: flex; align-items: center; gap: 6px;
+    padding: 6px 14px; border-radius: 20px; font-size: .82rem; font-weight: 600;
+    border: 1px solid; animation: fadeIn .2s ease;
+  }
+  .rpill-success { background: rgba(88,214,141,.12); border-color: rgba(88,214,141,.4); color: var(--accent3); }
+  .rpill-error   { background: rgba(231,76,60,.12);  border-color: rgba(231,76,60,.4);  color: var(--accent4); }
+  .rpill-info    { background: rgba(79,163,224,.12); border-color: rgba(79,163,224,.4); color: var(--accent2); }
+  .rpill-warn    { background: rgba(248,152,32,.12); border-color: rgba(248,152,32,.4); color: var(--accent); }
+
+  .pg-output {
+    background: var(--code-bg); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 20px;
+    font-family: var(--font-mono); font-size: .875rem; min-height: 80px;
+    line-height: 1.75; color: #abb2bf; transition: border-color .3s;
+  }
+  .pg-output.ok  { border-color: rgba(88,214,141,.35); }
+  .pg-output.err { border-color: rgba(231,76,60,.35); }
+
+  .btn-validate {
+    background: linear-gradient(135deg, var(--accent2), #2980b9);
+    color: #fff; border: none; border-radius: 8px;
+    padding: 10px 28px; font-weight: 800; font-size: .9rem;
+    cursor: pointer; transition: opacity .2s, transform .2s;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .btn-validate:hover { opacity: .88; transform: translateY(-1px); }
+  .btn-clear {
+    background: none; border: 1px solid var(--border); color: var(--text2);
+    border-radius: 8px; padding: 10px 20px; font-size: .875rem;
+    cursor: pointer; transition: all .2s;
+  }
+  .btn-clear:hover { border-color: var(--text2); color: var(--text); }
+
+  .type-examples {
+    background: var(--code-bg); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 18px; margin-top: 16px;
+    font-family: var(--font-mono); font-size: .82rem;
+  }
+  .type-example-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,.04);
+  }
+  .type-example-row:last-child { border-bottom: none; }
+  .te-val  { color: #98c379; }
+  .te-tag  { font-family: 'Segoe UI', sans-serif; font-size: .7rem; padding: 2px 8px; border-radius: 4px; }
+  .te-ok   { background: rgba(88,214,141,.15); color: var(--accent3); }
+  .te-bad  { background: rgba(231,76,60,.15);  color: var(--accent4); }
+
+  /* ── ERROR PANEL ────────────────────────────────────────── */
+  .err-sim-btns { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
+  .err-btn {
+    padding: 8px 18px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--surface2); color: var(--text); font-size: .84rem;
+    font-weight: 600; cursor: pointer; transition: all .2s;
+    display: flex; align-items: center; gap: 7px;
+  }
+  .err-btn:hover  { border-color: var(--accent4); color: var(--accent4); }
+  .err-btn.active { background: rgba(231,76,60,.15); border-color: var(--accent4); color: var(--accent4); }
+  .err-panel { display: none; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .err-panel.active { display: block; animation: fadeIn .2s ease; }
+  .err-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 18px; background: rgba(231,76,60,.12);
+    border-bottom: 1px solid var(--border); font-size: .875rem; font-weight: 700; color: var(--accent4);
+  }
+  .err-body { padding: 20px; }
+  .err-body h4 { font-size: .9rem; font-weight: 700; margin-bottom: 8px; }
+  .err-body p  { font-size: .85rem; color: var(--text2); margin-bottom: 12px; }
+  .err-msg {
+    font-family: var(--font-mono); font-size: .8rem;
+    background: var(--code-bg); border: 1px solid rgba(231,76,60,.3);
+    border-radius: 7px; padding: 12px 16px; color: #ff6b6b;
+    margin-bottom: 14px; white-space: pre; overflow-x: auto;
+  }
+  .code-diff {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0;
+  }
+  .diff-wrong, .diff-right {
+    border-radius: 8px; overflow: hidden; border: 1px solid var(--border);
+  }
+  .diff-label {
+    padding: 7px 12px; font-size: .72rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .5px;
+  }
+  .diff-wrong .diff-label { background: rgba(231,76,60,.15); color: var(--accent4); }
+  .diff-right .diff-label { background: rgba(88,214,141,.15); color: var(--accent3); }
+  .diff-code {
+    padding: 12px 14px; font-family: var(--font-mono); font-size: .8rem;
+    background: var(--code-bg); line-height: 1.7; color: #abb2bf;
+  }
+  .fix-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(88,214,141,.1); border: 1px solid rgba(88,214,141,.3);
+    color: var(--accent3); border-radius: 6px; padding: 5px 12px;
+    font-size: .82rem; font-weight: 600; margin-top: 4px;
+  }
+
+  /* ── QUIZ ─────────────────────────────────────────────────── */
+  .quiz-container { display: flex; flex-direction: column; gap: 24px; }
+  .quiz-block {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 22px 24px;
+    transition: border-color .2s;
+  }
+  .quiz-block.answered { border-color: var(--border); }
+  .quiz-num { font-size: .72rem; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+  .quiz-q { font-weight: 700; font-size: .92rem; margin-bottom: 14px; line-height: 1.5; }
+  .quiz-opts { display: flex; flex-direction: column; gap: 9px; }
+  .quiz-opt {
+    padding: 10px 16px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--bg); font-size: .875rem; cursor: pointer; transition: all .2s;
+    display: flex; align-items: center; gap: 10px; text-align: left;
+  }
+  .quiz-opt:hover:not(.correct):not(.wrong) { border-color: var(--accent2); background: rgba(79,163,224,.05); }
+  .quiz-opt.correct { border-color: var(--accent3); background: rgba(88,214,141,.1); color: var(--accent3); pointer-events: none; }
+  .quiz-opt.wrong   { border-color: var(--accent4); background: rgba(231,76,60,.08); color: var(--accent4); pointer-events: none; }
+  .quiz-opt.disabled { pointer-events: none; opacity: .55; }
+  .quiz-feedback { margin-top: 12px; font-size: .845rem; padding: 10px 14px; border-radius: 7px; display: none; }
+  .quiz-feedback.show { display: block; animation: fadeIn .2s; }
+  .quiz-feedback.correct { background: rgba(88,214,141,.1); color: var(--accent3); border: 1px solid rgba(88,214,141,.25); }
+  .quiz-feedback.wrong   { background: rgba(231,76,60,.08);  color: var(--accent4); border: 1px solid rgba(231,76,60,.2); }
+  .quiz-code { font-family: var(--font-mono); background: var(--code-bg); padding: 1px 7px; border-radius: 4px; font-size: .85em; }
+
+  /* ── SCORE SUMMARY ──────────────────────────────────────── */
+  .score-box {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 24px; text-align: center;
+    display: none; margin-top: 24px;
+  }
+  .score-box.show { display: block; animation: fadeIn .3s ease; }
+  .score-num { font-size: 3rem; font-weight: 900; line-height: 1; }
+  .score-label { color: var(--text2); font-size: .9rem; margin-top: 6px; margin-bottom: 16px; }
+  .btn-retake {
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text); border-radius: 8px; padding: 9px 24px;
+    font-size: .875rem; font-weight: 700; cursor: pointer; transition: all .2s;
+  }
+  .btn-retake:hover { border-color: var(--accent2); color: var(--accent2); }
+
+  /* ── RESPONSIVE ─────────────────────────────────────────── */
+  @media (max-width: 700px) {
+    .hero { flex-direction: column; padding: 24px 20px; }
+    .tab-btn { padding: 12px 14px; font-size: .8rem; }
+    .tab-content { padding: 20px 16px; }
+    .hero-text h1 { font-size: 1.35rem; }
+    .naming-grid, .code-diff, .pg-row { grid-template-columns: 1fr; }
+    .compare-pair { grid-template-columns: 1fr; }
+    .cmp-vs { display: none; }
+    .dtype-grid { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 480px) { .dtype-grid { grid-template-columns: 1fr; } }
+
+  /* ── LIGHT MODE FIXES ───────────────────────────────────── */
+  /* Input / select fields */
+  [data-theme="light"] .pg-select,
+  [data-theme="light"] .pg-input {
+    background: #ffffff;
+    color: #1a202c;
+    border-color: #c4cdd9;
+  }
+  [data-theme="light"] .pg-select option { background: #ffffff; color: #1a202c; }
+
+  /* Quick-examples box */
+  [data-theme="light"] .type-examples {
+    background: #ffffff;
+    border-color: #c4cdd9;
+  }
+  [data-theme="light"] .te-val { color: #276749; }
+  [data-theme="light"] .type-example-row { border-bottom-color: rgba(0,0,0,.07); }
+
+  /* Output panel */
+  [data-theme="light"] .pg-output { color: #2d3748; }
+
+  /* Code blocks — keep dark background for <pre> blocks (intentional editor look) */
+  /* but fix inline code chips everywhere */
+  [data-theme="light"] .quiz-code,
+  [data-theme="light"] .card code,
+  [data-theme="light"] .step-body code,
+  [data-theme="light"] .info-box code,
+  [data-theme="light"] .err-body code,
+  [data-theme="light"] .section-sub code {
+    background: #dde4ee;
+    color: #1a202c;
+    border: 1px solid #c4cdd9;
+  }
+
+  /* dtype example snippets */
+  [data-theme="light"] .dtype-ex { background: #dde4ee; color: #276749; border-color: #c4cdd9; }
+
+  /* detail panel code block — keep dark (intentional) */
+  [data-theme="light"] .detail-panel .code-wrap pre { color: #abb2bf; }
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ─────────────────────────────────────────────── -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">J</div>
+    Java Essentials
+    <span class="badge">Module 2</span>
+  </div>
+  <div class="header-right">
+    <div class="module-nav">
+      <span>◀</span>
+      <a href="#">Module 1</a>
+      <span style="color:var(--text)">Module 2</span>
+      <a href="#">Module 3 ▶</a>
+    </div>
+    <button id="themeToggle" onclick="toggleTheme()">☀ Light</button>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- BREADCRUMB -->
+  <div class="breadcrumb">
+    Java Essentials <span class="sep">›</span> Module 2 <span class="sep">›</span> <span>Variables &amp; Data Types</span>
+  </div>
+
+  <!-- ── HERO ──────────────────────────────────────────────── -->
+  <div class="hero">
+    <div class="hero-icon">📦</div>
+    <div class="hero-text">
+      <h1>Variables &amp; <span>Data Types</span> in Java</h1>
+      <p>Learn how Java stores, names, and types values — and why getting this right prevents 90% of beginner bugs.</p>
+      <div class="hero-pills">
+        <span class="pill pill-blue">📦 Variables</span>
+        <span class="pill pill-purple">🔢 Primitives</span>
+        <span class="pill pill-orange">🔤 String</span>
+        <span class="pill pill-green">⚡ Interactive</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TABS ──────────────────────────────────────────────── -->
+  <div class="tabs-wrapper">
+    <div class="tab-nav">
+      <button class="tab-btn active" onclick="switchTab('basics',this)"><span class="tab-icon">📘</span> Basics</button>
+      <button class="tab-btn" onclick="switchTab('datatypes',this)"><span class="tab-icon">📊</span> Data Types</button>
+      <button class="tab-btn" onclick="switchTab('playground',this)"><span class="tab-icon">⚙</span> Live Playground</button>
+      <button class="tab-btn" onclick="switchTab('errors',this)"><span class="tab-icon">🚨</span> Common Errors</button>
+      <button class="tab-btn" onclick="switchTab('quiz',this)"><span class="tab-icon">🧠</span> Quick Check</button>
+    </div>
+
+    <!-- ══════════ TAB 1 — BASICS ══════════ -->
+    <div id="tab-basics" class="tab-content active">
+      <div class="section-title"><span class="dot"></span> What is a Variable?</div>
+      <p class="section-sub">Think of a variable as a <strong>labelled box</strong>. The label is the name, the box holds a value, and the type tells Java what kind of thing fits inside.</p>
+
+      <div class="info-box blue">
+        <span class="ib-icon">💡</span>
+        <div><strong>Real-world analogy:</strong> A variable is like a form field — <em>"Age: [ 25 ]"</em>. The field name is fixed, but the value can change. Java just makes you declare what kind of value (number, text, true/false) goes in before you use it.</div>
+      </div>
+
+      <!-- Syntax anatomy -->
+      <div class="section-title" style="margin-top:24px;font-size:1rem"><span class="dot"></span> Declaration Syntax</div>
+      <div class="syntax-anatomy">
+        <div class="syntax-row">
+          <div class="syn-part">
+            <span class="syn-token st-type">int</span>
+            <span class="syn-label">Data Type</span>
+          </div>
+          <span class="syn-space">&nbsp;</span>
+          <div class="syn-part">
+            <span class="syn-token st-name">age</span>
+            <span class="syn-label">Variable Name</span>
+          </div>
+          <span class="syn-space">&nbsp;</span>
+          <div class="syn-part">
+            <span class="syn-token st-eq">=</span>
+            <span class="syn-label">Assignment</span>
+          </div>
+          <span class="syn-space">&nbsp;</span>
+          <div class="syn-part">
+            <span class="syn-token st-val">25</span>
+            <span class="syn-label">Value</span>
+          </div>
+          <div class="syn-part">
+            <span class="syn-token st-semi">;</span>
+            <span class="syn-label">Semicolon</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="code-wrap">
+        <div class="code-header">
+          <div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+          <div class="code-lang">☕ Variable Examples</div>
+        </div>
+        <pre><code><span class="cmt">// Declaring and assigning variables</span>
+<span class="kw">int</span> age <span class="op">=</span> <span class="num">25</span>;
+<span class="cls">String</span> name <span class="op">=</span> <span class="str">"Rahul"</span>;
+<span class="kw">double</span> salary <span class="op">=</span> <span class="num">75000.50</span>;
+<span class="kw">boolean</span> isActive <span class="op">=</span> <span class="kw">true</span>;
+<span class="kw">char</span> grade <span class="op">=</span> <span class="str">'A'</span>;
+
+<span class="cmt">// You can declare first, assign later</span>
+<span class="kw">int</span> score;
+score <span class="op">=</span> <span class="num">100</span>;
+
+<span class="cmt">// Variables can be updated</span>
+age <span class="op">=</span> <span class="num">26</span>;   <span class="cmt">// perfectly valid — value replaced</span></code></pre>
+      </div>
+
+      <!-- Naming rules -->
+      <div class="section-title" style="margin-top:26px;font-size:1rem"><span class="dot"></span> Naming Rules</div>
+      <p class="section-sub" style="margin-bottom:16px">Java enforces strict naming rules. Break them → compiler error. Use them wrong → confusing code.</p>
+
+      <div class="naming-grid">
+        <div class="naming-col good">
+          <h4 style="color:var(--accent3)">✅ Valid Names</h4>
+          <div class="naming-item"><span class="ni-icon" style="color:var(--accent3)">✓</span> userName <span class="ni-reason">camelCase ✔</span></div>
+          <div class="naming-item"><span class="ni-icon" style="color:var(--accent3)">✓</span> totalAmount <span class="ni-reason">camelCase ✔</span></div>
+          <div class="naming-item"><span class="ni-icon" style="color:var(--accent3)">✓</span> _count <span class="ni-reason">underscore start ✔</span></div>
+          <div class="naming-item"><span class="ni-icon" style="color:var(--accent3)">✓</span> $price <span class="ni-reason">$ start ✔ (rare)</span></div>
+          <div class="naming-item"><span class="ni-icon" style="color:var(--accent3)">✓</span> age2 <span class="ni-reason">letter then digit ✔</span></div>
+        </div>
+        <div class="naming-col bad">
+          <h4 style="color:var(--accent4)">❌ Invalid Names</h4>
+          <div class="naming-item"><span class="ni-icon" style="color:var(--accent4)">✗</span> 2name <span class="ni-reason">starts with digit ✗</span></div>
+          <div class="naming-item"><span class="ni-icon" style="color:var(--accent4)">✗</span> user name <span class="ni-reason">has a space ✗</span></div>
+          <div class="naming-item"><span class="ni-icon" style="color:var(--accent4)">✗</span> int <span class="ni-reason">reserved keyword ✗</span></div>
+          <div class="naming-item"><span class="ni-icon" style="color:var(--accent4)">✗</span> total-amount <span class="ni-reason">hyphen not allowed ✗</span></div>
+          <div class="naming-item"><span class="ni-icon" style="color:var(--accent4)">✗</span> user@id <span class="ni-reason">special char ✗</span></div>
+        </div>
+      </div>
+
+      <!-- Why variables matter -->
+      <div class="section-title" style="margin-top:26px;font-size:1rem"><span class="dot"></span> Why Variables Matter in Automation</div>
+      <div class="cards" style="margin-top:14px">
+        <div class="card">
+          <div class="card-icon">📥</div>
+          <h3>Store Test Inputs</h3>
+          <p>Instead of hardcoding <code>"admin"</code> everywhere, store it in <code>String username = "admin";</code> — change once, fix everywhere.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🌐</div>
+          <h3>Capture API Responses</h3>
+          <p><code>String responseBody = api.get("/users");</code> — store the result and assert on it in one place.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">♻</div>
+          <h3>Reuse Across Test Steps</h3>
+          <p><code>int userId = createUser();</code> — use the same ID in update, fetch, and delete steps without duplicating logic.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🔀</div>
+          <h3>Drive Data-Driven Tests</h3>
+          <p>Variables fed from Excel or JSON let the same test run with 50 different inputs — no code changes needed.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ TAB 2 — DATA TYPES ══════════ -->
+    <div id="tab-datatypes" class="tab-content">
+      <div class="section-title"><span class="dot"></span> Primitive Data Types</div>
+      <p class="section-sub">Primitives hold actual values — not objects. Java has 8 primitive types; these 4 cover 95% of what you'll use.</p>
+
+      <div class="dtype-grid" id="primitiveGrid">
+        <div class="dtype-card" onclick="showDetail('int')">
+          <div class="dtype-top">
+            <span class="dtype-badge dt-int">int</span>
+            <span class="dtype-title">Integer</span>
+          </div>
+          <div class="dtype-body">
+            <p>Stores whole numbers (no decimals). Range: −2B to +2B.</p>
+            <div class="dtype-ex">int age = 25;</div>
+            <div class="dtype-tag">Use for: counts, IDs, loops</div>
+          </div>
+        </div>
+        <div class="dtype-card" onclick="showDetail('double')">
+          <div class="dtype-top">
+            <span class="dtype-badge dt-double">double</span>
+            <span class="dtype-title">Decimal</span>
+          </div>
+          <div class="dtype-body">
+            <p>Stores numbers with decimal points (floating-point).</p>
+            <div class="dtype-ex">double price = 99.99;</div>
+            <div class="dtype-tag">Use for: prices, percentages</div>
+          </div>
+        </div>
+        <div class="dtype-card" onclick="showDetail('boolean')">
+          <div class="dtype-top">
+            <span class="dtype-badge dt-bool">boolean</span>
+            <span class="dtype-title">True/False</span>
+          </div>
+          <div class="dtype-body">
+            <p>Stores only two values: <code>true</code> or <code>false</code>.</p>
+            <div class="dtype-ex">boolean isLoggedIn = true;</div>
+            <div class="dtype-tag">Use for: flags, conditions</div>
+          </div>
+        </div>
+        <div class="dtype-card" onclick="showDetail('char')">
+          <div class="dtype-top">
+            <span class="dtype-badge dt-char">char</span>
+            <span class="dtype-title">Single Character</span>
+          </div>
+          <div class="dtype-body">
+            <p>Stores exactly <em>one</em> character. Must use single quotes.</p>
+            <div class="dtype-ex">char grade = 'A';</div>
+            <div class="dtype-tag">Use for: status codes, grades</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detail panel -->
+      <div class="detail-panel" id="detailPanel"></div>
+
+      <!-- Non-Primitive -->
+      <div class="section-title" style="margin-top:28px"><span class="dot"></span> Non-Primitive: String</div>
+      <p class="section-sub">String is not a primitive — it's a full <strong>class</strong> in Java. That means it comes with built-in methods you can call on it.</p>
+
+      <div class="dtype-grid" style="grid-template-columns: 1fr;">
+        <div class="dtype-card" onclick="showDetail('string')" style="max-width:100%;">
+          <div class="dtype-top">
+            <span class="dtype-badge dt-string">String</span>
+            <span class="dtype-title">Text / Sequence of Characters</span>
+          </div>
+          <div class="dtype-body">
+            <p>Stores any text. Always wrapped in <strong>double</strong> quotes. Immutable — once created, its value doesn't change internally.</p>
+            <div class="dtype-ex">String name = "Rahul";  // "Rahul" stored as an object</div>
+            <div class="dtype-tag">Use for: names, URLs, API responses, messages</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="code-wrap">
+        <div class="code-header">
+          <div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+          <div class="code-lang">☕ String — Built-in Methods</div>
+        </div>
+        <pre><code><span class="cls">String</span> url <span class="op">=</span> <span class="str">"https://api.example.com/users"</span>;
+
+<span class="cmt">// String has useful methods — you'll use these in automation</span>
+<span class="kw">int</span> len    <span class="op">=</span> url.<span class="fn">length</span>();          <span class="cmt">// 30</span>
+<span class="cls">String</span> up  <span class="op">=</span> url.<span class="fn">toUpperCase</span>();     <span class="cmt">// "HTTPS://API..."</span>
+<span class="kw">boolean</span> has <span class="op">=</span> url.<span class="fn">contains</span>(<span class="str">"users"</span>); <span class="cmt">// true</span>
+<span class="cls">String</span> sub <span class="op">=</span> url.<span class="fn">substring</span>(<span class="num">8</span>, <span class="num">19</span>); <span class="cmt">// "api.example"</span></code></pre>
+      </div>
+
+      <!-- Compare pairs -->
+      <div class="section-title" style="margin-top:28px;font-size:1rem"><span class="dot"></span> Quick Comparisons</div>
+      <p style="font-size:.85rem;color:var(--text2);margin-bottom:18px">When to use which — in 30 seconds:</p>
+
+      <div class="compare-pair">
+        <div class="cmp-card">
+          <div class="cmp-title" style="color:#c678dd">int</div>
+          <p>Whole numbers only. Smaller in memory. Faster operations.</p>
+          <div class="cmp-ex">int count = 100;</div>
+          <div class="cmp-ex">int age = 25;</div>
+        </div>
+        <div class="cmp-vs">vs</div>
+        <div class="cmp-card">
+          <div class="cmp-title" style="color:#d19a66">double</div>
+          <p>Decimals required. More memory. Use whenever fractions matter.</p>
+          <div class="cmp-ex">double rate = 8.5;</div>
+          <div class="cmp-ex">double pi = 3.14159;</div>
+        </div>
+      </div>
+
+      <div class="compare-pair">
+        <div class="cmp-card">
+          <div class="cmp-title" style="color:#98c379">char</div>
+          <p>Exactly ONE character. Uses single quotes. It's a primitive.</p>
+          <div class="cmp-ex">char grade = 'A';</div>
+          <div class="cmp-ex">char sep = ',';</div>
+        </div>
+        <div class="cmp-vs">vs</div>
+        <div class="cmp-card">
+          <div class="cmp-title" style="color:#4fa3e0">String</div>
+          <p>Zero OR more characters. Uses double quotes. It's an object (class).</p>
+          <div class="cmp-ex">String name = "Rahul";</div>
+          <div class="cmp-ex">String empty = "";</div>
+        </div>
+      </div>
+
+      <table class="compare-table">
+        <thead>
+          <tr><th>Type</th><th>Category</th><th>Stores</th><th>Example</th><th>Default Value</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="mono">int</td>    <td><span class="pill pill-purple" style="font-size:.7rem">Primitive</span></td> <td>Whole numbers</td>          <td class="mono">int x = 10;</td>      <td class="mono">0</td></tr>
+          <tr><td class="mono">double</td> <td><span class="pill pill-purple" style="font-size:.7rem">Primitive</span></td> <td>Decimal numbers</td>        <td class="mono">double d = 1.5;</td>  <td class="mono">0.0</td></tr>
+          <tr><td class="mono">boolean</td><td><span class="pill pill-purple" style="font-size:.7rem">Primitive</span></td> <td>true / false</td>           <td class="mono">boolean b = true;</td><td class="mono">false</td></tr>
+          <tr><td class="mono">char</td>   <td><span class="pill pill-purple" style="font-size:.7rem">Primitive</span></td> <td>Single character</td>       <td class="mono">char c = 'X';</td>    <td class="mono">'\u0000'</td></tr>
+          <tr><td class="mono">String</td> <td><span class="pill pill-blue" style="font-size:.7rem">Object</span></td>     <td>Text (0+ characters)</td>  <td class="mono">String s = "Hi";</td> <td class="mono">null</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ══════════ TAB 3 — PLAYGROUND ══════════ -->
+    <div id="tab-playground" class="tab-content">
+      <div class="section-title"><span class="dot"></span> Live Type Validator</div>
+      <p class="section-sub">Select a data type, enter a value, and see whether Java would accept it — with a full output preview.</p>
+
+      <div class="playground">
+        <div class="pg-header">
+          <span>⚙ Type Simulator</span>
+          <span style="font-size:.78rem;font-weight:400;color:var(--text2)">Simulates Java compile-time type checking</span>
+        </div>
+        <div class="pg-body">
+
+          <div class="pg-row">
+            <div class="pg-label">① Data Type</div>
+            <select class="pg-select" id="pgType" onchange="onTypeChange()">
+              <option value="">— Select a type —</option>
+              <option value="int">int — whole number</option>
+              <option value="double">double — decimal</option>
+              <option value="boolean">boolean — true/false</option>
+              <option value="char">char — single character</option>
+              <option value="String">String — text</option>
+            </select>
+          </div>
+
+          <div class="pg-row">
+            <div class="pg-label">② Variable Name</div>
+            <input class="pg-input" id="pgName" placeholder="e.g. myAge" oninput="clearResult()" />
+          </div>
+
+          <div class="pg-row">
+            <div class="pg-label">③ Value</div>
+            <input class="pg-input" id="pgValue" placeholder="Enter a value..." oninput="clearResult()" />
+          </div>
+
+          <!-- Quick examples -->
+          <div id="pgHints" style="display:none;margin-bottom:4px;">
+            <div style="font-size:.78rem;color:var(--text2);margin-bottom:6px;font-weight:600;">QUICK EXAMPLES — click to try:</div>
+            <div class="type-examples" id="typeExamplesBox"></div>
+          </div>
+
+          <div style="display:flex;gap:10px;margin-top:16px;">
+            <button class="btn-validate" onclick="validateInput()">▶&nbsp; Validate &amp; Preview</button>
+            <button class="btn-clear" onclick="clearAll()">↺ Clear</button>
+          </div>
+
+          <div class="result-pills" id="resultPills"></div>
+
+          <div class="pg-output" id="pgOutput">
+            <span style="color:var(--text2);font-size:.82rem;">// Output will appear here after validation</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Type quick reference -->
+      <div class="section-title" style="margin-top:28px;font-size:1rem"><span class="dot"></span> What Each Type Accepts</div>
+      <div class="cards" style="margin-top:14px">
+        <div class="card">
+          <div class="card-icon" style="font-size:1.2rem;margin-bottom:6px">🔢</div>
+          <h3 style="font-family:var(--font-mono);color:#c678dd">int</h3>
+          <p>Only whole numbers.<br><code>10</code> ✅ &nbsp; <code>-5</code> ✅<br><code>10.5</code> ❌ &nbsp; <code>"ten"</code> ❌</p>
+        </div>
+        <div class="card">
+          <div class="card-icon" style="font-size:1.2rem;margin-bottom:6px">📉</div>
+          <h3 style="font-family:var(--font-mono);color:#d19a66">double</h3>
+          <p>Decimals and whole numbers.<br><code>3.14</code> ✅ &nbsp; <code>10</code> ✅<br><code>"3.14"</code> ❌ &nbsp; <code>true</code> ❌</p>
+        </div>
+        <div class="card">
+          <div class="card-icon" style="font-size:1.2rem;margin-bottom:6px">🔘</div>
+          <h3 style="font-family:var(--font-mono);color:#56b6c2">boolean</h3>
+          <p>Exactly <code>true</code> or <code>false</code>.<br><code>true</code> ✅ &nbsp; <code>false</code> ✅<br><code>1</code> ❌ &nbsp; <code>"yes"</code> ❌</p>
+        </div>
+        <div class="card">
+          <div class="card-icon" style="font-size:1.2rem;margin-bottom:6px">🔤</div>
+          <h3 style="font-family:var(--font-mono);color:#98c379">char</h3>
+          <p>Single character in <code>' '</code>.<br><code>'A'</code> ✅ &nbsp; <code>'9'</code> ✅<br><code>'AB'</code> ❌ &nbsp; <code>"A"</code> ❌</p>
+        </div>
+        <div class="card">
+          <div class="card-icon" style="font-size:1.2rem;margin-bottom:6px">💬</div>
+          <h3 style="font-family:var(--font-mono);color:#4fa3e0">String</h3>
+          <p>Any text in <code>" "</code>.<br><code>"hello"</code> ✅ &nbsp; <code>""</code> ✅<br><code>hello</code> ❌ &nbsp; <code>'hi'</code> ❌</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ TAB 4 — COMMON ERRORS ══════════ -->
+    <div id="tab-errors" class="tab-content">
+      <div class="section-title"><span class="dot"></span> Common Variable &amp; Type Errors</div>
+      <p class="section-sub">These are the most frequent mistakes when declaring variables. Know them once — avoid them forever.</p>
+
+      <div class="err-sim-btns">
+        <button class="err-btn active" onclick="showError('typemismatch', this)">⚠ Wrong Type Assignment</button>
+        <button class="err-btn" onclick="showError('stringquotes', this)">⚠ Missing Quotes</button>
+        <button class="err-btn" onclick="showError('casesensitive', this)">⚠ Case Sensitivity</button>
+        <button class="err-btn" onclick="showError('invalidname', this)">⚠ Invalid Variable Name</button>
+      </div>
+
+      <!-- Error: Type Mismatch -->
+      <div class="err-panel active" id="err-typemismatch">
+        <div class="err-header">🔴 Error: Incompatible Types / Type Mismatch</div>
+        <div class="err-body">
+          <h4>What happened?</h4>
+          <p>You declared a variable as <code>int</code> but tried to assign a decimal value. Java's type system catches this before the program runs.</p>
+          <div class="err-msg">error: incompatible types: possible lossy conversion from double to int
+        int age = 25.5;
+                  ^</div>
+          <div class="code-diff">
+            <div class="diff-wrong">
+              <div class="diff-label">❌ Wrong</div>
+              <div class="diff-code"><span class="kw">int</span> age <span class="op">=</span> <span class="num">25.5</span>;   <span class="cmt">// decimal in int!</span>
+<span class="kw">int</span> count <span class="op">=</span> <span class="str">"ten"</span>; <span class="cmt">// string in int!</span></div>
+            </div>
+            <div class="diff-right">
+              <div class="diff-label">✅ Correct</div>
+              <div class="diff-code"><span class="kw">int</span> age <span class="op">=</span> <span class="num">25</span>;       <span class="cmt">// whole number ✓</span>
+<span class="kw">double</span> price <span class="op">=</span> <span class="num">25.5</span>; <span class="cmt">// use double ✓</span></div>
+            </div>
+          </div>
+          <div class="fix-tag">✅ Rule: Match the value to the declared type. Decimal? Use <code>double</code>. Whole number? Use <code>int</code>.</div>
+        </div>
+      </div>
+
+      <!-- Error: Missing quotes -->
+      <div class="err-panel" id="err-stringquotes">
+        <div class="err-header">🔴 Error: Missing Quotes in String Assignment</div>
+        <div class="err-body">
+          <h4>What happened?</h4>
+          <p>You assigned text to a String variable without wrapping it in double quotes. Java treats unquoted words as variable names — and <code>Rahul</code> is not a known variable.</p>
+          <div class="err-msg">error: cannot find symbol
+        String name = Rahul;
+                      ^
+  symbol:   variable Rahul
+  location: class HelloWorld</div>
+          <div class="code-diff">
+            <div class="diff-wrong">
+              <div class="diff-label">❌ Wrong</div>
+              <div class="diff-code"><span class="cls">String</span> name <span class="op">=</span> Rahul;
+<span class="cls">String</span> city <span class="op">=</span> <span class="str">'Mumbai'</span>; <span class="cmt">// single quotes!</span></div>
+            </div>
+            <div class="diff-right">
+              <div class="diff-label">✅ Correct</div>
+              <div class="diff-code"><span class="cls">String</span> name <span class="op">=</span> <span class="str">"Rahul"</span>;  <span class="cmt">// double quotes ✓</span>
+<span class="cls">String</span> city <span class="op">=</span> <span class="str">"Mumbai"</span>; <span class="cmt">// double quotes ✓</span></div>
+            </div>
+          </div>
+          <div class="fix-tag">✅ Rule: Strings always use <code>"double quotes"</code>. Single quotes are only for <code>char</code>.</div>
+        </div>
+      </div>
+
+      <!-- Error: Case sensitivity -->
+      <div class="err-panel" id="err-casesensitive">
+        <div class="err-header">🔴 Error: Case Sensitivity — Variable Not Found</div>
+        <div class="err-body">
+          <h4>What happened?</h4>
+          <p>Java is <strong>case-sensitive</strong>. <code>age</code>, <code>Age</code>, and <code>AGE</code> are three completely different variables. Referencing one with the wrong case causes a compile error.</p>
+          <div class="err-msg">error: cannot find symbol
+        System.out.println(Age);
+                           ^
+  symbol:   variable Age
+  location: class HelloWorld</div>
+          <div class="code-diff">
+            <div class="diff-wrong">
+              <div class="diff-label">❌ Wrong</div>
+              <div class="diff-code"><span class="kw">int</span> age <span class="op">=</span> <span class="num">25</span>;
+<span class="cls">System</span>.out.<span class="fn">println</span>(Age);  <span class="cmt">// 'Age' ≠ 'age'</span>
+<span class="cls">String</span> Name <span class="op">=</span> <span class="str">"Rahul"</span>;
+<span class="cls">System</span>.out.<span class="fn">println</span>(name); <span class="cmt">// 'name' ≠ 'Name'</span></div>
+            </div>
+            <div class="diff-right">
+              <div class="diff-label">✅ Correct</div>
+              <div class="diff-code"><span class="kw">int</span> age <span class="op">=</span> <span class="num">25</span>;
+<span class="cls">System</span>.out.<span class="fn">println</span>(age);  <span class="cmt">// exact match ✓</span>
+<span class="cls">String</span> name <span class="op">=</span> <span class="str">"Rahul"</span>;
+<span class="cls">System</span>.out.<span class="fn">println</span>(name); <span class="cmt">// exact match ✓</span></div>
+            </div>
+          </div>
+          <div class="fix-tag">✅ Rule: Always use exact same spelling + case when referencing a variable.</div>
+        </div>
+      </div>
+
+      <!-- Error: Invalid name -->
+      <div class="err-panel" id="err-invalidname">
+        <div class="err-header">🔴 Error: Invalid Variable Name</div>
+        <div class="err-body">
+          <h4>What happened?</h4>
+          <p>You used a name that violates Java's naming rules — like starting with a number, using a space, or using a reserved keyword as the variable name.</p>
+          <div class="err-msg">error: not a statement
+        int 2count = 10;
+            ^
+error: ';' expected
+        int 2count = 10;
+                  ^</div>
+          <div class="code-diff">
+            <div class="diff-wrong">
+              <div class="diff-label">❌ Wrong</div>
+              <div class="diff-code"><span class="kw">int</span> 2count <span class="op">=</span> <span class="num">10</span>;      <span class="cmt">// starts with digit</span>
+<span class="kw">int</span> user name <span class="op">=</span> <span class="num">5</span>;   <span class="cmt">// has a space</span>
+<span class="kw">int</span> <span class="kw">int</span> <span class="op">=</span> <span class="num">1</span>;          <span class="cmt">// 'int' is a keyword</span></div>
+            </div>
+            <div class="diff-right">
+              <div class="diff-label">✅ Correct</div>
+              <div class="diff-code"><span class="kw">int</span> count2 <span class="op">=</span> <span class="num">10</span>;      <span class="cmt">// digit at end ✓</span>
+<span class="kw">int</span> userName <span class="op">=</span> <span class="num">5</span>;     <span class="cmt">// camelCase ✓</span>
+<span class="kw">int</span> itemCount <span class="op">=</span> <span class="num">1</span>;    <span class="cmt">// descriptive ✓</span></div>
+            </div>
+          </div>
+          <div class="fix-tag">✅ Rule: Start with a letter or _ or $. Use camelCase. Never use Java keywords.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ TAB 5 — QUIZ ══════════ -->
+    <div id="tab-quiz" class="tab-content">
+      <div class="section-title"><span class="dot"></span> Quick Check — Test Your Understanding</div>
+      <p class="section-sub">4 questions. Click an option to see instant feedback. No timer, no stress.</p>
+
+      <div class="quiz-container" id="quizContainer">
+
+        <!-- Q1 -->
+        <div class="quiz-block" id="qb1">
+          <div class="quiz-num">Question 1 of 4</div>
+          <div class="quiz-q">Which data type should you use to store a price like <span class="quiz-code">499.99</span>?</div>
+          <div class="quiz-opts">
+            <div class="quiz-opt" onclick="answerQuiz(1, this, false)">⬜ <span class="quiz-code">int</span></div>
+            <div class="quiz-opt" onclick="answerQuiz(1, this, true)">⬜ <span class="quiz-code">double</span></div>
+            <div class="quiz-opt" onclick="answerQuiz(1, this, false)">⬜ <span class="quiz-code">char</span></div>
+            <div class="quiz-opt" onclick="answerQuiz(1, this, false)">⬜ <span class="quiz-code">boolean</span></div>
+          </div>
+          <div class="quiz-feedback" id="qf1"></div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="quiz-block" id="qb2">
+          <div class="quiz-num">Question 2 of 4</div>
+          <div class="quiz-q">Which of the following is a <strong>valid</strong> variable declaration in Java?</div>
+          <div class="quiz-opts">
+            <div class="quiz-opt" onclick="answerQuiz(2, this, false)">⬜ <span class="quiz-code">int 2score = 10;</span></div>
+            <div class="quiz-opt" onclick="answerQuiz(2, this, false)">⬜ <span class="quiz-code">String name = 'Rahul';</span></div>
+            <div class="quiz-opt" onclick="answerQuiz(2, this, true)">⬜ <span class="quiz-code">boolean isActive = true;</span></div>
+            <div class="quiz-opt" onclick="answerQuiz(2, this, false)">⬜ <span class="quiz-code">int = score 10;</span></div>
+          </div>
+          <div class="quiz-feedback" id="qf2"></div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="quiz-block" id="qb3">
+          <div class="quiz-num">Question 3 of 4</div>
+          <div class="quiz-q">What is the <strong>default value</strong> of a <span class="quiz-code">boolean</span> variable in Java if not explicitly initialized?</div>
+          <div class="quiz-opts">
+            <div class="quiz-opt" onclick="answerQuiz(3, this, false)">⬜ <span class="quiz-code">null</span></div>
+            <div class="quiz-opt" onclick="answerQuiz(3, this, false)">⬜ <span class="quiz-code">0</span></div>
+            <div class="quiz-opt" onclick="answerQuiz(3, this, true)">⬜ <span class="quiz-code">false</span></div>
+            <div class="quiz-opt" onclick="answerQuiz(3, this, false)">⬜ <span class="quiz-code">true</span></div>
+          </div>
+          <div class="quiz-feedback" id="qf3"></div>
+        </div>
+
+        <!-- Q4 -->
+        <div class="quiz-block" id="qb4">
+          <div class="quiz-num">Question 4 of 4</div>
+          <div class="quiz-q">Which statement correctly explains the difference between <span class="quiz-code">char</span> and <span class="quiz-code">String</span>?</div>
+          <div class="quiz-opts">
+            <div class="quiz-opt" onclick="answerQuiz(4, this, false)">⬜ <code>char</code> uses double quotes, <code>String</code> uses single quotes</div>
+            <div class="quiz-opt" onclick="answerQuiz(4, this, false)">⬜ Both are primitive types in Java</div>
+            <div class="quiz-opt" onclick="answerQuiz(4, this, true)">⬜ <code>char</code> holds exactly one character (primitive); <code>String</code> holds text and is a class (object)</div>
+            <div class="quiz-opt" onclick="answerQuiz(4, this, false)">⬜ <code>String</code> can only hold numbers</div>
+          </div>
+          <div class="quiz-feedback" id="qf4"></div>
+        </div>
+
+      </div>
+
+      <!-- Score summary -->
+      <div class="score-box" id="scoreBox">
+        <div class="score-num" id="scoreNum">0/4</div>
+        <div class="score-label" id="scoreLabel">Complete all questions to see your score</div>
+        <button class="btn-retake" onclick="retakeQuiz()">↺ Retake Quiz</button>
+      </div>
+    </div>
+
+  </div><!-- /tabs-wrapper -->
+</div><!-- /container -->
+
+<script>
+/* ══════════════════════════════════════════════════════════ */
+/*  THEME                                                     */
+/* ══════════════════════════════════════════════════════════ */
+function toggleTheme() {
+  const html = document.documentElement;
+  const btn  = document.getElementById('themeToggle');
+  if (html.dataset.theme === 'dark') {
+    html.dataset.theme = 'light';
+    btn.textContent = '🌙 Dark';
+  } else {
+    html.dataset.theme = 'dark';
+    btn.textContent = '☀ Light';
+  }
+}
+
+/* ══════════════════════════════════════════════════════════ */
+/*  TABS                                                      */
+/* ══════════════════════════════════════════════════════════ */
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ══════════════════════════════════════════════════════════ */
+/*  DATA TYPE DETAIL PANEL                                    */
+/* ══════════════════════════════════════════════════════════ */
+const typeDetails = {
+  int: {
+    name: 'int — Integer',
+    color: '#c678dd',
+    size: '32-bit signed',
+    range: '-2,147,483,648 to 2,147,483,647',
+    def: '0',
+    when: 'Loop counters, array indices, user IDs, quantity fields',
+    code: `<span class="kw">int</span> quantity <span class="op">=</span> <span class="num">5</span>;
+<span class="kw">int</span> userId   <span class="op">=</span> <span class="num">1042</span>;
+<span class="kw">int</span> negative  <span class="op">=</span> <span class="num">-100</span>;   <span class="cmt">// negatives are fine</span>
+<span class="cmt">// int decimal = 10.5;  → COMPILE ERROR</span>`
+  },
+  double: {
+    name: 'double — Decimal Number',
+    color: '#d19a66',
+    size: '64-bit IEEE 754',
+    range: '±4.9×10⁻³²⁴ to ±1.7×10³⁰⁸',
+    def: '0.0',
+    when: 'Prices, rates, percentages, coordinates, response times',
+    code: `<span class="kw">double</span> price <span class="op">=</span> <span class="num">99.99</span>;
+<span class="kw">double</span> pi    <span class="op">=</span> <span class="num">3.14159</span>;
+<span class="kw">double</span> rate  <span class="op">=</span> <span class="num">8.5</span>;    <span class="cmt">// tax rate</span>
+<span class="kw">double</span> whole <span class="op">=</span> <span class="num">10</span>;    <span class="cmt">// int assigned → auto-widened to 10.0</span>`
+  },
+  boolean: {
+    name: 'boolean — True / False',
+    color: '#56b6c2',
+    size: '1-bit logical',
+    range: 'true or false only',
+    def: 'false',
+    when: 'Login status, test pass/fail flags, condition results, feature toggles',
+    code: `<span class="kw">boolean</span> isLoggedIn <span class="op">=</span> <span class="kw">true</span>;
+<span class="kw">boolean</span> hasPassed  <span class="op">=</span> <span class="kw">false</span>;
+<span class="kw">boolean</span> result     <span class="op">=</span> (<span class="num">10</span> <span class="op">></span> <span class="num">5</span>); <span class="cmt">// evaluates to true</span>
+<span class="cmt">// boolean flag = 1;  → COMPILE ERROR (not C!)</span>`
+  },
+  char: {
+    name: "char — Single Character",
+    color: '#98c379',
+    size: '16-bit Unicode',
+    range: '\\u0000 to \\uFFFF (0 to 65535)',
+    def: "'\\u0000' (null char)",
+    when: 'Grade codes, status letters, delimiters in parsing, menu options',
+    code: `<span class="kw">char</span> grade <span class="op">=</span> <span class="str">'A'</span>;
+<span class="kw">char</span> sep   <span class="op">=</span> <span class="str">','</span>;     <span class="cmt">// delimiter</span>
+<span class="kw">char</span> digit <span class="op">=</span> <span class="str">'9'</span>;     <span class="cmt">// '9' ≠ 9 (int)</span>
+<span class="cmt">// char bad = "A";   → COMPILE ERROR (double quotes!)</span>
+<span class="cmt">// char bad = 'AB';  → COMPILE ERROR (too many chars)</span>`
+  },
+  string: {
+    name: 'String — Text',
+    color: '#4fa3e0',
+    size: 'Object (variable size)',
+    range: 'Any sequence of Unicode characters',
+    def: 'null',
+    when: 'Names, URLs, API responses, messages, configuration values',
+    code: `<span class="cls">String</span> name    <span class="op">=</span> <span class="str">"Rahul"</span>;
+<span class="cls">String</span> url     <span class="op">=</span> <span class="str">"https://api.example.com"</span>;
+<span class="cls">String</span> empty   <span class="op">=</span> <span class="str">""</span>;         <span class="cmt">// valid empty string</span>
+<span class="cls">String</span> nullStr <span class="op">=</span> <span class="kw">null</span>;       <span class="cmt">// declared but points to nothing</span>
+<span class="cmt">// String s = 'Rahul';  → COMPILE ERROR (single quotes)</span>`
+  }
+};
+
+function showDetail(type) {
+  const panel = document.getElementById('detailPanel');
+  const d = typeDetails[type];
+
+  // toggle
+  if (panel.classList.contains('active') && panel.dataset.type === type) {
+    panel.classList.remove('active');
+    document.querySelectorAll('.dtype-card').forEach(c => c.classList.remove('active'));
+    return;
+  }
+
+  document.querySelectorAll('.dtype-card').forEach(c => c.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+
+  panel.dataset.type = type;
+  panel.innerHTML = `
+    <h3 style="color:${d.color}">◉ ${d.name}</h3>
+    <div class="detail-meta">
+      <div class="dmeta-item">Size <strong>${d.size}</strong></div>
+      <div class="dmeta-item">Range <strong>${d.range}</strong></div>
+      <div class="dmeta-item">Default <strong>${d.def}</strong></div>
+    </div>
+    <div style="font-size:.83rem;color:var(--text2);margin-bottom:12px;">
+      <strong style="color:var(--text)">Practical use:</strong> ${d.when}
+    </div>
+    <div class="code-wrap" style="margin:0">
+      <div class="code-header">
+        <div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+        <div class="code-lang">☕ ${type} examples</div>
+      </div>
+      <pre><code>${d.code}</code></pre>
+    </div>
+  `;
+  panel.classList.add('active');
+}
+
+/* ══════════════════════════════════════════════════════════ */
+/*  PLAYGROUND                                                */
+/* ══════════════════════════════════════════════════════════ */
+const typeExamples = {
+  int:     [{ v:'10', ok:true },{ v:'0', ok:true },{ v:'-50', ok:true },{ v:'10.5', ok:false },{ v:'"ten"', ok:false }],
+  double:  [{ v:'3.14', ok:true },{ v:'10', ok:true },{ v:'-0.5', ok:true },{ v:'"3.14"', ok:false },{ v:'true', ok:false }],
+  boolean: [{ v:'true', ok:true },{ v:'false', ok:true },{ v:'1', ok:false },{ v:'"true"', ok:false },{ v:'yes', ok:false }],
+  char:    [{ v:"'A'", ok:true },{ v:"'9'", ok:true },{ v:"'#'", ok:true },{ v:"'AB'", ok:false },{ v:'"A"', ok:false }],
+  String:  [{ v:'"Hello"', ok:true },{ v:'""', ok:true },{ v:'"123"', ok:true },{ v:'Hello', ok:false },{ v:"'Hello'", ok:false }]
+};
+
+function onTypeChange() {
+  const type = document.getElementById('pgType').value;
+  const hintsEl = document.getElementById('pgHints');
+  const exBox   = document.getElementById('typeExamplesBox');
+
+  clearResult();
+
+  if (!type) { hintsEl.style.display = 'none'; return; }
+  hintsEl.style.display = 'block';
+
+  const exs = typeExamples[type] || [];
+  exBox.innerHTML = exs.map(e => `
+    <div class="type-example-row" style="cursor:pointer" onclick="fillValue('${e.v.replace(/'/g,"\\'")}')">
+      <span class="te-val">${e.v}</span>
+      <span class="te-tag ${e.ok ? 'te-ok' : 'te-bad'}">${e.ok ? '✓ valid' : '✗ invalid'}</span>
+    </div>
+  `).join('');
+}
+
+function fillValue(v) {
+  document.getElementById('pgValue').value = v;
+  clearResult();
+}
+
+function clearResult() {
+  document.getElementById('resultPills').innerHTML = '';
+  const out = document.getElementById('pgOutput');
+  out.className = 'pg-output';
+  out.innerHTML = '<span style="color:var(--text2);font-size:.82rem;">// Output will appear here after validation</span>';
+}
+
+function clearAll() {
+  document.getElementById('pgType').value  = '';
+  document.getElementById('pgName').value  = '';
+  document.getElementById('pgValue').value = '';
+  document.getElementById('pgHints').style.display = 'none';
+  clearResult();
+}
+
+function addPill(html, type) {
+  const el = document.createElement('div');
+  el.className = `rpill rpill-${type}`;
+  el.innerHTML = html;
+  document.getElementById('resultPills').appendChild(el);
+}
+
+function validateInput() {
+  const type  = document.getElementById('pgType').value.trim();
+  const name  = document.getElementById('pgName').value.trim();
+  const value = document.getElementById('pgValue').value.trim();
+  const pills = document.getElementById('resultPills');
+  const out   = document.getElementById('pgOutput');
+
+  pills.innerHTML = '';
+  out.className   = 'pg-output';
+
+  if (!type)  { addPill('⚠ Select a data type first', 'warn'); return; }
+  if (!name)  { addPill('⚠ Enter a variable name', 'warn'); return; }
+  if (!value) { addPill('⚠ Enter a value to validate', 'warn'); return; }
+
+  // validate name
+  const nameOk = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(name);
+  const keywords = ['int','double','boolean','char','String','class','public','static','void','if','else','for','while','return','new','null','true','false'];
+  if (!nameOk)             { addPill('❌ Invalid variable name — cannot start with digit or contain spaces', 'error'); out.className += ' err'; out.innerHTML = `<span style="color:#ff6b6b">error: invalid variable name "${name}"</span>`; return; }
+  if (keywords.includes(name)) { addPill('❌ "' + name + '" is a Java reserved keyword — choose a different name', 'error'); out.className += ' err'; out.innerHTML = `<span style="color:#ff6b6b">error: "${name}" is a reserved keyword</span>`; return; }
+
+  addPill('✓ Name <code>' + name + '</code> is valid', 'info');
+
+  // validate value per type
+  const result = checkType(type, value);
+  if (result.ok) {
+    addPill('✓ Value is a valid <code>' + type + '</code>', 'success');
+    out.className += ' ok';
+    out.innerHTML  = `<span style="color:var(--accent2)">$ javac Main.java</span>\n<span style="color:var(--accent2)">$ java Main</span>\n\n<span style="color:#c678dd">${type}</span> <span style="color:#4fa3e0">${name}</span> <span style="color:#56b6c2">=</span> <span style="color:#98c379">${value}</span>;\n\n<span style="color:var(--accent3)">Output → ${result.display}</span>\n\n<span style="color:#555">Process finished with exit code 0</span>`;
+  } else {
+    addPill('❌ ' + result.msg, 'error');
+    out.className += ' err';
+    out.innerHTML  = `<span style="color:#ff6b6b">error: incompatible types</span>\n<span style="color:#ff6b6b">       ${result.detail}</span>\n\n<span style="color:#555">Hint: ${result.hint}</span>`;
+  }
+}
+
+function checkType(type, val) {
+  switch (type) {
+    case 'int': {
+      if (/^-?\d+$/.test(val)) return { ok:true, display:`${parseInt(val, 10)}` };
+      if (/^-?\d+\.\d+$/.test(val)) return { ok:false, msg:'Cannot assign decimal to int', detail:`int cannot store ${val} (has decimal)`, hint:'Use double for decimal values.' };
+      return { ok:false, msg:`"${val}" is not a valid int value`, detail:`incompatible types: ${/^".*"$/.test(val)?'String':'unknown'} cannot be converted to int`, hint:'int only accepts whole numbers like 10, -5, 0.' };
+    }
+    case 'double': {
+      if (/^-?\d+(\.\d+)?$/.test(val)) return { ok:true, display: parseFloat(val).toString() + (/\./.test(val) ? '' : '.0') };
+      return { ok:false, msg:`"${val}" is not a valid double value`, detail:`incompatible types`, hint:'double accepts 3.14, -0.5, 10 (widens to 10.0).' };
+    }
+    case 'boolean': {
+      if (val === 'true' || val === 'false') return { ok:true, display: val };
+      return { ok:false, msg:`"${val}" is not a valid boolean — only true or false`, detail:`incompatible types: ${val} cannot be converted to boolean`, hint:'Java boolean only accepts the literal words: true or false.' };
+    }
+    case 'char': {
+      if (/^'.'$/.test(val)) return { ok:true, display: val };
+      if (/^'.{2,}'$/.test(val)) return { ok:false, msg:'char can only hold exactly ONE character', detail:`unclosed character literal — too many chars in '...'`, hint:"Use single quotes with ONE char: 'A', '9', '#'" };
+      if (/^".*"$/.test(val)) return { ok:false, msg:'char requires single quotes, not double quotes', detail:`incompatible types: String cannot be converted to char`, hint:"char uses single quotes: 'A' not \"A\"" };
+      return { ok:false, msg:`"${val}" is not valid — wrap in single quotes like 'A'`, detail:`char literal must be wrapped in single quotes`, hint:"Example: char grade = 'A';" };
+    }
+    case 'String': {
+      if (/^".*"$/.test(val)) return { ok:true, display: val };
+      if (/^'.*'$/.test(val)) return { ok:false, msg:'String requires double quotes, not single quotes', detail:`incompatible types: char cannot be converted to String`, hint:'String uses double quotes: "Rahul" not \'Rahul\'' };
+      return { ok:false, msg:`Missing double quotes — String values must be wrapped in "..."`, detail:`cannot find symbol: variable ${val}`, hint:`Write it as: "${val}"` };
+    }
+    default: return { ok:false, msg:'Unknown type', detail:'', hint:'' };
+  }
+}
+
+/* ══════════════════════════════════════════════════════════ */
+/*  ERRORS TAB                                                */
+/* ══════════════════════════════════════════════════════════ */
+function showError(id, btn) {
+  document.querySelectorAll('.err-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.err-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('err-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ══════════════════════════════════════════════════════════ */
+/*  QUIZ                                                      */
+/* ══════════════════════════════════════════════════════════ */
+const quizExplanations = {
+  1: {
+    correct: '✅ Correct! <code>double</code> stores decimal (floating-point) numbers. <code>int</code> would discard the .99 — use double for monetary values.',
+    wrong:   '❌ Not quite. Decimal numbers like 499.99 need <code>double</code>. <code>int</code> can\'t hold decimals, <code>char</code> is for characters, <code>boolean</code> is true/false only.'
+  },
+  2: {
+    correct: '✅ Correct! <code>boolean isActive = true;</code> — valid type, valid name (camelCase), valid value. The others have: digit-first name, single quotes on String, or reversed syntax.',
+    wrong:   '❌ Not quite. The correct one is <code>boolean isActive = true;</code>. Option 1 starts with a digit (invalid name). Option 2 uses single quotes for String (must be double). Option 4 has reversed syntax.'
+  },
+  3: {
+    correct: '✅ Correct! The default value for <code>boolean</code> is <code>false</code>. For <code>int</code> it\'s 0, for <code>double</code> it\'s 0.0, and for <code>String</code> (object) it\'s <code>null</code>.',
+    wrong:   '❌ Not quite. <code>boolean</code> defaults to <code>false</code> in Java. <code>null</code> is for objects, <code>0</code> is for int, and <code>true</code> is not the default.'
+  },
+  4: {
+    correct: '✅ Correct! <code>char</code> is a primitive holding exactly one character with single quotes. <code>String</code> is a class (non-primitive) holding a sequence of characters with double quotes.',
+    wrong:   '❌ Not quite. Key differences: <code>char</code> uses single quotes and is primitive; <code>String</code> uses double quotes and is an object (class). Neither is limited to numbers.'
+  }
+};
+
+let quizAnswers   = {};
+let quizCorrect   = 0;
+
+function answerQuiz(qNum, el, isCorrect) {
+  if (quizAnswers[qNum] !== undefined) return;
+
+  quizAnswers[qNum] = isCorrect;
+  if (isCorrect) quizCorrect++;
+
+  const opts = el.closest('.quiz-opts').querySelectorAll('.quiz-opt');
+  opts.forEach(o => o.classList.add('disabled'));
+  el.classList.add(isCorrect ? 'correct' : 'wrong');
+  el.querySelector('span') && (el.querySelector('span').textContent = (isCorrect ? '✓' : '✗'));
+
+  const fb = document.getElementById('qf' + qNum);
+  fb.innerHTML = isCorrect ? quizExplanations[qNum].correct : quizExplanations[qNum].wrong;
+  fb.className = 'quiz-feedback show ' + (isCorrect ? 'correct' : 'wrong');
+
+  // Check if all answered
+  if (Object.keys(quizAnswers).length === 4) showScore();
+}
+
+function showScore() {
+  const box = document.getElementById('scoreBox');
+  const num = document.getElementById('scoreNum');
+  const lbl = document.getElementById('scoreLabel');
+  num.textContent  = `${quizCorrect}/4`;
+  num.style.color  = quizCorrect === 4 ? 'var(--accent3)' : quizCorrect >= 2 ? 'var(--accent)' : 'var(--accent4)';
+  lbl.textContent  = quizCorrect === 4 ? '🎉 Perfect! You\'ve got a solid grasp of data types.' :
+                     quizCorrect >= 2   ? '👍 Good job! Review the ones you missed.' :
+                                          '📖 Revisit the Data Types tab and try again.';
+  box.classList.add('show');
+}
+
+function retakeQuiz() {
+  quizAnswers = {};
+  quizCorrect = 0;
+  document.getElementById('scoreBox').classList.remove('show');
+  document.querySelectorAll('.quiz-opt').forEach(o => {
+    o.className = 'quiz-opt';
+    if (o.textContent.startsWith('✓') || o.textContent.startsWith('✗')) {
+      o.innerHTML = '⬜ ' + o.innerHTML.replace(/^[✓✗]\s*/, '');
+    }
+  });
+  document.querySelectorAll('.quiz-feedback').forEach(f => {
+    f.className = 'quiz-feedback';
+    f.innerHTML = '';
+  });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1306 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>If-Else Conditions in Java</title>
+<style>
+  /* ── TOKENS ─────────────────────────────────────────────── */
+  :root {
+    --bg:        #0d1117;
+    --surface:   #161b22;
+    --surface2:  #1f2937;
+    --border:    #30363d;
+    --accent:    #f89820;
+    --accent2:   #4fa3e0;
+    --accent3:   #58d68d;
+    --accent4:   #e74c3c;
+    --accent5:   #c678dd;
+    --text:      #e6edf3;
+    --text2:     #8b949e;
+    --text3:     #c9d1d9;
+    --tab-bg:    #161b22;
+    --tab-active:#1f2937;
+    --code-bg:   #0d1117;
+    --radius:    10px;
+    --shadow:    0 4px 24px rgba(0,0,0,.45);
+    --font-mono: 'Courier New', Courier, monospace;
+  }
+  [data-theme="light"] {
+    --bg:        #f0f4f8;
+    --surface:   #ffffff;
+    --surface2:  #e8eef5;
+    --border:    #d1d9e0;
+    --text:      #1a202c;
+    --text2:     #4a5568;
+    --text3:     #2d3748;
+    --tab-bg:    #e8eef5;
+    --tab-active:#ffffff;
+    --code-bg:   #e2e8f0;
+    --shadow:    0 4px 24px rgba(0,0,0,.12);
+  }
+
+  /* ── RESET ──────────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    transition: background .3s, color .3s;
+    line-height: 1.65;
+  }
+
+  /* ── HEADER ─────────────────────────────────────────────── */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 62px; position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 1px 0 var(--border);
+  }
+  .logo {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 1.05rem; font-weight: 700; letter-spacing: -.3px;
+  }
+  .logo-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--accent), #e05a00);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 900; color: #fff;
+  }
+  .badge {
+    font-size: .68rem; font-weight: 600; padding: 2px 8px;
+    border-radius: 20px; background: var(--accent2); color: #000;
+    text-transform: uppercase; letter-spacing: .5px;
+  }
+  .header-right { display: flex; align-items: center; gap: 12px; }
+  #themeToggle {
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text); border-radius: 8px; padding: 6px 14px;
+    cursor: pointer; font-size: .85rem; transition: all .2s;
+  }
+  #themeToggle:hover { border-color: var(--accent); color: var(--accent); }
+  .module-nav {
+    display: flex; align-items: center; gap: 6px;
+    font-size: .78rem; color: var(--text2);
+  }
+  .module-nav a {
+    color: var(--accent2); text-decoration: none; font-weight: 600;
+    padding: 4px 10px; border: 1px solid var(--border); border-radius: 6px;
+    transition: all .2s;
+  }
+  .module-nav a:hover { border-color: var(--accent2); background: rgba(79,163,224,.08); }
+
+  /* ── LAYOUT ─────────────────────────────────────────────── */
+  .container { max-width: 1100px; margin: 0 auto; padding: 32px 20px 80px; }
+
+  /* ── HERO ───────────────────────────────────────────────── */
+  .hero {
+    background: linear-gradient(135deg, var(--surface) 0%, var(--surface2) 100%);
+    border: 1px solid var(--border); border-radius: 14px;
+    padding: 36px 40px; margin-bottom: 28px;
+    display: flex; align-items: center; gap: 28px;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: ''; position: absolute; top: -60px; right: -60px;
+    width: 240px; height: 240px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(248,152,32,.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-icon { font-size: 64px; flex-shrink: 0; filter: drop-shadow(0 4px 16px rgba(248,152,32,.4)); }
+  .hero-text h1 { font-size: 1.75rem; font-weight: 800; line-height: 1.2; }
+  .hero-text h1 span { color: var(--accent2); }
+  .hero-text p { color: var(--text2); margin-top: 8px; font-size: .95rem; }
+  .hero-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .pill {
+    padding: 4px 12px; border-radius: 20px; font-size: .78rem; font-weight: 600;
+    border: 1px solid; display: flex; align-items: center; gap: 5px;
+  }
+  .pill-orange { color: var(--accent);  border-color: rgba(248,152,32,.35); background: rgba(248,152,32,.08); }
+  .pill-blue   { color: var(--accent2); border-color: rgba(79,163,224,.35);  background: rgba(79,163,224,.08); }
+  .pill-green  { color: var(--accent3); border-color: rgba(88,214,141,.35);  background: rgba(88,214,141,.08); }
+  .pill-purple { color: var(--accent5); border-color: rgba(198,120,221,.35); background: rgba(198,120,221,.08); }
+
+  /* ── BREADCRUMB ─────────────────────────────────────────── */
+  .breadcrumb {
+    display: flex; align-items: center; gap: 8px;
+    font-size: .8rem; color: var(--text2); margin-bottom: 20px;
+  }
+  .breadcrumb span { color: var(--accent2); font-weight: 600; }
+  .breadcrumb .sep { color: var(--border); }
+
+  /* ── TABS ───────────────────────────────────────────────── */
+  .tabs-wrapper {
+    background: var(--tab-bg); border: 1px solid var(--border);
+    border-radius: 12px; overflow: hidden;
+  }
+  .tab-nav {
+    display: flex; overflow-x: auto;
+    border-bottom: 1px solid var(--border);
+    scrollbar-width: none;
+  }
+  .tab-nav::-webkit-scrollbar { display: none; }
+  .tab-btn {
+    flex-shrink: 0; padding: 14px 22px;
+    background: none; border: none;
+    color: var(--text2); font-size: .88rem; font-weight: 600;
+    cursor: pointer; position: relative;
+    transition: color .2s; letter-spacing: .1px;
+    display: flex; align-items: center; gap: 7px;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: var(--accent2); background: var(--tab-active); }
+  .tab-btn.active::after {
+    content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+    height: 2px; background: var(--accent2); border-radius: 2px 2px 0 0;
+  }
+  .tab-icon { font-size: 1rem; }
+  .tab-content { display: none; padding: 32px; }
+  .tab-content.active { display: block; animation: fadeIn .25s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  /* ── SECTION HEADINGS ───────────────────────────────────── */
+  .section-title {
+    font-size: 1.2rem; font-weight: 800; margin-bottom: 6px;
+    display: flex; align-items: center; gap: 9px;
+  }
+  .section-title .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent2); }
+  .section-title .dot-orange { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
+  .section-sub { color: var(--text2); font-size: .9rem; margin-bottom: 22px; }
+
+  /* ── CARDS ──────────────────────────────────────────────── */
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px,1fr)); gap: 16px; margin-bottom: 28px; }
+  .card {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px;
+    transition: border-color .2s, transform .2s;
+  }
+  .card:hover { border-color: var(--accent2); transform: translateY(-2px); }
+  .card-icon { font-size: 1.6rem; margin-bottom: 10px; }
+  .card h3 { font-size: .95rem; font-weight: 700; margin-bottom: 6px; }
+  .card p { font-size: .83rem; color: var(--text2); line-height: 1.55; }
+  .card code {
+    font-family: var(--font-mono); font-size: .78rem;
+    background: var(--code-bg); padding: 1px 6px; border-radius: 4px;
+    color: var(--accent3); border: 1px solid var(--border);
+  }
+
+  /* ── INFO BOX ───────────────────────────────────────────── */
+  .info-box {
+    border-radius: var(--radius); padding: 16px 20px;
+    font-size: .875rem; margin-bottom: 20px;
+    border-left: 4px solid; display: flex; gap: 12px; align-items: flex-start;
+  }
+  .info-box .ib-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 1px; }
+  .info-box.blue   { background: rgba(79,163,224,.1);  border-color: var(--accent2); }
+  .info-box.orange { background: rgba(248,152,32,.1);  border-color: var(--accent);  }
+  .info-box.green  { background: rgba(88,214,141,.1);  border-color: var(--accent3); }
+  .info-box.red    { background: rgba(231,76,60,.1);   border-color: var(--accent4); }
+  .info-box.purple { background: rgba(198,120,221,.1); border-color: var(--accent5); }
+
+  /* ── CODE BLOCK ─────────────────────────────────────────── */
+  .code-wrap {
+    background: var(--code-bg); border: 1px solid var(--border);
+    border-radius: var(--radius); overflow: hidden; margin: 16px 0;
+  }
+  .code-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 16px; border-bottom: 1px solid var(--border);
+    background: rgba(255,255,255,.03);
+  }
+  .code-lang { font-size: .75rem; color: var(--text2); font-weight: 600; display: flex; align-items: center; gap: 8px; }
+  .code-dots { display: flex; gap: 5px; }
+  .code-dots span { width: 11px; height: 11px; border-radius: 50%; }
+  .code-dots .r { background: #ff5f57; }
+  .code-dots .y { background: #ffbd2e; }
+  .code-dots .g { background: #28c840; }
+  pre {
+    padding: 20px; overflow-x: auto; font-family: var(--font-mono);
+    font-size: .85rem; line-height: 1.75; color: #abb2bf;
+  }
+  pre code { background: none; border: none; padding: 0; font-size: inherit; color: inherit; }
+  .kw  { color: #c678dd; font-weight: 600; }
+  .cls { color: #e5c07b; }
+  .fn  { color: #61afef; }
+  .str { color: #98c379; }
+  .cmt { color: #5c6370; font-style: italic; }
+  .num { color: #d19a66; }
+  .op  { color: #56b6c2; }
+
+  /* ── STEPS ──────────────────────────────────────────────── */
+  .steps { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+  .step {
+    display: flex; gap: 14px; align-items: flex-start;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 18px;
+    transition: border-color .2s;
+  }
+  .step:hover { border-color: var(--accent2); }
+  .step-num {
+    flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%;
+    background: var(--accent2); color: #000; font-weight: 800; font-size: .8rem;
+    display: flex; align-items: center; justify-content: center; margin-top: 1px;
+  }
+  .step-body h4 { font-size: .9rem; font-weight: 700; margin-bottom: 3px; }
+  .step-body p  { font-size: .83rem; color: var(--text2); }
+  .step-body code {
+    font-family: var(--font-mono); font-size: .8rem;
+    background: var(--code-bg); padding: 1px 6px; border-radius: 4px;
+    color: var(--accent3); border: 1px solid var(--border);
+  }
+
+  /* ── SYNTAX ANATOMY (reused from Module 2) ──────────────── */
+  .syntax-anatomy {
+    background: var(--code-bg); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 24px 28px; margin: 20px 0;
+    font-family: var(--font-mono); font-size: 1rem; text-align: center;
+  }
+  .syntax-row {
+    display: flex; align-items: flex-start; justify-content: center;
+    flex-wrap: wrap; gap: 8px;
+  }
+  .syn-part { position: relative; display: inline-flex; flex-direction: column; align-items: center; }
+  .syn-token {
+    padding: 6px 14px; border-radius: 7px; font-weight: 700; font-size: .9rem;
+    border: 2px solid transparent; cursor: default; transition: transform .15s;
+  }
+  .syn-token:hover { transform: translateY(-2px); }
+  .syn-label {
+    font-family: 'Segoe UI', sans-serif; font-size: .65rem; font-weight: 600;
+    margin-top: 7px; text-transform: uppercase; letter-spacing: .5px; color: var(--text2);
+  }
+  .st-kw     { background: rgba(198,120,221,.18); border-color: rgba(198,120,221,.4); color: #c678dd; }
+  .st-cond   { background: rgba(79,163,224,.18);  border-color: rgba(79,163,224,.4);  color: #4fa3e0; }
+  .st-block  { background: rgba(86,182,194,.18);  border-color: rgba(86,182,194,.4);  color: #56b6c2; }
+  .st-else   { background: rgba(248,152,32,.18);  border-color: rgba(248,152,32,.4);  color: var(--accent); }
+
+  /* ── FLOW DIAGRAM ────────────────────────────────────────── */
+  .flow-diagram {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 28px 20px; margin: 20px 0;
+  }
+  .flow-diagram-inner {
+    display: flex; flex-direction: column; align-items: center; gap: 0;
+  }
+  .fnode {
+    text-align: center; padding: 10px 24px; border-radius: 8px; border: 2px solid;
+    font-size: .84rem; font-weight: 600; font-family: var(--font-mono);
+    min-width: 200px; transition: all .4s ease; position: relative;
+  }
+  .fnode.start  { border-color: var(--accent3); color: var(--accent3); background: rgba(88,214,141,.08); border-radius: 50px; }
+  .fnode.end    { border-color: var(--accent3); color: var(--accent3); background: rgba(88,214,141,.08); border-radius: 50px; }
+  .fnode.cond   { border-color: var(--accent2); color: var(--accent2); background: rgba(79,163,224,.08); transform: rotate(0); clip-path: polygon(50% 0%,100% 50%,50% 100%,0% 50%); min-width: 240px; padding: 22px 40px; }
+  .fnode.act-a  { border-color: var(--accent3); color: var(--accent3); background: rgba(88,214,141,.08); }
+  .fnode.act-b  { border-color: var(--accent);  color: var(--accent);  background: rgba(248,152,32,.08); }
+  .fnode.act-c  { border-color: var(--accent4); color: var(--accent4); background: rgba(231,76,60,.08); }
+  .fnode.active { box-shadow: 0 0 0 3px rgba(248,152,32,.5), 0 0 20px rgba(248,152,32,.2); transform: scale(1.04); }
+  .fnode.cond.active { transform: scale(1.04); }
+  .farrow { color: var(--text2); font-size: 1.3rem; line-height: 1.2; margin: 2px 0; }
+  .fbranch { display: flex; align-items: flex-start; justify-content: center; gap: 32px; width: 100%; }
+  .fbranch-col { display: flex; flex-direction: column; align-items: center; gap: 0; }
+  .fbranch-label {
+    font-size: .7rem; font-weight: 800; padding: 2px 9px;
+    border-radius: 4px; letter-spacing: .4px; margin: 3px 0;
+  }
+  .lbl-yes { background: rgba(88,214,141,.15); color: var(--accent3); }
+  .lbl-no  { background: rgba(231,76,60,.15);  color: var(--accent4); }
+
+  /* ── PLAYGROUND / SIMULATOR ─────────────────────────────── */
+  .playground {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--radius); overflow: hidden;
+  }
+  .pg-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 13px 20px; background: rgba(255,255,255,.03);
+    border-bottom: 1px solid var(--border); font-weight: 700; font-size: .88rem;
+  }
+  .pg-body { padding: 24px; }
+  .pg-row { display: grid; grid-template-columns: 180px 1fr; gap: 12px; margin-bottom: 14px; align-items: center; }
+  .pg-label { font-size: .82rem; font-weight: 700; color: var(--text2); }
+  .pg-select, .pg-input {
+    width: 100%; padding: 10px 14px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--code-bg);
+    color: var(--text); font-size: .88rem; font-family: var(--font-mono);
+    outline: none; transition: border-color .2s;
+  }
+  .pg-select:focus, .pg-input:focus { border-color: var(--accent2); }
+  .pg-select option { background: var(--surface); }
+
+  .result-pills { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; min-height: 36px; }
+  .rpill {
+    display: flex; align-items: center; gap: 6px;
+    padding: 6px 14px; border-radius: 20px; font-size: .82rem; font-weight: 600;
+    border: 1px solid; animation: fadeIn .2s ease;
+  }
+  .rpill-success { background: rgba(88,214,141,.12); border-color: rgba(88,214,141,.4); color: var(--accent3); }
+  .rpill-error   { background: rgba(231,76,60,.12);  border-color: rgba(231,76,60,.4);  color: var(--accent4); }
+  .rpill-info    { background: rgba(79,163,224,.12); border-color: rgba(79,163,224,.4); color: var(--accent2); }
+  .rpill-warn    { background: rgba(248,152,32,.12); border-color: rgba(248,152,32,.4); color: var(--accent); }
+
+  .pg-output {
+    background: var(--code-bg); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 20px;
+    font-family: var(--font-mono); font-size: .875rem; min-height: 80px;
+    line-height: 1.75; color: #abb2bf; transition: border-color .3s;
+  }
+  .pg-output.ok  { border-color: rgba(88,214,141,.35); }
+  .pg-output.err { border-color: rgba(231,76,60,.35); }
+
+  .btn-validate {
+    background: linear-gradient(135deg, var(--accent2), #2980b9);
+    color: #fff; border: none; border-radius: 8px;
+    padding: 10px 28px; font-weight: 800; font-size: .9rem;
+    cursor: pointer; transition: opacity .2s, transform .2s;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .btn-validate:hover { opacity: .88; transform: translateY(-1px); }
+  .btn-clear {
+    background: none; border: 1px solid var(--border); color: var(--text2);
+    border-radius: 8px; padding: 10px 20px; font-size: .875rem;
+    cursor: pointer; transition: all .2s;
+  }
+  .btn-clear:hover { border-color: var(--text2); color: var(--text); }
+
+  /* ── CONDITION TRACE LIST ────────────────────────────────── */
+  .cond-trace { display: flex; flex-direction: column; gap: 8px; margin: 16px 0; }
+  .ct-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 11px 16px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--bg);
+    font-family: var(--font-mono); font-size: .83rem;
+    transition: all .3s;
+  }
+  .ct-kw   { flex-shrink: 0; font-size: .72rem; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; color: var(--text2); width: 58px; }
+  .ct-expr { flex: 1; color: var(--text3); }
+  .ct-badge {
+    flex-shrink: 0; font-size: .7rem; font-weight: 700;
+    padding: 2px 10px; border-radius: 10px; min-width: 54px; text-align: center;
+  }
+  .ct-row.state-run  { border-color: var(--accent3); background: rgba(88,214,141,.08); }
+  .ct-row.state-run .ct-kw   { color: var(--accent3); }
+  .ct-row.state-run .ct-badge { background: rgba(88,214,141,.2); color: var(--accent3); }
+  .ct-row.state-skip { opacity: .42; }
+  .ct-row.state-skip .ct-badge { background: rgba(231,76,60,.15); color: var(--accent4); }
+  .ct-row.state-else { border-color: var(--accent); background: rgba(248,152,32,.08); }
+  .ct-row.state-else .ct-kw   { color: var(--accent); }
+  .ct-row.state-else .ct-badge { background: rgba(248,152,32,.2); color: var(--accent); }
+
+  /* ── ERROR PANEL ────────────────────────────────────────── */
+  .err-sim-btns { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
+  .err-btn {
+    padding: 8px 18px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--surface2); color: var(--text); font-size: .84rem;
+    font-weight: 600; cursor: pointer; transition: all .2s;
+    display: flex; align-items: center; gap: 7px;
+  }
+  .err-btn:hover  { border-color: var(--accent4); color: var(--accent4); }
+  .err-btn.active { background: rgba(231,76,60,.15); border-color: var(--accent4); color: var(--accent4); }
+  .err-panel { display: none; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .err-panel.active { display: block; animation: fadeIn .2s ease; }
+  .err-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 18px; background: rgba(231,76,60,.12);
+    border-bottom: 1px solid var(--border); font-size: .875rem; font-weight: 700; color: var(--accent4);
+  }
+  .err-body { padding: 20px; }
+  .err-body h4 { font-size: .9rem; font-weight: 700; margin-bottom: 8px; }
+  .err-body p  { font-size: .85rem; color: var(--text2); margin-bottom: 12px; }
+  .err-msg {
+    font-family: var(--font-mono); font-size: .8rem;
+    background: var(--code-bg); border: 1px solid rgba(231,76,60,.3);
+    border-radius: 7px; padding: 12px 16px; color: #ff6b6b;
+    margin-bottom: 14px; white-space: pre; overflow-x: auto;
+  }
+  .code-diff { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0; }
+  .diff-wrong, .diff-right { border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
+  .diff-label { padding: 7px 12px; font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
+  .diff-wrong .diff-label { background: rgba(231,76,60,.15); color: var(--accent4); }
+  .diff-right .diff-label { background: rgba(88,214,141,.15); color: var(--accent3); }
+  .diff-code {
+    padding: 12px 14px; font-family: var(--font-mono); font-size: .8rem;
+    background: var(--code-bg); line-height: 1.7; color: #abb2bf;
+    white-space: pre; overflow-x: auto;
+  }
+  .fix-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(88,214,141,.1); border: 1px solid rgba(88,214,141,.3);
+    color: var(--accent3); border-radius: 6px; padding: 5px 12px;
+    font-size: .82rem; font-weight: 600; margin-top: 4px;
+  }
+
+  /* ── QUIZ ─────────────────────────────────────────────────── */
+  .quiz-container { display: flex; flex-direction: column; gap: 24px; }
+  .quiz-block {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 22px 24px; transition: border-color .2s;
+  }
+  .quiz-num { font-size: .72rem; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+  .quiz-q { font-weight: 700; font-size: .92rem; margin-bottom: 14px; line-height: 1.5; }
+  .quiz-opts { display: flex; flex-direction: column; gap: 9px; }
+  .quiz-opt {
+    padding: 10px 16px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--bg); font-size: .875rem; cursor: pointer; transition: all .2s;
+    display: flex; align-items: center; gap: 10px; text-align: left;
+  }
+  .quiz-opt:hover:not(.correct):not(.wrong) { border-color: var(--accent2); background: rgba(79,163,224,.05); }
+  .quiz-opt.correct { border-color: var(--accent3); background: rgba(88,214,141,.1); color: var(--accent3); pointer-events: none; }
+  .quiz-opt.wrong   { border-color: var(--accent4); background: rgba(231,76,60,.08); color: var(--accent4); pointer-events: none; }
+  .quiz-opt.disabled { pointer-events: none; opacity: .55; }
+  .quiz-feedback { margin-top: 12px; font-size: .845rem; padding: 10px 14px; border-radius: 7px; display: none; }
+  .quiz-feedback.show { display: block; animation: fadeIn .2s; }
+  .quiz-feedback.correct { background: rgba(88,214,141,.1); color: var(--accent3); border: 1px solid rgba(88,214,141,.25); }
+  .quiz-feedback.wrong   { background: rgba(231,76,60,.08);  color: var(--accent4); border: 1px solid rgba(231,76,60,.2); }
+  .quiz-code { font-family: var(--font-mono); background: var(--code-bg); color: var(--text); padding: 1px 7px; border-radius: 4px; font-size: .85em; border: 1px solid var(--border); }
+  [data-theme="light"] .quiz-code { background: #dde4ee; color: #1a202c; border-color: #c4cdd9; }
+  [data-theme="light"] .card code { background: #dde4ee; color: #1a202c; border-color: #c4cdd9; }
+  [data-theme="light"] .step-body code { background: #dde4ee; color: #1a202c; border-color: #c4cdd9; }
+  [data-theme="light"] .info-box code { background: #dde4ee; color: #1a202c; border-color: #c4cdd9; }
+  [data-theme="light"] .pg-output { color: #2d3748; }
+  [data-theme="light"] pre { color: #2d3748; }
+
+  /* ── SCORE SUMMARY ──────────────────────────────────────── */
+  .score-box {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 24px; text-align: center;
+    display: none; margin-top: 24px;
+  }
+  .score-box.show { display: block; animation: fadeIn .3s ease; }
+  .score-num { font-size: 3rem; font-weight: 900; line-height: 1; }
+  .score-label { color: var(--text2); font-size: .9rem; margin-top: 6px; margin-bottom: 16px; }
+  .btn-retake {
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text); border-radius: 8px; padding: 9px 24px;
+    font-size: .875rem; font-weight: 700; cursor: pointer; transition: all .2s;
+  }
+  .btn-retake:hover { border-color: var(--accent2); color: var(--accent2); }
+
+  /* ── RESPONSIVE ─────────────────────────────────────────── */
+  @media (max-width: 700px) {
+    .hero { flex-direction: column; padding: 24px 20px; }
+    .tab-btn { padding: 12px 14px; font-size: .8rem; }
+    .tab-content { padding: 20px 16px; }
+    .hero-text h1 { font-size: 1.35rem; }
+    .code-diff, .pg-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ─────────────────────────────────────────────── -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">J</div>
+    Java Essentials
+    <span class="badge">Module 3</span>
+  </div>
+  <div class="header-right">
+    <div class="module-nav">
+      <span>◀</span>
+      <a href="#">Module 2</a>
+      <span style="color:var(--text)">Module 3</span>
+      <a href="#">Module 4 ▶</a>
+    </div>
+    <button id="themeToggle" onclick="toggleTheme()">☀ Light</button>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- BREADCRUMB -->
+  <div class="breadcrumb">
+    Java Essentials <span class="sep">›</span> Module 3 <span class="sep">›</span> <span>If-Else Conditions</span>
+  </div>
+
+  <!-- ── HERO ──────────────────────────────────────────────── -->
+  <div class="hero">
+    <div class="hero-icon">🔀</div>
+    <div class="hero-text">
+      <h1>If-Else <span>Conditions</span> in Java</h1>
+      <p>Control which code runs and when — from simple checks to multi-branch ladders used in every real automation workflow.</p>
+      <div class="hero-pills">
+        <span class="pill pill-orange">🔀 Decision Logic</span>
+        <span class="pill pill-blue">⚙ Automation Ready</span>
+        <span class="pill pill-green">✅ Branching</span>
+        <span class="pill pill-purple">⚡ Interactive</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TABS ──────────────────────────────────────────────── -->
+  <div class="tabs-wrapper">
+    <div class="tab-nav">
+      <button class="tab-btn active" onclick="switchTab('basics',this)"><span class="tab-icon">📘</span> Basics</button>
+      <button class="tab-btn" onclick="switchTab('syntax',this)"><span class="tab-icon">🔁</span> Syntax &amp; Flow</button>
+      <button class="tab-btn" onclick="switchTab('simulator',this)"><span class="tab-icon">⚙</span> Live Simulator</button>
+      <button class="tab-btn" onclick="switchTab('errors',this)"><span class="tab-icon">❌</span> Common Errors</button>
+      <button class="tab-btn" onclick="switchTab('quiz',this)"><span class="tab-icon">🧠</span> Quick Check</button>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         TAB 1 — BASICS
+    ═══════════════════════════════════════════════════════ -->
+    <div id="tab-basics" class="tab-content active">
+
+      <div class="section-title"><span class="dot"></span> What is Decision Making in Programming?</div>
+      <p class="section-sub">Real programs don't run the same path every time. <strong>Conditions</strong> let your code choose what to do next based on data — this is the engine behind all automation logic.</p>
+
+      <div class="info-box blue">
+        <span class="ib-icon">💡</span>
+        <div>
+          <strong>Real-world analogy:</strong> Think of a traffic light.
+          <em>If</em> it's <strong>Green</strong> → you drive. <em>Else if</em> it's <strong>Yellow</strong> → slow down. <em>Else</em> → stop.
+          Java's <code class="quiz-code">if / else if / else</code> routes your program the same way — only the matching branch runs, all others are skipped.
+        </div>
+      </div>
+
+      <div class="cards">
+        <div class="card">
+          <div class="card-icon">🔀</div>
+          <h3>Decision Making</h3>
+          <p><code>if-else</code> lets your program act differently depending on whether a condition is <strong>true</strong> or <strong>false</strong> at runtime.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🌿</div>
+          <h3>Branching Paths</h3>
+          <p>Code splits into branches. Only the first matching branch executes — all others are completely skipped by the JVM.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🔗</div>
+          <h3>Chained Conditions</h3>
+          <p>The <code>else if</code> ladder checks multiple conditions in sequence. First true match wins — the rest are ignored.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🛡</div>
+          <h3>Safe Fallback</h3>
+          <p>The final <code>else</code> block is your default. It only runs when no condition above was true. Never skip it in production code.</p>
+        </div>
+      </div>
+
+      <div class="section-title" style="margin-top:4px"><span class="dot"></span> How Automation Uses If-Else</div>
+      <p class="section-sub">In every automation framework, conditional logic drives these three core patterns:</p>
+
+      <ul class="steps">
+        <li class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <h4>Validation</h4>
+            <p>Check whether inputs are valid before proceeding. Example: <code>if (field.isEmpty()) { flagError(); }</code></p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <h4>Branching</h4>
+            <p>Navigate different flows based on state. Example: <code>if (isLoggedIn) { goToDashboard(); } else { redirectToLogin(); }</code></p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <h4>Result Handling</h4>
+            <p>Evaluate responses and mark test outcomes. Example: <code>if (statusCode == 200) { pass(); } else { logFailure(); }</code></p>
+          </div>
+        </li>
+      </ul>
+
+      <div class="info-box green" style="margin-top:4px">
+        <span class="ib-icon">🚀</span>
+        <div><strong>Pro tip:</strong> In Selenium, REST Assured and TestNG — 90% of your assertion logic uses <code class="quiz-code">if-else</code> directly, or through <code class="quiz-code">assert</code> methods that wrap it internally. Nail this now and your test code will be readable from day one.</div>
+      </div>
+
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         TAB 2 — SYNTAX & FLOW
+    ═══════════════════════════════════════════════════════ -->
+    <div id="tab-syntax" class="tab-content">
+
+      <div class="section-title"><span class="dot"></span> Syntax Anatomy</div>
+      <p class="section-sub">Every <code class="quiz-code">if</code> statement has the same structure. Understand this once — it covers all three forms.</p>
+
+      <div class="syntax-anatomy">
+        <div class="syntax-row">
+          <div class="syn-part">
+            <span class="syn-token st-kw">if</span>
+            <span class="syn-label">Keyword</span>
+          </div>
+          <div class="syn-part">
+            <span class="syn-token st-cond">&nbsp;( marks &gt; 90 )&nbsp;</span>
+            <span class="syn-label">Boolean Condition</span>
+          </div>
+          <div class="syn-part">
+            <span class="syn-token st-block">&nbsp;{ ... }&nbsp;</span>
+            <span class="syn-label">Block (runs if true)</span>
+          </div>
+          <div class="syn-part">
+            <span class="syn-token st-else">else { ... }</span>
+            <span class="syn-label">Fallback (runs if false)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form 1 -->
+      <div class="section-title" style="font-size:1rem;margin-top:8px"><span class="dot"></span> Form 1 — Simple <code class="quiz-code">if</code></div>
+      <p class="section-sub">Runs a block only when the condition is true. Skips it silently when false.</p>
+      <div class="code-wrap">
+        <div class="code-header">
+          <div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+          <div class="code-lang">☕ Simple if Statement</div>
+        </div>
+        <pre><code><span class="kw">int</span> score <span class="op">=</span> <span class="num">85</span>;
+
+<span class="kw">if</span> (score <span class="op">&gt;=</span> <span class="num">90</span>) {
+    <span class="cmt">// runs only when score is 90 or above</span>
+    <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Excellent!"</span>);
+}
+<span class="cmt">// score = 85 → condition is FALSE → nothing prints</span></code></pre>
+      </div>
+
+      <!-- Form 2 -->
+      <div class="section-title" style="font-size:1rem;margin-top:24px"><span class="dot"></span> Form 2 — <code class="quiz-code">if-else</code></div>
+      <p class="section-sub">Two-way branch. One path runs when true, the other when false. Always exactly one executes.</p>
+      <div class="code-wrap">
+        <div class="code-header">
+          <div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+          <div class="code-lang">☕ if-else Statement</div>
+        </div>
+        <pre><code><span class="kw">int</span> score <span class="op">=</span> <span class="num">45</span>;
+
+<span class="kw">if</span> (score <span class="op">&gt;=</span> <span class="num">50</span>) {
+    <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"PASSED ✅"</span>);
+} <span class="kw">else</span> {
+    <span class="cmt">// runs when the if-condition is false</span>
+    <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"FAILED ❌"</span>);
+}
+<span class="cmt">// Output: FAILED ❌  (45 &lt; 50)</span></code></pre>
+      </div>
+
+      <!-- Form 3 -->
+      <div class="section-title" style="font-size:1rem;margin-top:24px"><span class="dot"></span> Form 3 — <code class="quiz-code">if-else-if</code> Ladder</div>
+      <p class="section-sub">Multiple mutually exclusive branches. Java evaluates top-to-bottom and stops at the first true match.</p>
+      <div class="code-wrap">
+        <div class="code-header">
+          <div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+          <div class="code-lang">☕ if-else-if Ladder</div>
+        </div>
+        <pre><code><span class="kw">int</span> marks <span class="op">=</span> <span class="num">75</span>;
+
+<span class="kw">if</span> (marks <span class="op">&gt;</span> <span class="num">90</span>) {
+    <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Grade A — Distinction"</span>);
+} <span class="kw">else if</span> (marks <span class="op">&gt;</span> <span class="num">60</span>) {     <span class="cmt">// ← only checked if above was false</span>
+    <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Grade B — Pass"</span>);
+} <span class="kw">else</span> {                          <span class="cmt">// ← fallback for everything else</span>
+    <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Grade C — Fail"</span>);
+}
+
+<span class="cmt">// marks=75: (75&gt;90)=false → (75&gt;60)=TRUE → "Grade B — Pass"</span></code></pre>
+      </div>
+
+      <!-- FLOW VISUALIZATION -->
+      <div class="section-title" style="margin-top:28px"><span class="dot-orange"></span> Flow Visualization — Step-by-Step</div>
+      <p class="section-sub">Click <strong>Trace Execution</strong> to watch Java evaluate the ladder for <code class="quiz-code">marks = 75</code> in real time.</p>
+
+      <div class="flow-diagram">
+        <div class="flow-diagram-inner">
+
+          <div class="fnode start" id="fn-start">▶ START &nbsp;|&nbsp; marks = 75</div>
+          <div class="farrow">↓</div>
+
+          <div class="fnode cond" id="fn-c1">marks &gt; 90 ?</div>
+
+          <div class="fbranch" style="margin-top:4px;">
+            <!-- YES branch (left) -->
+            <div class="fbranch-col">
+              <div class="farrow">↙</div>
+              <div class="fbranch-label lbl-yes">YES</div>
+              <div class="fnode act-a" id="fn-a1">Grade A — Distinction</div>
+            </div>
+            <!-- NO branch (right) -->
+            <div class="fbranch-col" style="margin-top:0">
+              <div class="farrow">↓</div>
+              <div class="fbranch-label lbl-no">NO</div>
+              <div class="fnode cond" id="fn-c2">marks &gt; 60 ?</div>
+              <div class="fbranch" style="margin-top:4px;">
+                <div class="fbranch-col">
+                  <div class="farrow">↙</div>
+                  <div class="fbranch-label lbl-yes">YES</div>
+                  <div class="fnode act-b" id="fn-a2">Grade B — Pass</div>
+                </div>
+                <div class="fbranch-col">
+                  <div class="farrow">↓</div>
+                  <div class="fbranch-label lbl-no">NO</div>
+                  <div class="fnode act-c" id="fn-a3">Grade C — Fail</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="farrow" style="margin-top:8px">↓</div>
+          <div class="fnode end" id="fn-end">✅ END — Program Continues</div>
+
+        </div>
+
+        <div style="text-align:center;margin-top:24px;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap">
+          <button class="btn-validate" onclick="traceFlow()" id="traceBtn">▶ Trace Execution (marks = 75)</button>
+          <button class="btn-clear" onclick="resetTrace()">↺ Reset</button>
+        </div>
+        <div class="result-pills" id="tracePills" style="justify-content:center;margin-bottom:0;min-height:0;margin-top:14px;"></div>
+      </div>
+
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         TAB 3 — LIVE SIMULATOR
+    ═══════════════════════════════════════════════════════ -->
+    <div id="tab-simulator" class="tab-content">
+
+      <div class="section-title"><span class="dot"></span> Live Decision Simulator</div>
+      <p class="section-sub">Select a scenario, enter a value, and watch the condition ladder evaluate step by step — with highlighted results.</p>
+
+      <div class="playground">
+        <div class="pg-header">
+          <span>⚙ Decision Engine</span>
+          <span style="font-size:.78rem;font-weight:400;color:var(--text2)">Simulates Java if-else-if runtime evaluation</span>
+        </div>
+        <div class="pg-body">
+
+          <div class="pg-row">
+            <div class="pg-label">① Scenario</div>
+            <select class="pg-select" id="simScenario" onchange="resetSim()">
+              <option value="grade">Exam Grade (0–100)</option>
+              <option value="age">Age Category</option>
+              <option value="login">Login Attempt Validator</option>
+              <option value="speed">Speed Limit Checker</option>
+            </select>
+          </div>
+
+          <div class="pg-row">
+            <div class="pg-label">② Enter Value</div>
+            <input class="pg-input" id="simInput" type="number" value="75" placeholder="Enter a number..." />
+          </div>
+
+          <div style="display:flex;gap:10px;margin-bottom:20px;margin-top:4px;">
+            <button class="btn-validate" onclick="runSim()">▶&nbsp; Evaluate</button>
+            <button class="btn-clear" onclick="resetSim()">↺ Reset</button>
+          </div>
+
+          <div style="font-size:.75rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Condition Trace</div>
+          <div class="cond-trace" id="condTrace">
+            <div class="ct-row" style="opacity:.4">
+              <span class="ct-kw">IF</span>
+              <span class="ct-expr">— press Evaluate to start —</span>
+              <span class="ct-badge"></span>
+            </div>
+          </div>
+
+          <div style="font-size:.75rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;margin-top:4px;">Result</div>
+          <div class="result-pills" id="simPills" style="margin-top:0;margin-bottom:16px;min-height:36px;">
+            <span style="color:var(--text2);font-size:.85rem;">Run a scenario to see result.</span>
+          </div>
+
+          <div style="font-size:.75rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Console Output</div>
+          <div class="pg-output" id="simOutput">
+            <span style="color:var(--text2);font-size:.82rem;">// Output will appear here after evaluation</span>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         TAB 4 — COMMON ERRORS
+    ═══════════════════════════════════════════════════════ -->
+    <div id="tab-errors" class="tab-content">
+
+      <div class="section-title"><span class="dot"></span> Common If-Else Mistakes</div>
+      <p class="section-sub">These errors come up constantly — in beginner code and real automation projects alike. Learn to spot and fix them.</p>
+
+      <div class="err-sim-btns">
+        <button class="err-btn active" onclick="showError('assign',this)">⚠ = instead of ==</button>
+        <button class="err-btn" onclick="showError('braces',this)">⚠ Missing Braces</button>
+        <button class="err-btn" onclick="showError('order',this)">⚠ Wrong Condition Order</button>
+        <button class="err-btn" onclick="showError('logic',this)">⚠ Logical Mistake</button>
+      </div>
+
+      <!-- ERROR 1: = vs == -->
+      <div class="err-panel active" id="err-assign">
+        <div class="err-header">🔴 Error: Using assignment <code class="quiz-code">=</code> instead of comparison <code class="quiz-code">==</code></div>
+        <div class="err-body">
+          <h4>What went wrong?</h4>
+          <p>A single <code class="quiz-code">=</code> assigns a value — it does not compare. Java throws a compile error when you use it inside an <code class="quiz-code">if</code> condition for primitives, but for booleans it silently always evaluates to <code class="quiz-code">true</code>.</p>
+          <div class="err-msg">error: incompatible types: int cannot be converted to boolean
+    if (statusCode = 200)
+                  ^</div>
+          <div class="code-diff">
+            <div class="diff-wrong">
+              <div class="diff-label">❌ Wrong</div>
+              <div class="diff-code"><span class="kw">int</span> statusCode <span class="op">=</span> <span class="num">200</span>;
+
+<span class="kw">if</span> (statusCode <span style="color:#e74c3c;font-weight:900">=</span> <span class="num">200</span>) {   <span class="cmt">// ❌ assignment!</span>
+    System.out.<span class="fn">println</span>(<span class="str">"OK"</span>);
+}</div>
+            </div>
+            <div class="diff-right">
+              <div class="diff-label">✅ Correct</div>
+              <div class="diff-code"><span class="kw">int</span> statusCode <span class="op">=</span> <span class="num">200</span>;
+
+<span class="kw">if</span> (statusCode <span style="color:#58d68d;font-weight:900">==</span> <span class="num">200</span>) {  <span class="cmt">// ✅ comparison</span>
+    System.out.<span class="fn">println</span>(<span class="str">"OK"</span>);
+}</div>
+            </div>
+          </div>
+          <div class="fix-tag">✅ Rule: Use <code class="quiz-code">==</code> to compare. Use <code class="quiz-code">=</code> only to assign. They are completely different operations.</div>
+        </div>
+      </div>
+
+      <!-- ERROR 2: Missing braces -->
+      <div class="err-panel" id="err-braces">
+        <div class="err-header">🔴 Error: Missing curly braces <code class="quiz-code">{ }</code></div>
+        <div class="err-body">
+          <h4>What went wrong?</h4>
+          <p>Without braces, only the very next single line belongs to the <code class="quiz-code">if</code>. Every line after it runs unconditionally — a silent bug that is extremely hard to trace.</p>
+          <div class="err-msg">// Bug: "Log error" always runs, even when response != 404
+    if (response == 404)
+        System.out.println("Not Found");    // in the if
+        System.out.println("Log error");    // NOT in the if! ❌</div>
+          <div class="code-diff">
+            <div class="diff-wrong">
+              <div class="diff-label">❌ Wrong</div>
+              <div class="diff-code"><span class="kw">int</span> response <span class="op">=</span> <span class="num">200</span>;
+
+<span class="kw">if</span> (response <span class="op">==</span> <span class="num">404</span>)
+    System.out.<span class="fn">println</span>(<span class="str">"Not Found"</span>);
+    System.out.<span class="fn">println</span>(<span class="str">"Log error"</span>); <span class="cmt">// always runs!</span></div>
+            </div>
+            <div class="diff-right">
+              <div class="diff-label">✅ Correct</div>
+              <div class="diff-code"><span class="kw">int</span> response <span class="op">=</span> <span class="num">200</span>;
+
+<span class="kw">if</span> (response <span class="op">==</span> <span class="num">404</span>) {
+    System.out.<span class="fn">println</span>(<span class="str">"Not Found"</span>);
+    System.out.<span class="fn">println</span>(<span class="str">"Log error"</span>); <span class="cmt">// inside { } ✅</span>
+}</div>
+            </div>
+          </div>
+          <div class="fix-tag">✅ Rule: Always use <code class="quiz-code">{ }</code> even for a single-line block. Add a line later and you won't introduce a bug.</div>
+        </div>
+      </div>
+
+      <!-- ERROR 3: Wrong order -->
+      <div class="err-panel" id="err-order">
+        <div class="err-header">🔴 Error: Broad condition placed before specific condition</div>
+        <div class="err-body">
+          <h4>What went wrong?</h4>
+          <p>Java evaluates top-to-bottom and stops at the first match. A broad condition like <code class="quiz-code">score &gt; 50</code> will catch values that should have matched a narrower condition — making the narrower condition dead code.</p>
+          <div class="err-msg">// Bug: score=85 hits "score > 50" first → prints "Pass"
+// "Merit" and "Distinction" blocks can NEVER be reached</div>
+          <div class="code-diff">
+            <div class="diff-wrong">
+              <div class="diff-label">❌ Wrong — broad first</div>
+              <div class="diff-code"><span class="kw">int</span> score <span class="op">=</span> <span class="num">85</span>;
+
+<span class="kw">if</span> (score <span class="op">&gt;</span> <span class="num">50</span>) {             <span class="cmt">// catches 85 → STOPS</span>
+    System.out.<span class="fn">println</span>(<span class="str">"Pass"</span>);
+} <span class="kw">else if</span> (score <span class="op">&gt;</span> <span class="num">80</span>) {      <span class="cmt">// dead code ❌</span>
+    System.out.<span class="fn">println</span>(<span class="str">"Merit"</span>);
+} <span class="kw">else if</span> (score <span class="op">&gt;</span> <span class="num">90</span>) {      <span class="cmt">// dead code ❌</span>
+    System.out.<span class="fn">println</span>(<span class="str">"Distinction"</span>);
+}</div>
+            </div>
+            <div class="diff-right">
+              <div class="diff-label">✅ Correct — specific first</div>
+              <div class="diff-code"><span class="kw">int</span> score <span class="op">=</span> <span class="num">85</span>;
+
+<span class="kw">if</span> (score <span class="op">&gt;</span> <span class="num">90</span>) {             <span class="cmt">// most specific</span>
+    System.out.<span class="fn">println</span>(<span class="str">"Distinction"</span>);
+} <span class="kw">else if</span> (score <span class="op">&gt;</span> <span class="num">80</span>) {      <span class="cmt">// 85 lands here ✅</span>
+    System.out.<span class="fn">println</span>(<span class="str">"Merit"</span>);
+} <span class="kw">else if</span> (score <span class="op">&gt;</span> <span class="num">50</span>) {
+    System.out.<span class="fn">println</span>(<span class="str">"Pass"</span>);
+}</div>
+            </div>
+          </div>
+          <div class="fix-tag">✅ Rule: Always order from most specific to most general. Narrow conditions first.</div>
+        </div>
+      </div>
+
+      <!-- ERROR 4: Logical mistake -->
+      <div class="err-panel" id="err-logic">
+        <div class="err-header">🔴 Error: Logical mistakes — wrong operator or inverted logic</div>
+        <div class="err-body">
+          <h4>What went wrong?</h4>
+          <p>Using <code class="quiz-code">==</code> to compare <code class="quiz-code">String</code> objects checks memory addresses, not content. And accidentally inverting a condition with or without <code class="quiz-code">!</code> causes the opposite branch to execute.</p>
+          <div class="err-msg">// Bug 1: == on String compares references, not text
+// "admin" literals may or may not share the same reference in memory
+
+// Bug 2: Missing ! means admins are denied instead of non-admins</div>
+          <div class="code-diff">
+            <div class="diff-wrong">
+              <div class="diff-label">❌ Wrong</div>
+              <div class="diff-code"><span class="cls">String</span> role <span class="op">=</span> <span class="str">"admin"</span>;
+
+<span class="kw">if</span> (role <span class="op">==</span> <span class="str">"admin"</span>) { <span class="cmt">// ❌ reference compare</span>
+    grantAccess();
+}
+
+<span class="kw">if</span> (role.<span class="fn">equals</span>(<span class="str">"admin"</span>)) { <span class="cmt">// ❌ blocks admins!</span>
+    System.out.<span class="fn">println</span>(<span class="str">"Access denied"</span>);
+}</div>
+            </div>
+            <div class="diff-right">
+              <div class="diff-label">✅ Correct</div>
+              <div class="diff-code"><span class="cls">String</span> role <span class="op">=</span> <span class="str">"admin"</span>;
+
+<span class="kw">if</span> (role.<span class="fn">equals</span>(<span class="str">"admin"</span>)) { <span class="cmt">// ✅ content compare</span>
+    grantAccess();
+}
+
+<span class="kw">if</span> (!role.<span class="fn">equals</span>(<span class="str">"admin"</span>)) { <span class="cmt">// ✅ denies non-admins</span>
+    System.out.<span class="fn">println</span>(<span class="str">"Access denied"</span>);
+}</div>
+            </div>
+          </div>
+          <div class="fix-tag">✅ Rule: Always use <code class="quiz-code">.equals()</code> for String comparison. Use <code class="quiz-code">!</code> to negate a condition cleanly.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         TAB 5 — QUICK CHECK
+    ═══════════════════════════════════════════════════════ -->
+    <div id="tab-quiz" class="tab-content">
+
+      <div class="section-title"><span class="dot"></span> Quick Check — Test Your Understanding</div>
+      <p class="section-sub">4 questions. Click an option to see instant feedback. No timer, no pressure.</p>
+
+      <div class="quiz-container" id="quizContainer">
+
+        <!-- Q1 -->
+        <div class="quiz-block" id="qb1">
+          <div class="quiz-num">Question 1 of 4</div>
+          <div class="quiz-q">What does the <span class="quiz-code">else</span> block execute?</div>
+          <div class="quiz-opts">
+            <div class="quiz-opt" onclick="answerQuiz(1,this,false)">⬜ Only when the <span class="quiz-code">if</span> condition is true</div>
+            <div class="quiz-opt" onclick="answerQuiz(1,this,true)">⬜ When every preceding <span class="quiz-code">if</span> / <span class="quiz-code">else if</span> condition is false</div>
+            <div class="quiz-opt" onclick="answerQuiz(1,this,false)">⬜ Always, regardless of the conditions</div>
+            <div class="quiz-opt" onclick="answerQuiz(1,this,false)">⬜ Only when the variable is <span class="quiz-code">null</span></div>
+          </div>
+          <div class="quiz-feedback" id="qf1"></div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="quiz-block" id="qb2">
+          <div class="quiz-num">Question 2 of 4</div>
+          <div class="quiz-q">Which operator is correct for <strong>comparison</strong> inside an <span class="quiz-code">if</span> condition in Java?</div>
+          <div class="quiz-opts">
+            <div class="quiz-opt" onclick="answerQuiz(2,this,false)">⬜ <span class="quiz-code">=</span> &nbsp;(single equals)</div>
+            <div class="quiz-opt" onclick="answerQuiz(2,this,false)">⬜ <span class="quiz-code">===</span> (triple equals)</div>
+            <div class="quiz-opt" onclick="answerQuiz(2,this,true)">⬜ <span class="quiz-code">==</span> (double equals)</div>
+            <div class="quiz-opt" onclick="answerQuiz(2,this,false)">⬜ <span class="quiz-code">:=</span> (colon-equals)</div>
+          </div>
+          <div class="quiz-feedback" id="qf2"></div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="quiz-block" id="qb3">
+          <div class="quiz-num">Question 3 of 4</div>
+          <div class="quiz-q">Given <span class="quiz-code">int x = 85;</span> with conditions checked in order: <span class="quiz-code">x &gt; 90</span>, <span class="quiz-code">x &gt; 80</span>, <span class="quiz-code">x &gt; 50</span> — which block executes?</div>
+          <div class="quiz-opts">
+            <div class="quiz-opt" onclick="answerQuiz(3,this,false)">⬜ All three, since 85 satisfies x &gt; 80 and x &gt; 50</div>
+            <div class="quiz-opt" onclick="answerQuiz(3,this,false)">⬜ The <span class="quiz-code">x &gt; 50</span> block — last condition checked</div>
+            <div class="quiz-opt" onclick="answerQuiz(3,this,true)">⬜ The <span class="quiz-code">x &gt; 80</span> block — first true match; ladder stops</div>
+            <div class="quiz-opt" onclick="answerQuiz(3,this,false)">⬜ No block executes</div>
+          </div>
+          <div class="quiz-feedback" id="qf3"></div>
+        </div>
+
+        <!-- Q4 -->
+        <div class="quiz-block" id="qb4">
+          <div class="quiz-num">Question 4 of 4</div>
+          <div class="quiz-q">To compare two <span class="quiz-code">String</span> values in Java inside an <span class="quiz-code">if</span> condition, you should use:</div>
+          <div class="quiz-opts">
+            <div class="quiz-opt" onclick="answerQuiz(4,this,false)">⬜ <span class="quiz-code">str1 == str2</span></div>
+            <div class="quiz-opt" onclick="answerQuiz(4,this,true)">⬜ <span class="quiz-code">str1.equals(str2)</span></div>
+            <div class="quiz-opt" onclick="answerQuiz(4,this,false)">⬜ <span class="quiz-code">str1 === str2</span></div>
+            <div class="quiz-opt" onclick="answerQuiz(4,this,false)">⬜ <span class="quiz-code">str1.compare(str2)</span></div>
+          </div>
+          <div class="quiz-feedback" id="qf4"></div>
+        </div>
+
+      </div>
+
+      <!-- Score summary -->
+      <div class="score-box" id="scoreBox">
+        <div class="score-num" id="scoreNum">0/4</div>
+        <div class="score-label" id="scoreLabel">Complete all questions to see your score</div>
+        <button class="btn-retake" onclick="retakeQuiz()">↺ Retake Quiz</button>
+      </div>
+
+    </div>
+
+  </div><!-- /tabs-wrapper -->
+</div><!-- /container -->
+
+<script>
+/* ══════════════════════════════════════════════════════════
+   THEME
+══════════════════════════════════════════════════════════ */
+function toggleTheme() {
+  const html = document.documentElement;
+  const btn  = document.getElementById('themeToggle');
+  if (html.dataset.theme === 'dark') {
+    html.dataset.theme = 'light';
+    btn.textContent = '🌙 Dark';
+  } else {
+    html.dataset.theme = 'dark';
+    btn.textContent = '☀ Light';
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   TABS
+══════════════════════════════════════════════════════════ */
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ══════════════════════════════════════════════════════════
+   FLOW TRACE ANIMATION
+══════════════════════════════════════════════════════════ */
+let tracing = false;
+
+function resetTrace() {
+  ['fn-start','fn-c1','fn-a1','fn-c2','fn-a2','fn-a3','fn-end']
+    .forEach(id => document.getElementById(id).classList.remove('active'));
+  document.getElementById('tracePills').innerHTML = '';
+  document.getElementById('traceBtn').textContent = '▶ Trace Execution (marks = 75)';
+  tracing = false;
+}
+
+function traceFlow() {
+  if (tracing) return;
+  resetTrace();
+  tracing = true;
+  document.getElementById('traceBtn').disabled = true;
+
+  const pills = document.getElementById('tracePills');
+  // marks=75: START → C1(false) → C2(true) → A2 → END
+  const steps = [
+    { id: 'fn-start', delay: 0,    pill: null },
+    { id: 'fn-c1',    delay: 700,  pill: { cls: 'rpill-error',   text: 'marks > 90 → FALSE ❌' } },
+    { id: 'fn-c2',    delay: 1500, pill: { cls: 'rpill-success', text: 'marks > 60 → TRUE ✅' } },
+    { id: 'fn-a2',    delay: 2300, pill: { cls: 'rpill-info',    text: 'Executes → Grade B — Pass' } },
+    { id: 'fn-end',   delay: 3100, pill: null }
+  ];
+
+  steps.forEach(({ id, delay, pill }) => {
+    setTimeout(() => {
+      document.getElementById(id).classList.add('active');
+      if (pill) {
+        const p = document.createElement('span');
+        p.className = 'rpill ' + pill.cls;
+        p.textContent = pill.text;
+        pills.appendChild(p);
+      }
+    }, delay);
+  });
+
+  setTimeout(() => {
+    tracing = false;
+    document.getElementById('traceBtn').disabled = false;
+    document.getElementById('traceBtn').textContent = '↺ Trace Again';
+  }, 4000);
+}
+
+/* ══════════════════════════════════════════════════════════
+   LIVE SIMULATOR
+══════════════════════════════════════════════════════════ */
+const SCENARIOS = {
+  grade: {
+    name: 'Exam Grade',
+    unit: 'marks',
+    conditions: [
+      { kw:'IF',      expr: v => `marks (${v}) > 90`,   test: v => v > 90,  result: 'Distinction 🏆', pill:'rpill-success', output: v => `Grade A — Distinction. Score: ${v}/100` },
+      { kw:'ELSE IF', expr: v => `marks (${v}) > 75`,   test: v => v > 75,  result: 'Merit 🎖',       pill:'rpill-info',    output: v => `Grade B — Merit. Score: ${v}/100` },
+      { kw:'ELSE IF', expr: v => `marks (${v}) > 50`,   test: v => v > 50,  result: 'Pass ✅',        pill:'rpill-warn',    output: v => `Grade C — Pass. Score: ${v}/100` },
+      { kw:'ELSE',    expr: () => 'default fallback',    test: () => true,   result: 'Fail ❌',        pill:'rpill-error',   output: v => `Grade F — Fail. Score: ${v}/100. Below pass mark.` }
+    ]
+  },
+  age: {
+    name: 'Age Category',
+    unit: 'age',
+    conditions: [
+      { kw:'IF',      expr: v => `age (${v}) < 13`,     test: v => v < 13,  result: 'Child 🧒',       pill:'rpill-info',    output: v => `Category: Child (age ${v}, under 13)` },
+      { kw:'ELSE IF', expr: v => `age (${v}) < 18`,     test: v => v < 18,  result: 'Teenager 🎒',    pill:'rpill-warn',    output: v => `Category: Teenager (age ${v}, 13–17)` },
+      { kw:'ELSE IF', expr: v => `age (${v}) < 60`,     test: v => v < 60,  result: 'Adult 🧑',       pill:'rpill-success', output: v => `Category: Adult (age ${v}, 18–59)` },
+      { kw:'ELSE',    expr: () => 'default fallback',    test: () => true,   result: 'Senior 🧓',      pill:'rpill-info',    output: v => `Category: Senior (age ${v}, 60+)` }
+    ]
+  },
+  login: {
+    name: 'Login Attempt Validator',
+    unit: 'attempts',
+    conditions: [
+      { kw:'IF',      expr: v => `attempts (${v}) == 0`, test: v => v === 0, result: 'Logged In ✅',   pill:'rpill-success', output: () => `Access granted — zero failed attempts.` },
+      { kw:'ELSE IF', expr: v => `attempts (${v}) <= 2`, test: v => v <= 2,  result: 'Warning ⚠',     pill:'rpill-warn',    output: v => `Warning: ${v} failed attempt(s). Try again.` },
+      { kw:'ELSE IF', expr: v => `attempts (${v}) <= 4`, test: v => v <= 4,  result: 'Locked 🔒',     pill:'rpill-error',   output: v => `Account locked after ${v} attempts.` },
+      { kw:'ELSE',    expr: () => 'default fallback',    test: () => true,   result: 'Banned 🚫',      pill:'rpill-error',   output: v => `Account banned — ${v} failed attempts.` }
+    ]
+  },
+  speed: {
+    name: 'Speed Limit Checker',
+    unit: 'km/h',
+    conditions: [
+      { kw:'IF',      expr: v => `speed (${v}) <= 30`,   test: v => v <= 30,  result: 'School Zone 🏫', pill:'rpill-info',    output: v => `Speed ${v} km/h — School zone. Safe.` },
+      { kw:'ELSE IF', expr: v => `speed (${v}) <= 60`,   test: v => v <= 60,  result: 'City Limit 🏙',  pill:'rpill-success', output: v => `Speed ${v} km/h — City limit. Safe.` },
+      { kw:'ELSE IF', expr: v => `speed (${v}) <= 100`,  test: v => v <= 100, result: 'Highway 🛣',     pill:'rpill-warn',    output: v => `Speed ${v} km/h — Highway range. Drive safely.` },
+      { kw:'ELSE',    expr: () => 'default fallback',    test: () => true,    result: 'Overspeeding 🚨',pill:'rpill-error',   output: v => `DANGER: Speed ${v} km/h exceeds all limits!` }
+    ]
+  }
+};
+
+function resetSim() {
+  document.getElementById('condTrace').innerHTML = `
+    <div class="ct-row" style="opacity:.4">
+      <span class="ct-kw">IF</span>
+      <span class="ct-expr">— press Evaluate to start —</span>
+      <span class="ct-badge"></span>
+    </div>`;
+  document.getElementById('simPills').innerHTML = '<span style="color:var(--text2);font-size:.85rem;">Run a scenario to see result.</span>';
+  document.getElementById('simOutput').innerHTML = '<span style="color:var(--text2);font-size:.82rem;">// Output will appear here after evaluation</span>';
+  document.getElementById('simOutput').className = 'pg-output';
+}
+
+function runSim() {
+  const key  = document.getElementById('simScenario').value;
+  const raw  = document.getElementById('simInput').value;
+  const val  = parseFloat(raw);
+  if (raw === '' || isNaN(val)) {
+    document.getElementById('simOutput').innerHTML = '<span style="color:var(--accent4);">⚠ Please enter a valid number.</span>';
+    document.getElementById('simOutput').className = 'pg-output err';
+    return;
+  }
+  const sc = SCENARIOS[key];
+  let matched = false;
+  let traceHTML = '';
+  let resultHTML = '';
+  let outputText = '';
+
+  sc.conditions.forEach(c => {
+    if (!matched && c.test(val)) {
+      matched = true;
+      const expr = c.kw === 'ELSE'
+        ? 'else — all conditions above were false'
+        : c.expr(val) + ' → ✅ TRUE — block executes';
+      traceHTML += `<div class="ct-row state-${c.kw === 'ELSE' ? 'else' : 'run'}">
+        <span class="ct-kw">${c.kw}</span>
+        <span class="ct-expr" style="color:${c.kw==='ELSE'?'var(--accent)':'var(--accent3)'}">${expr}</span>
+        <span class="ct-badge">${c.kw === 'ELSE' ? 'DEFAULT' : 'TRUE'}</span>
+      </div>`;
+      resultHTML = `<span class="rpill ${c.pill}">${c.result}</span>`;
+      outputText = `<span style="color:var(--text2)">// Scenario: ${sc.name} | Input: ${val} ${sc.unit}</span>\n`
+                 + `System.out.println(<span class="str">"${c.output(val)}"</span>);\n\n`
+                 + `<span style="color:#a8ff78">${c.output(val)}</span>`;
+    } else if (!matched) {
+      traceHTML += `<div class="ct-row state-skip">
+        <span class="ct-kw">${c.kw}</span>
+        <span class="ct-expr">${c.expr(val)} → ❌ FALSE — skipped</span>
+        <span class="ct-badge">FALSE</span>
+      </div>`;
+    } else {
+      traceHTML += `<div class="ct-row state-skip">
+        <span class="ct-kw">${c.kw}</span>
+        <span class="ct-expr">${c.kw === 'ELSE' ? 'else — skipped (match already found)' : c.expr(val) + ' — skipped'}</span>
+        <span class="ct-badge">SKIP</span>
+      </div>`;
+    }
+  });
+
+  document.getElementById('condTrace').innerHTML = traceHTML;
+  document.getElementById('simPills').innerHTML  = resultHTML;
+  document.getElementById('simOutput').innerHTML = outputText;
+  document.getElementById('simOutput').className = 'pg-output ok';
+}
+
+/* ══════════════════════════════════════════════════════════
+   ERROR PANELS
+══════════════════════════════════════════════════════════ */
+function showError(id, btn) {
+  document.querySelectorAll('.err-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.err-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('err-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ══════════════════════════════════════════════════════════
+   QUIZ
+══════════════════════════════════════════════════════════ */
+const quizExplanations = {
+  1: {
+    correct: '✅ Correct! The <code class="quiz-code">else</code> block is the default fallback — it runs only when <em>every</em> preceding <code class="quiz-code">if</code> and <code class="quiz-code">else if</code> condition evaluated to false. Exactly one branch always executes.',
+    wrong:   '❌ Not quite. The <code class="quiz-code">else</code> block runs only when <em>all</em> previous conditions were false — it\'s the catch-all fallback, not related to the condition being true.'
+  },
+  2: {
+    correct: '✅ Correct! In Java, <code class="quiz-code">==</code> compares primitive values. <code class="quiz-code">=</code> is assignment only. <code class="quiz-code">===</code> doesn\'t exist in Java — that\'s JavaScript.',
+    wrong:   '❌ Not quite. Use <code class="quiz-code">==</code> for comparing primitive values in conditions. A single <code class="quiz-code">=</code> is assignment, not comparison — Java will throw a compile error.'
+  },
+  3: {
+    correct: '✅ Correct! Java evaluates top-to-bottom and stops at the <em>first true match</em>. <code class="quiz-code">x &gt; 90</code> is false; <code class="quiz-code">x &gt; 80</code> is true — so that block runs and the rest are skipped entirely.',
+    wrong:   '❌ Not quite. Java stops at the <em>first true condition</em>. <code class="quiz-code">x &gt; 90</code> is false; <code class="quiz-code">x &gt; 80</code> is true — that block executes and the ladder exits immediately.'
+  },
+  4: {
+    correct: '✅ Correct! Always use <code class="quiz-code">.equals()</code> for String content comparison in Java. <code class="quiz-code">==</code> compares object references (memory addresses) — not the actual text — which produces unpredictable results.',
+    wrong:   '❌ Not quite. Use <code class="quiz-code">.equals()</code> for comparing String content. <code class="quiz-code">==</code> compares object references, not text — a common source of bugs. <code class="quiz-code">===</code> is JavaScript only.'
+  }
+};
+
+let quizAnswers = {};
+let quizCorrect = 0;
+
+function answerQuiz(qNum, el, isCorrect) {
+  if (quizAnswers[qNum] !== undefined) return;
+  quizAnswers[qNum] = isCorrect;
+  if (isCorrect) quizCorrect++;
+
+  const opts = el.closest('.quiz-opts').querySelectorAll('.quiz-opt');
+  opts.forEach(o => o.classList.add('disabled'));
+  el.classList.remove('disabled');
+  el.classList.add(isCorrect ? 'correct' : 'wrong');
+
+  const fb = document.getElementById('qf' + qNum);
+  fb.innerHTML   = isCorrect ? quizExplanations[qNum].correct : quizExplanations[qNum].wrong;
+  fb.className   = 'quiz-feedback show ' + (isCorrect ? 'correct' : 'wrong');
+
+  if (Object.keys(quizAnswers).length === 4) showScore();
+}
+
+function showScore() {
+  const box = document.getElementById('scoreBox');
+  const num = document.getElementById('scoreNum');
+  const lbl = document.getElementById('scoreLabel');
+  num.textContent = `${quizCorrect}/4`;
+  num.style.color = quizCorrect === 4 ? 'var(--accent3)' : quizCorrect >= 2 ? 'var(--accent)' : 'var(--accent4)';
+  lbl.textContent = quizCorrect === 4 ? '🎉 Perfect! You have a solid grasp of if-else conditions.' :
+                    quizCorrect >= 2   ? '👍 Good job! Review the ones you missed.' :
+                                         '📖 Revisit the Syntax & Flow tab and try again.';
+  box.classList.add('show');
+}
+
+function retakeQuiz() {
+  quizAnswers = {};
+  quizCorrect = 0;
+  document.getElementById('scoreBox').classList.remove('show');
+  document.querySelectorAll('.quiz-opt').forEach(o => { o.className = 'quiz-opt'; });
+  document.querySelectorAll('.quiz-feedback').forEach(f => { f.className = 'quiz-feedback'; f.innerHTML = ''; });
+}
+</script>
+</body>
+</html>

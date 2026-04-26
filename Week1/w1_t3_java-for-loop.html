@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>For Loop Basics in Java</title>
+<style>
+/* ── TOKENS ─────────────────────────────────────────────── */
+:root {
+  --bg:        #0d1117;
+  --surface:   #161b22;
+  --surface2:  #1f2937;
+  --border:    #30363d;
+  --accent:    #f89820;
+  --accent2:   #4fa3e0;
+  --accent3:   #58d68d;
+  --accent4:   #e74c3c;
+  --accent5:   #c678dd;
+  --text:      #e6edf3;
+  --text2:     #8b949e;
+  --text3:     #c9d1d9;
+  --tab-bg:    #161b22;
+  --tab-active:#1f2937;
+  --code-bg:   #0d1117;
+  --radius:    10px;
+  --font-mono: 'Courier New', Courier, monospace;
+}
+[data-theme="light"] {
+  --bg:        #f0f4f8;
+  --surface:   #ffffff;
+  --surface2:  #e8eef5;
+  --border:    #d1d9e0;
+  --text:      #1a202c;
+  --text2:     #4a5568;
+  --text3:     #2d3748;
+  --tab-bg:    #e8eef5;
+  --tab-active:#ffffff;
+  --code-bg:   #e2e8f0;   /* ← FIX: was #1e2127; now a readable light-grey */
+}
+
+/* ── LIGHT-MODE CODE OVERRIDES (the root-cause fix) ───── */
+[data-theme="light"] pre,
+[data-theme="light"] .code-pre {
+  color: #1a202c;
+  background: #e2e8f0;
+}
+[data-theme="light"] .quiz-code,
+[data-theme="light"] .card code,
+[data-theme="light"] .step-body code,
+[data-theme="light"] .info-box code,
+[data-theme="light"] code {
+  background: #dde4ee;
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+[data-theme="light"] .kw  { color: #7c3aed; }
+[data-theme="light"] .cls { color: #b45309; }
+[data-theme="light"] .fn  { color: #1d4ed8; }
+[data-theme="light"] .str { color: #15803d; }
+[data-theme="light"] .cmt { color: #6b7280; }
+[data-theme="light"] .num { color: #c2410c; }
+[data-theme="light"] .op  { color: #0369a1; }
+
+/* ── RESET ───────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg); color: var(--text);
+  min-height: 100vh; transition: background .3s, color .3s;
+  line-height: 1.65; user-select: none; -webkit-user-select: none;
+}
+
+/* ── WATERMARK ─────────────────────────────────────── */
+#watermark {
+  position: fixed; bottom: 14px; right: 18px;
+  font-size: .7rem; color: var(--text2); opacity: .44;
+  pointer-events: none; z-index: 800; letter-spacing: .2px;
+  font-family: 'Segoe UI', sans-serif; white-space: nowrap;
+}
+
+/* ── HEADER ─────────────────────────────────────────── */
+header {
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: 0 32px; display: flex; align-items: center;
+  justify-content: space-between; height: 62px;
+  position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 0 var(--border);
+}
+.logo { display: flex; align-items: center; gap: 10px; font-size: 1.05rem; font-weight: 700; }
+.logo-icon {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: linear-gradient(135deg, var(--accent), #e05a00);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; font-weight: 900; color: #fff;
+}
+.badge {
+  font-size: .68rem; font-weight: 600; padding: 2px 8px; border-radius: 20px;
+  background: var(--accent2); color: #000; text-transform: uppercase; letter-spacing: .5px;
+}
+#themeToggle {
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text); border-radius: 8px; padding: 6px 14px;
+  cursor: pointer; font-size: .85rem; transition: all .2s;
+}
+#themeToggle:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── LAYOUT ──────────────────────────────────────────── */
+.container { max-width: 1100px; margin: 0 auto; padding: 32px 20px 80px; }
+
+/* ── HERO ────────────────────────────────────────────── */
+.hero {
+  background: linear-gradient(135deg, var(--surface), var(--surface2));
+  border: 1px solid var(--border); border-radius: 14px;
+  padding: 36px 40px; margin-bottom: 28px;
+  display: flex; align-items: center; gap: 28px;
+  position: relative; overflow: hidden;
+}
+.hero::before {
+  content: ''; position: absolute; top: -60px; right: -60px;
+  width: 240px; height: 240px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(79,163,224,.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-icon { font-size: 64px; flex-shrink: 0; filter: drop-shadow(0 4px 16px rgba(79,163,224,.4)); }
+.hero-text h1 { font-size: 1.75rem; font-weight: 800; line-height: 1.2; }
+.hero-text h1 span { color: var(--accent2); }
+.hero-text p { color: var(--text2); margin-top: 8px; font-size: .95rem; }
+.hero-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.pill {
+  padding: 4px 12px; border-radius: 20px; font-size: .78rem; font-weight: 600;
+  border: 1px solid; display: flex; align-items: center; gap: 5px;
+}
+.pill-orange { color: var(--accent);  border-color: rgba(248,152,32,.35); background: rgba(248,152,32,.08); }
+.pill-blue   { color: var(--accent2); border-color: rgba(79,163,224,.35);  background: rgba(79,163,224,.08); }
+.pill-green  { color: var(--accent3); border-color: rgba(88,214,141,.35);  background: rgba(88,214,141,.08); }
+.pill-purple { color: var(--accent5); border-color: rgba(198,120,221,.35); background: rgba(198,120,221,.08); }
+
+/* ── BREADCRUMB ──────────────────────────────────────── */
+.breadcrumb { display: flex; align-items: center; gap: 8px; font-size: .8rem; color: var(--text2); margin-bottom: 20px; }
+.breadcrumb span { color: var(--accent2); font-weight: 600; }
+
+/* ── TABS ────────────────────────────────────────────── */
+.tabs-wrapper { background: var(--tab-bg); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.tab-nav { display: flex; overflow-x: auto; border-bottom: 1px solid var(--border); scrollbar-width: none; }
+.tab-nav::-webkit-scrollbar { display: none; }
+.tab-btn {
+  flex-shrink: 0; padding: 14px 22px; background: none; border: none;
+  color: var(--text2); font-size: .88rem; font-weight: 600; cursor: pointer;
+  position: relative; transition: color .2s; display: flex; align-items: center; gap: 7px;
+}
+.tab-btn:hover { color: var(--text); }
+.tab-btn.active { color: var(--accent2); background: var(--tab-active); }
+.tab-btn.active::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+  background: var(--accent2); border-radius: 2px 2px 0 0;
+}
+.tab-content { display: none; padding: 32px; }
+.tab-content.active { display: block; animation: fadeIn .25s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* ── SECTION HEADINGS ─────────────────────────────────── */
+.section-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 6px; display: flex; align-items: center; gap: 9px; }
+.section-title .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent2); }
+.section-sub { color: var(--text2); font-size: .9rem; margin-bottom: 22px; }
+
+/* ── CARDS ────────────────────────────────────────────── */
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px; margin-bottom: 28px; }
+.card {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px; transition: border-color .2s, transform .2s;
+}
+.card:hover { border-color: var(--accent2); transform: translateY(-2px); }
+.card-icon { font-size: 1.6rem; margin-bottom: 10px; }
+.card h3 { font-size: .95rem; font-weight: 700; margin-bottom: 6px; }
+.card p { font-size: .83rem; color: var(--text2); line-height: 1.55; }
+.card code {
+  font-family: var(--font-mono); font-size: .78rem;
+  background: var(--code-bg); padding: 1px 6px; border-radius: 4px;
+  color: var(--accent3); border: 1px solid var(--border);
+}
+
+/* ── INFO BOX ─────────────────────────────────────────── */
+.info-box {
+  border-radius: var(--radius); padding: 16px 20px; font-size: .875rem;
+  margin-bottom: 20px; border-left: 4px solid; display: flex; gap: 12px; align-items: flex-start;
+}
+.info-box .ib-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 1px; }
+.info-box.blue   { background: rgba(79,163,224,.1);  border-color: var(--accent2); }
+.info-box.orange { background: rgba(248,152,32,.1);  border-color: var(--accent); }
+.info-box.green  { background: rgba(88,214,141,.1);  border-color: var(--accent3); }
+.info-box.red    { background: rgba(231,76,60,.1);   border-color: var(--accent4); }
+.info-box.purple { background: rgba(198,120,221,.1); border-color: var(--accent5); }
+.info-box code {
+  font-family: var(--font-mono); font-size: .82rem;
+  background: var(--code-bg); padding: 1px 6px; border-radius: 4px;
+  color: var(--accent3); border: 1px solid var(--border);
+}
+
+/* ── CODE BLOCK ───────────────────────────────────────── */
+.code-wrap { background: var(--code-bg); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin: 16px 0; }
+.code-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px; border-bottom: 1px solid var(--border); background: rgba(255,255,255,.03);
+}
+.code-lang { font-size: .75rem; color: var(--text2); font-weight: 600; }
+.code-dots { display: flex; gap: 5px; }
+.code-dots span { width: 11px; height: 11px; border-radius: 50%; }
+.code-dots .r { background: #ff5f57; } .code-dots .y { background: #ffbd2e; } .code-dots .g { background: #28c840; }
+.code-pre {
+  padding: 20px; overflow-x: auto; font-family: var(--font-mono);
+  font-size: .85rem; line-height: 1.75; color: #abb2bf; white-space: pre;
+}
+.kw  { color: #c678dd; font-weight: 600; }
+.cls { color: #e5c07b; }
+.fn  { color: #61afef; }
+.str { color: #98c379; }
+.cmt { color: #5c6370; font-style: italic; }
+.num { color: #d19a66; }
+.op  { color: #56b6c2; }
+
+/* ── SYNTAX ANATOMY ───────────────────────────────────── */
+.syntax-anatomy {
+  background: var(--code-bg); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 28px; margin: 20px 0; text-align: center;
+}
+.syntax-row { display: flex; align-items: flex-start; justify-content: center; flex-wrap: wrap; gap: 4px; font-size: .95rem; }
+.syn-part { position: relative; display: inline-flex; flex-direction: column; align-items: center; }
+.syn-token {
+  padding: 7px 14px; border-radius: 8px; font-weight: 700; font-size: .9rem;
+  border: 2px solid transparent; cursor: pointer; transition: transform .15s;
+  font-family: var(--font-mono);
+}
+.syn-token:hover { transform: translateY(-2px); }
+.syn-label {
+  font-family: 'Segoe UI', sans-serif; font-size: .66rem; font-weight: 700;
+  margin-top: 8px; text-transform: uppercase; letter-spacing: .5px; color: var(--text2);
+}
+.st-for  { background: rgba(198,120,221,.18); border-color: rgba(198,120,221,.4); color: #c678dd; }
+.st-init { background: rgba(209,154,102,.18); border-color: rgba(209,154,102,.4); color: #d19a66; }
+.st-cond { background: rgba(86,182,194,.18);  border-color: rgba(86,182,194,.4);  color: #56b6c2; }
+.st-upd  { background: rgba(97,175,239,.18);  border-color: rgba(97,175,239,.4);  color: #61afef; }
+.st-body { background: rgba(152,195,121,.18); border-color: rgba(152,195,121,.4); color: #98c379; }
+.st-punc { color: var(--text2); font-family: var(--font-mono); padding: 7px 4px; font-size: .9rem; align-self: flex-start; margin-top: 7px; }
+
+.anatomy-legend {
+  display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; justify-content: center;
+}
+.leg-item {
+  display: flex; align-items: center; gap: 7px; font-size: .8rem;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 7px 14px;
+}
+.leg-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+/* ── ITERATION CARDS ──────────────────────────────────── */
+.iter-steps { display: flex; flex-direction: column; gap: 10px; margin: 18px 0; }
+.iter-row {
+  display: flex; gap: 14px; align-items: flex-start;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 14px 18px; transition: border-color .2s;
+}
+.iter-row:hover { border-color: var(--accent2); }
+.iter-num {
+  flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%;
+  background: var(--accent2); color: #000; font-weight: 800; font-size: .8rem;
+  display: flex; align-items: center; justify-content: center; margin-top: 1px;
+}
+.iter-body h4 { font-size: .88rem; font-weight: 700; margin-bottom: 3px; }
+.iter-body p  { font-size: .82rem; color: var(--text2); }
+.iter-body code {
+  font-family: var(--font-mono); font-size: .8rem; background: var(--code-bg);
+  padding: 1px 6px; border-radius: 4px; color: var(--accent3); border: 1px solid var(--border);
+}
+
+/* ── LOOP SIMULATOR ───────────────────────────────────── */
+.sim-wrap { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.sim-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 13px 20px; background: rgba(255,255,255,.03);
+  border-bottom: 1px solid var(--border); font-weight: 700; font-size: .88rem;
+}
+.sim-body { padding: 24px; }
+.sim-controls { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; margin-bottom: 20px; }
+.sim-field label { display: block; font-size: .78rem; font-weight: 700; color: var(--text2); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .4px; }
+.sim-input {
+  width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border);
+  background: var(--code-bg); color: var(--text); font-size: .9rem; font-family: var(--font-mono);
+  outline: none; transition: border-color .2s;
+}
+.sim-input:focus { border-color: var(--accent2); }
+.sim-select {
+  width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border);
+  background: var(--code-bg); color: var(--text); font-size: .88rem;
+  font-family: var(--font-mono); outline: none; cursor: pointer; transition: border-color .2s;
+}
+.sim-select:focus { border-color: var(--accent2); }
+.sim-select option { background: var(--surface); }
+
+/* live preview code */
+.sim-preview {
+  background: var(--code-bg); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 14px 18px; font-family: var(--font-mono); font-size: .85rem;
+  line-height: 1.75; color: #abb2bf; margin-bottom: 18px; white-space: pre; overflow-x: auto;
+}
+
+.sim-run-bar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 18px; }
+.btn-run-loop {
+  background: linear-gradient(135deg, var(--accent2), #2980b9);
+  color: #fff; border: none; border-radius: 8px; padding: 10px 28px;
+  font-weight: 800; font-size: .9rem; cursor: pointer; transition: opacity .2s, transform .2s;
+  display: flex; align-items: center; gap: 8px;
+}
+.btn-run-loop:hover { opacity: .88; transform: translateY(-1px); }
+.btn-run-loop:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+.btn-reset-loop {
+  background: none; border: 1px solid var(--border); color: var(--text2);
+  border-radius: 8px; padding: 10px 18px; font-size: .875rem; cursor: pointer; transition: all .2s;
+}
+.btn-reset-loop:hover { border-color: var(--text2); color: var(--text); }
+
+/* speed slider */
+.speed-wrap { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+.speed-label { font-size: .78rem; color: var(--text2); font-weight: 600; white-space: nowrap; }
+.speed-slider { -webkit-appearance: none; width: 100px; height: 4px; border-radius: 4px; background: var(--border); outline: none; cursor: pointer; }
+.speed-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--accent2); cursor: pointer; }
+
+/* result pills */
+.result-pills { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; min-height: 34px; }
+.rpill { display: flex; align-items: center; gap: 6px; padding: 5px 14px; border-radius: 20px; font-size: .82rem; font-weight: 600; border: 1px solid; animation: fadeIn .2s; }
+.rpill-success { background: rgba(88,214,141,.12); border-color: rgba(88,214,141,.4); color: var(--accent3); }
+.rpill-error   { background: rgba(231,76,60,.12);  border-color: rgba(231,76,60,.4);  color: var(--accent4); }
+.rpill-info    { background: rgba(79,163,224,.12); border-color: rgba(79,163,224,.4); color: var(--accent2); }
+.rpill-warn    { background: rgba(248,152,32,.12); border-color: rgba(248,152,32,.4); color: var(--accent); }
+
+/* iteration timeline */
+.iter-timeline { display: flex; flex-direction: column; gap: 6px; }
+.iter-card {
+  display: flex; align-items: center; gap: 14px;
+  background: var(--surface); border: 2px solid var(--border);
+  border-radius: 9px; padding: 12px 16px; opacity: 0;
+  transform: translateX(-10px); transition: opacity .3s, transform .3s, border-color .3s, background .3s;
+}
+.iter-card.visible { opacity: 1; transform: translateX(0); }
+.iter-card.current { border-color: var(--accent2); background: rgba(79,163,224,.07); }
+.iter-card.done    { border-color: var(--border); background: var(--surface2); }
+.iter-badge {
+  flex-shrink: 0; min-width: 30px; height: 30px; border-radius: 50%;
+  background: var(--accent2); color: #000; font-weight: 800; font-size: .78rem;
+  display: flex; align-items: center; justify-content: center;
+}
+.iter-badge.done-badge { background: var(--accent3); }
+.iter-info { flex: 1; }
+.iter-info .it-label { font-size: .72rem; color: var(--text2); font-weight: 600; text-transform: uppercase; letter-spacing: .4px; }
+.iter-info .it-val   { font-family: var(--font-mono); font-size: .9rem; font-weight: 700; color: var(--accent2); }
+.iter-info .it-val.done-val { color: var(--accent3); }
+.iter-check { font-size: 1rem; color: var(--accent3); }
+.iter-cond  { font-size: .78rem; color: var(--text2); font-family: var(--font-mono); margin-left: auto; }
+
+/* console output */
+.console-out {
+  background: #0a0e13; border: 1px solid var(--border); border-radius: var(--radius);
+  overflow: hidden; margin-top: 16px;
+}
+[data-theme="light"] .console-out { background: #1e2737; }
+.console-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 9px 16px; background: #111820; border-bottom: 1px solid var(--border);
+  font-size: .78rem; color: var(--text2); font-weight: 600;
+}
+[data-theme="light"] .console-bar { background: #1a2535; color: #8b949e; }
+.console-status { display: flex; align-items: center; gap: 6px; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: #555; transition: background .3s; }
+.status-dot.running { background: var(--accent3); animation: blink 1s infinite; }
+.status-dot.done    { background: var(--accent3); }
+.status-dot.error   { background: var(--accent4); }
+@keyframes blink { 0%,100%{opacity:1}50%{opacity:.3} }
+.console-body {
+  padding: 16px 20px; font-family: var(--font-mono); font-size: .875rem;
+  min-height: 80px; line-height: 1.8; color: #a8ff78; white-space: pre-wrap;
+}
+.c-dim  { color: #555; }
+.c-info { color: #7ec8e3; }
+.c-warn { color: #f89820; }
+.c-err  { color: #ff6b6b; }
+
+/* progress bar */
+.progress-wrap { margin: 14px 0; }
+.progress-label { font-size: .75rem; color: var(--text2); margin-bottom: 5px; display: flex; justify-content: space-between; font-weight: 600; }
+.progress-bar { height: 5px; background: var(--border); border-radius: 10px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent2), var(--accent3)); border-radius: 10px; width: 0%; transition: width .3s ease; }
+
+/* ── ERROR PANEL ──────────────────────────────────────── */
+.err-sim-btns { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
+.err-btn {
+  padding: 8px 18px; border-radius: 8px; border: 1px solid var(--border);
+  background: var(--surface2); color: var(--text); font-size: .84rem; font-weight: 600;
+  cursor: pointer; transition: all .2s; display: flex; align-items: center; gap: 7px;
+}
+.err-btn:hover  { border-color: var(--accent4); color: var(--accent4); }
+.err-btn.active { background: rgba(231,76,60,.15); border-color: var(--accent4); color: var(--accent4); }
+.err-panel { display: none; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.err-panel.active { display: block; animation: fadeIn .2s ease; }
+.err-hdr {
+  display: flex; align-items: center; gap: 10px; padding: 12px 18px;
+  background: rgba(231,76,60,.12); border-bottom: 1px solid var(--border);
+  font-size: .875rem; font-weight: 700; color: var(--accent4);
+}
+.err-body { padding: 20px; }
+.err-body h4 { font-size: .9rem; font-weight: 700; margin-bottom: 8px; }
+.err-body p  { font-size: .85rem; color: var(--text2); margin-bottom: 12px; }
+.err-msg {
+  font-family: var(--font-mono); font-size: .8rem; background: var(--code-bg);
+  border: 1px solid rgba(231,76,60,.3); border-radius: 7px; padding: 12px 16px;
+  color: #ff6b6b; margin-bottom: 14px; white-space: pre; overflow-x: auto;
+}
+.code-diff { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0; }
+.diff-wrong, .diff-right { border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
+.diff-lbl { padding: 7px 12px; font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
+.diff-wrong .diff-lbl { background: rgba(231,76,60,.15); color: var(--accent4); }
+.diff-right .diff-lbl { background: rgba(88,214,141,.15); color: var(--accent3); }
+.diff-code { padding: 12px 14px; font-family: var(--font-mono); font-size: .8rem; background: var(--code-bg); line-height: 1.7; color: #abb2bf; white-space: pre; }
+.fix-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(88,214,141,.1); border: 1px solid rgba(88,214,141,.3);
+  color: var(--accent3); border-radius: 6px; padding: 5px 12px; font-size: .82rem; font-weight: 600; margin-top: 4px;
+}
+
+/* ── COMPARE TABLE ────────────────────────────────────── */
+.compare-table { width: 100%; border-collapse: collapse; font-size: .875rem; margin-top: 16px; }
+.compare-table th {
+  text-align: left; padding: 10px 16px; background: var(--surface2); color: var(--text2);
+  font-weight: 700; font-size: .78rem; text-transform: uppercase; letter-spacing: .5px; border-bottom: 1px solid var(--border);
+}
+.compare-table td { padding: 11px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.compare-table tr:last-child td { border-bottom: none; }
+.compare-table tr:hover td { background: rgba(255,255,255,.02); }
+.mono { font-family: var(--font-mono); font-size: .82rem; color: var(--accent3); }
+
+/* ── QUIZ ─────────────────────────────────────────────── */
+.quiz-container { display: flex; flex-direction: column; gap: 24px; }
+.quiz-block { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px 24px; }
+.quiz-num { font-size: .72rem; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+.quiz-q { font-weight: 700; font-size: .92rem; margin-bottom: 14px; line-height: 1.5; }
+.quiz-opts { display: flex; flex-direction: column; gap: 9px; }
+.quiz-opt {
+  padding: 10px 16px; border-radius: 8px; border: 1px solid var(--border);
+  background: var(--bg); font-size: .875rem; cursor: pointer; transition: all .2s;
+  display: flex; align-items: flex-start; gap: 10px; text-align: left;
+}
+.quiz-opt:hover:not(.correct):not(.wrong) { border-color: var(--accent2); background: rgba(79,163,224,.04); }
+.quiz-opt.correct { border-color: var(--accent3); background: rgba(88,214,141,.1); color: var(--accent3); pointer-events: none; }
+.quiz-opt.wrong   { border-color: var(--accent4); background: rgba(231,76,60,.08); color: var(--accent4); pointer-events: none; }
+.quiz-opt.disabled { pointer-events: none; opacity: .5; }
+.quiz-feedback { margin-top: 12px; font-size: .845rem; padding: 10px 14px; border-radius: 7px; display: none; }
+.quiz-feedback.show { display: block; animation: fadeIn .2s; }
+.quiz-feedback.correct { background: rgba(88,214,141,.1); color: var(--accent3); border: 1px solid rgba(88,214,141,.25); }
+.quiz-feedback.wrong   { background: rgba(231,76,60,.08); color: var(--accent4); border: 1px solid rgba(231,76,60,.2); }
+.quiz-code {
+  font-family: var(--font-mono); background: var(--code-bg);
+  padding: 1px 7px; border-radius: 4px; font-size: .85em;
+  color: var(--text); border: 1px solid var(--border);  /* ← FIX: explicit color + border */
+}
+
+.score-box { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; text-align: center; display: none; margin-top: 24px; }
+.score-box.show { display: block; animation: fadeIn .3s; }
+.score-num { font-size: 3rem; font-weight: 900; line-height: 1; }
+.score-label { color: var(--text2); font-size: .9rem; margin-top: 6px; margin-bottom: 16px; }
+.btn-retake { background: var(--surface2); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 9px 24px; font-size: .875rem; font-weight: 700; cursor: pointer; transition: all .2s; }
+.btn-retake:hover { border-color: var(--accent2); color: var(--accent2); }
+
+/* ── RESPONSIVE ───────────────────────────────────────── */
+@media (max-width: 700px) {
+  .hero { flex-direction: column; padding: 24px 20px; }
+  .tab-btn { padding: 12px 14px; font-size: .8rem; }
+  .tab-content { padding: 20px 16px; }
+  .hero-text h1 { font-size: 1.35rem; }
+  .code-diff { grid-template-columns: 1fr; }
+  .sim-controls { grid-template-columns: 1fr 1fr; }
+  .syntax-row { gap: 6px; }
+}
+</style>
+</head>
+<body>
+
+<div id="watermark">Ronak Shah — Automation Training Content</div>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">J</div>
+    Java Essentials
+    <span class="badge">Module 4</span>
+  </div>
+  <button id="themeToggle" onclick="toggleTheme()">☀ Light</button>
+</header>
+
+<div class="container">
+  <div class="breadcrumb">
+    Java Essentials <span style="color:var(--border)">›</span> Module 4 <span style="color:var(--border)">›</span> <span>For Loop Basics</span>
+  </div>
+
+  <div class="hero">
+    <div class="hero-icon">🔁</div>
+    <div class="hero-text">
+      <h1>For Loop <span>Basics</span> in Java</h1>
+      <p>Stop writing the same code ten times. Use a loop — let Java do the repetition for you.</p>
+      <div class="hero-pills">
+        <span class="pill pill-blue">🔁 For Loop</span>
+        <span class="pill pill-orange">⚙ Syntax Breakdown</span>
+        <span class="pill pill-green">▶ Live Simulator</span>
+        <span class="pill pill-purple">🧠 Quick Check</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="tabs-wrapper">
+    <div class="tab-nav">
+      <button class="tab-btn active" onclick="switchTab('basics',this)"><span>📘</span> Basics</button>
+      <button class="tab-btn" onclick="switchTab('syntax',this)"><span>🔍</span> Syntax Breakdown</button>
+      <button class="tab-btn" onclick="switchTab('simulator',this)"><span>▶</span> Loop Simulator</button>
+      <button class="tab-btn" onclick="switchTab('errors',this)"><span>🚨</span> Common Errors</button>
+      <button class="tab-btn" onclick="switchTab('quiz',this)"><span>🧠</span> Quick Check</button>
+    </div>
+
+    <!-- ════════ TAB 1 — BASICS ════════ -->
+    <div id="tab-basics" class="tab-content active">
+      <div class="section-title"><span class="dot"></span> What is a Loop?</div>
+      <p class="section-sub">A loop lets Java repeat a block of code multiple times — without you writing it multiple times.</p>
+
+      <div class="info-box green">
+        <span class="ib-icon">💡</span>
+        <div><strong>Real-world analogy:</strong> Imagine printing attendance for 30 students. Without a loop, you write <code>System.out.println()</code> 30 times. With a loop, you write it once — Java runs it 30 times automatically. That's the power of looping.</div>
+      </div>
+
+      <div class="info-box blue">
+        <span class="ib-icon">🔑</span>
+        <div><strong>Core idea:</strong> A <code>for</code> loop runs as long as a condition is <code>true</code>. When the condition becomes <code>false</code>, the loop stops and execution continues normally.</div>
+      </div>
+
+      <div class="section-title" style="margin-top:8px;font-size:1rem"><span class="dot"></span> Without a Loop vs With a Loop</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0 24px">
+        <div class="code-wrap" style="margin:0">
+          <div class="code-header">
+            <div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+            <span class="code-lang">❌ Without a Loop (tedious)</span>
+          </div>
+          <pre class="code-pre"><span class="cls">System</span>.out.<span class="fn">println</span>(<span class="num">1</span>);
+<span class="cls">System</span>.out.<span class="fn">println</span>(<span class="num">2</span>);
+<span class="cls">System</span>.out.<span class="fn">println</span>(<span class="num">3</span>);
+<span class="cls">System</span>.out.<span class="fn">println</span>(<span class="num">4</span>);
+<span class="cls">System</span>.out.<span class="fn">println</span>(<span class="num">5</span>);
+<span class="cmt">// 5 lines for 5 numbers</span>
+<span class="cmt">// What if you need 100?</span></pre>
+        </div>
+        <div class="code-wrap" style="margin:0">
+          <div class="code-header">
+            <div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+            <span class="code-lang">✅ With a For Loop (clean)</span>
+          </div>
+          <pre class="code-pre"><span class="kw">for</span> (<span class="kw">int</span> i <span class="op">=</span> <span class="num">1</span>; i <span class="op">&lt;=</span> <span class="num">5</span>; i<span class="op">++</span>) {
+    <span class="cls">System</span>.out.<span class="fn">println</span>(i);
+}
+<span class="cmt">// 3 lines, any number of</span>
+<span class="cmt">// iterations you want</span></pre>
+        </div>
+      </div>
+
+      <div class="section-title" style="font-size:1rem"><span class="dot"></span> Why Loops Matter in Automation</div>
+      <div class="cards" style="margin-top:14px">
+        <div class="card">
+          <div class="card-icon">📋</div>
+          <h3>Multiple Test Data</h3>
+          <p>Loop through an array of usernames and run the same login test for each one — no code duplication.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🔄</div>
+          <h3>Repeating Actions</h3>
+          <p>Retry a failed API call up to 3 times. <code>for (int i = 0; i &lt; 3; i++)</code> wraps the retry logic cleanly.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">📊</div>
+          <h3>Processing Collections</h3>
+          <p>Loop through a list of API responses and assert each one — Selenium, RestAssured, and TestNG all rely on this pattern.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">⏱</div>
+          <h3>Wait / Poll Logic</h3>
+          <p>Poll an element up to 10 times with a delay. Loop + condition + break is the foundation of custom waits.</p>
+        </div>
+      </div>
+
+      <div class="section-title" style="margin-top:4px;font-size:1rem"><span class="dot"></span> Java Loop Types — Overview</div>
+      <table class="compare-table">
+        <thead><tr><th>Loop Type</th><th>When to Use</th><th>Syntax</th></tr></thead>
+        <tbody>
+          <tr><td class="mono" style="color:var(--accent2)">for</td><td>When you know the exact count ahead of time</td><td class="mono">for (init; cond; update)</td></tr>
+          <tr><td class="mono" style="color:var(--accent3)">while</td><td>When the count is unknown — loop until condition fails</td><td class="mono">while (condition)</td></tr>
+          <tr><td class="mono" style="color:var(--accent)">do-while</td><td>When body must execute at least once regardless of condition</td><td class="mono">do { } while (condition)</td></tr>
+          <tr><td class="mono" style="color:var(--accent5)">for-each</td><td>Iterating over arrays or collections cleanly</td><td class="mono">for (Type x : list)</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:.82rem;color:var(--text2);margin-top:10px;">This module focuses on the <strong style="color:var(--accent2)">for loop</strong> — the most commonly used type in automation frameworks.</p>
+    </div>
+
+    <!-- ════════ TAB 2 — SYNTAX BREAKDOWN ════════ -->
+    <div id="tab-syntax" class="tab-content">
+      <div class="section-title"><span class="dot"></span> Anatomy of a For Loop</div>
+      <p class="section-sub">Every for loop has exactly three parts inside the parentheses. Each part has a specific job — hover to learn each one.</p>
+
+      <div class="syntax-anatomy">
+        <div class="syntax-row">
+          <div class="syn-part">
+            <span class="syn-token st-for" title="The keyword that starts a for loop">for</span>
+            <span class="syn-label">Keyword</span>
+          </div>
+          <span class="st-punc">&nbsp;(</span>
+          <div class="syn-part">
+            <span class="syn-token st-init" title="Runs once before the loop starts. Sets the starting value.">int i = 1</span>
+            <span class="syn-label">① Init</span>
+          </div>
+          <span class="st-punc">;&nbsp;</span>
+          <div class="syn-part">
+            <span class="syn-token st-cond" title="Checked before each iteration. Loop runs while this is true.">i &lt;= 5</span>
+            <span class="syn-label">② Condition</span>
+          </div>
+          <span class="st-punc">;&nbsp;</span>
+          <div class="syn-part">
+            <span class="syn-token st-upd" title="Runs after each iteration. Updates the loop variable.">i++</span>
+            <span class="syn-label">③ Update</span>
+          </div>
+          <span class="st-punc">&nbsp;)&nbsp;{</span>
+          <div class="syn-part">
+            <span class="syn-token st-body" title="The code that runs on each iteration.">...</span>
+            <span class="syn-label">④ Body</span>
+          </div>
+          <span class="st-punc">&nbsp;}</span>
+        </div>
+        <div class="anatomy-legend">
+          <div class="leg-item"><div class="leg-dot" style="background:#d19a66"></div> Init: <strong>runs once</strong></div>
+          <div class="leg-item"><div class="leg-dot" style="background:#56b6c2"></div> Condition: <strong>checked every iteration</strong></div>
+          <div class="leg-item"><div class="leg-dot" style="background:#61afef"></div> Update: <strong>runs after each body</strong></div>
+          <div class="leg-item"><div class="leg-dot" style="background:#98c379"></div> Body: <strong>what repeats</strong></div>
+        </div>
+      </div>
+
+      <div class="section-title" style="font-size:1rem"><span class="dot"></span> Full Example with Trace</div>
+      <div class="code-wrap">
+        <div class="code-header">
+          <div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+          <span class="code-lang">☕ Print 1 to 5</span>
+        </div>
+        <pre class="code-pre"><span class="kw">for</span> (<span class="kw">int</span> i <span class="op">=</span> <span class="num">1</span>; i <span class="op">&lt;=</span> <span class="num">5</span>; i<span class="op">++</span>) {
+    <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Value of i: "</span> <span class="op">+</span> i);
+}
+
+<span class="cmt">// Output:</span>
+<span class="cmt">// Value of i: 1</span>
+<span class="cmt">// Value of i: 2</span>
+<span class="cmt">// Value of i: 3</span>
+<span class="cmt">// Value of i: 4</span>
+<span class="cmt">// Value of i: 5</span></pre>
+      </div>
+
+      <div class="section-title" style="margin-top:24px;font-size:1rem"><span class="dot"></span> Step-by-Step Execution</div>
+      <div class="iter-steps">
+        <div class="iter-row">
+          <div class="iter-num">1</div>
+          <div class="iter-body">
+            <h4>Initialization — runs <em>once</em> before anything</h4>
+            <p><code>int i = 1</code> — Java creates the variable <code>i</code> and sets it to <code>1</code>. This only happens one time.</p>
+          </div>
+        </div>
+        <div class="iter-row">
+          <div class="iter-num">2</div>
+          <div class="iter-body">
+            <h4>Condition Check — evaluated <em>before each</em> iteration</h4>
+            <p><code>i &lt;= 5</code> — If this is <code>true</code>, Java enters the loop body. If <code>false</code>, the loop ends immediately.</p>
+          </div>
+        </div>
+        <div class="iter-row">
+          <div class="iter-num">3</div>
+          <div class="iter-body">
+            <h4>Body Executes — the repeating code</h4>
+            <p><code>System.out.println(i)</code> — Whatever is inside <code>{ }</code> runs. At this point, <code>i</code> has its current value.</p>
+          </div>
+        </div>
+        <div class="iter-row">
+          <div class="iter-num">4</div>
+          <div class="iter-body">
+            <h4>Update — runs <em>after each</em> body execution</h4>
+            <p><code>i++</code> — Java increments <code>i</code> by 1. Then it jumps back to step 2 and checks the condition again.</p>
+          </div>
+        </div>
+        <div class="iter-row">
+          <div class="iter-num">5</div>
+          <div class="iter-body">
+            <h4>Loop Ends — condition becomes false</h4>
+            <p>When <code>i</code> reaches <code>6</code>, the condition <code>6 &lt;= 5</code> is <code>false</code> → loop exits. Code after the loop runs next.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-title" style="margin-top:24px;font-size:1rem"><span class="dot"></span> More Loop Patterns</div>
+      <div class="code-wrap">
+        <div class="code-header">
+          <div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+          <span class="code-lang">☕ Common Variations</span>
+        </div>
+        <pre class="code-pre"><span class="cmt">// Count down</span>
+<span class="kw">for</span> (<span class="kw">int</span> i <span class="op">=</span> <span class="num">5</span>; i <span class="op">&gt;=</span> <span class="num">1</span>; i<span class="op">--</span>) {
+    <span class="cls">System</span>.out.<span class="fn">println</span>(i);   <span class="cmt">// 5 4 3 2 1</span>
+}
+
+<span class="cmt">// Step by 2</span>
+<span class="kw">for</span> (<span class="kw">int</span> i <span class="op">=</span> <span class="num">0</span>; i <span class="op">&lt;=</span> <span class="num">10</span>; i <span class="op">+=</span> <span class="num">2</span>) {
+    <span class="cls">System</span>.out.<span class="fn">println</span>(i);   <span class="cmt">// 0 2 4 6 8 10</span>
+}
+
+<span class="cmt">// Loop over an array</span>
+<span class="cls">String</span>[] users <span class="op">=</span> {<span class="str">"Alice"</span>, <span class="str">"Bob"</span>, <span class="str">"Carol"</span>};
+<span class="kw">for</span> (<span class="kw">int</span> i <span class="op">=</span> <span class="num">0</span>; i <span class="op">&lt;</span> users.length; i<span class="op">++</span>) {
+    <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"User: "</span> <span class="op">+</span> users[i]);
+}</pre>
+      </div>
+    </div>
+
+    <!-- ════════ TAB 3 — SIMULATOR ════════ -->
+    <div id="tab-simulator" class="tab-content">
+      <div class="section-title"><span class="dot"></span> Loop Simulator</div>
+      <p class="section-sub">Configure your loop parameters, hit Run, and watch each iteration execute — step by step with animated output.</p>
+
+      <div class="sim-wrap">
+        <div class="sim-header">
+          <span>⚙ Interactive For Loop</span>
+          <span style="font-size:.78rem;font-weight:400;color:var(--text2)">Simulates real Java execution</span>
+        </div>
+        <div class="sim-body">
+
+          <!-- Controls -->
+          <div class="sim-controls">
+            <div class="sim-field">
+              <label>Start (i =)</label>
+              <input class="sim-input" type="number" id="s-start" value="1" min="-50" max="50" oninput="updatePreview()"/>
+            </div>
+            <div class="sim-field">
+              <label>End value</label>
+              <input class="sim-input" type="number" id="s-end" value="5" min="-50" max="100" oninput="updatePreview()"/>
+            </div>
+            <div class="sim-field">
+              <label>Step size</label>
+              <input class="sim-input" type="number" id="s-step" value="1" min="1" max="20" oninput="updatePreview()"/>
+            </div>
+            <div class="sim-field">
+              <label>Direction</label>
+              <select class="sim-select" id="s-dir" onchange="updatePreview()">
+                <option value="asc">Count Up (i++)</option>
+                <option value="desc">Count Down (i--)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Live code preview -->
+          <pre class="sim-preview" id="sim-preview"></pre>
+
+          <!-- Run bar -->
+          <div class="sim-run-bar">
+            <button class="btn-run-loop" id="btn-run" onclick="runLoop()">▶&nbsp; Run Loop</button>
+            <button class="btn-reset-loop" onclick="resetLoop()">↺ Reset</button>
+            <div class="speed-wrap">
+              <span class="speed-label">Speed:</span>
+              <input class="speed-slider" type="range" id="speedSlider" min="100" max="1200" value="600" step="100"/>
+              <span class="speed-label" id="speedLbl">Med</span>
+            </div>
+          </div>
+
+          <!-- Pills -->
+          <div class="result-pills" id="sim-pills"></div>
+
+          <!-- Progress -->
+          <div class="progress-wrap" id="progress-wrap" style="display:none">
+            <div class="progress-label">
+              <span>Progress</span>
+              <span id="progress-pct">0%</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+          </div>
+
+          <!-- Iteration timeline -->
+          <div class="iter-timeline" id="iter-timeline" style="margin-bottom:16px"></div>
+
+          <!-- Console -->
+          <div class="console-out">
+            <div class="console-bar">
+              <span>Console</span>
+              <div class="console-status">
+                <div class="status-dot" id="con-dot"></div>
+                <span id="con-status">Ready</span>
+              </div>
+            </div>
+            <div class="console-body" id="con-body">
+              <span class="c-dim">// Console output appears here after you run the loop</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════ TAB 4 — COMMON ERRORS ════════ -->
+    <div id="tab-errors" class="tab-content">
+      <div class="section-title"><span class="dot"></span> Common For Loop Mistakes</div>
+      <p class="section-sub">These four errors cover 90% of beginner loop bugs. Learn each one once.</p>
+
+      <div class="err-sim-btns">
+        <button class="err-btn active" onclick="showErr('infinite',this)">⚠ Infinite Loop</button>
+        <button class="err-btn" onclick="showErr('wrongcond',this)">⚠ Wrong Condition</button>
+        <button class="err-btn" onclick="showErr('obo',this)">⚠ Off-by-One Error</button>
+        <button class="err-btn" onclick="showErr('direction',this)">⚠ Wrong Direction</button>
+      </div>
+
+      <!-- INFINITE LOOP -->
+      <div class="err-panel active" id="err-infinite">
+        <div class="err-hdr">🔴 Error: Infinite Loop — Missing or Broken Update</div>
+        <div class="err-body">
+          <h4>What happened?</h4>
+          <p>The loop variable is never updated (or updated in the wrong direction), so the condition stays <code>true</code> forever. The program hangs — it never exits the loop.</p>
+          <div class="err-msg">// Program hangs — i never changes, condition always true
+for (int i = 1; i <= 5; ) {
+    System.out.println(i);  // prints "1" forever
+    // i++ was forgotten!
+}</div>
+          <div class="code-diff">
+            <div class="diff-wrong">
+              <div class="diff-lbl">❌ Wrong (no update)</div>
+              <div class="diff-code"><span class="kw">for</span> (<span class="kw">int</span> i <span class="op">=</span> <span class="num">1</span>; i <span class="op">&lt;=</span> <span class="num">5</span>; ) {
+    <span class="cls">System</span>.out.<span class="fn">println</span>(i);
+    <span class="cmt">// i never increments!</span>
+}</div>
+            </div>
+            <div class="diff-right">
+              <div class="diff-lbl">✅ Correct</div>
+              <div class="diff-code"><span class="kw">for</span> (<span class="kw">int</span> i <span class="op">=</span> <span class="num">1</span>; i <span class="op">&lt;=</span> <span class="num">5</span>; i<span class="op">++</span>) {
+    <span class="cls">System</span>.out.<span class="fn">println</span>(i);
+    <span class="cmt">// i increments each time ✓</span>
+}</div>
+            </div>
+          </div>
+          <div class="fix-tag">✅ Rule: Always ensure your update moves i towards making the condition false.</div>
+        </div>
+      </div>
+
+      <!-- WRONG CONDITION -->
+      <div class="err-panel" id="err-wrongcond">
+        <div class="err-hdr">🔴 Error: Wrong Condition — Loop Never Runs</div>
+        <div class="err-body">
+          <h4>What happened?</h4>
+          <p>The condition is already <code>false</code> before the first iteration begins. Java checks the condition first — if it's false from the start, the body never executes at all.</p>
+          <div class="err-msg">// Loop body NEVER runs — 1 is not greater than 5
+for (int i = 1; i > 5; i++) {
+    System.out.println(i);  // zero output
+}</div>
+          <div class="code-diff">
+            <div class="diff-wrong">
+              <div class="diff-lbl">❌ Wrong (condition impossible)</div>
+              <div class="diff-code"><span class="kw">for</span> (<span class="kw">int</span> i <span class="op">=</span> <span class="num">1</span>; i <span class="op">&gt;</span> <span class="num">5</span>; i<span class="op">++</span>) {
+    <span class="cls">System</span>.out.<span class="fn">println</span>(i);
+    <span class="cmt">// never executes</span>
+}</div>
+            </div>
+            <div class="diff-right">
+              <div class="diff-lbl">✅ Correct</div>
+              <div class="diff-code"><span class="kw">for</span> (<span class="kw">int</span> i <span class="op">=</span> <span class="num">1</span>; i <span class="op">&lt;=</span> <span class="num">5</span>; i<span class="op">++</span>) {
+    <span class="cls">System</span>.out.<span class="fn">println</span>(i);
+    <span class="cmt">// runs 5 times ✓</span>
+}</div>
+            </div>
+          </div>
+          <div class="fix-tag">✅ Rule: Make sure the initial value satisfies the condition on the very first check.</div>
+        </div>
+      </div>
+
+      <!-- OFF BY ONE -->
+      <div class="err-panel" id="err-obo">
+        <div class="err-hdr">🔴 Error: Off-by-One — Using &lt; vs &lt;= (or &gt; vs &gt;=)</div>
+        <div class="err-body">
+          <h4>What happened?</h4>
+          <p>Using <code>&lt;</code> instead of <code>&lt;=</code> causes the loop to run one fewer time than intended. This is one of the most frequent silent bugs in loop code.</p>
+          <div class="err-msg">// Intended: print 1 to 5
+// Actual output: 1 2 3 4  (misses 5!)
+for (int i = 1; i < 5; i++) {
+    System.out.println(i);
+}</div>
+          <div class="code-diff">
+            <div class="diff-wrong">
+              <div class="diff-lbl">❌ Wrong (stops at 4)</div>
+              <div class="diff-code"><span class="kw">for</span> (<span class="kw">int</span> i <span class="op">=</span> <span class="num">1</span>; i <span class="op">&lt;</span> <span class="num">5</span>; i<span class="op">++</span>) {
+    <span class="cls">System</span>.out.<span class="fn">println</span>(i);
+    <span class="cmt">// prints 1, 2, 3, 4 only</span>
+}</div>
+            </div>
+            <div class="diff-right">
+              <div class="diff-lbl">✅ Correct (includes 5)</div>
+              <div class="diff-code"><span class="kw">for</span> (<span class="kw">int</span> i <span class="op">=</span> <span class="num">1</span>; i <span class="op">&lt;=</span> <span class="num">5</span>; i<span class="op">++</span>) {
+    <span class="cls">System</span>.out.<span class="fn">println</span>(i);
+    <span class="cmt">// prints 1, 2, 3, 4, 5 ✓</span>
+}</div>
+            </div>
+          </div>
+          <p style="margin-top:14px;font-size:.83rem;color:var(--text2)"><strong>Quick rule of thumb:</strong></p>
+          <table class="compare-table" style="margin-top:8px">
+            <thead><tr><th>Operator</th><th>Includes end value?</th><th>Example (start=1, end=5)</th><th>Runs</th></tr></thead>
+            <tbody>
+              <tr><td class="mono">&lt;</td><td style="color:var(--accent4)">❌ No</td><td class="mono">i &lt; 5</td><td>4 times (1,2,3,4)</td></tr>
+              <tr><td class="mono">&lt;=</td><td style="color:var(--accent3)">✓ Yes</td><td class="mono">i &lt;= 5</td><td>5 times (1,2,3,4,5)</td></tr>
+            </tbody>
+          </table>
+          <div class="fix-tag" style="margin-top:12px">✅ Rule: Use &lt;= when you want to include the end value. Use &lt; for array indices (0-based).</div>
+        </div>
+      </div>
+
+      <!-- WRONG DIRECTION -->
+      <div class="err-panel" id="err-direction">
+        <div class="err-hdr">🔴 Error: Incorrect Loop Direction — Increment When Should Decrement</div>
+        <div class="err-body">
+          <h4>What happened?</h4>
+          <p>You want to count down but used <code>i++</code> instead of <code>i--</code>. The update moves <code>i</code> further from the end condition, creating an infinite loop.</p>
+          <div class="err-msg">// Intended: count down from 5 to 1
+// Actual: infinite loop — i keeps going 5, 6, 7, 8...
+for (int i = 5; i >= 1; i++) {  // should be i--
+    System.out.println(i);
+}</div>
+          <div class="code-diff">
+            <div class="diff-wrong">
+              <div class="diff-lbl">❌ Wrong (wrong direction)</div>
+              <div class="diff-code"><span class="kw">for</span> (<span class="kw">int</span> i <span class="op">=</span> <span class="num">5</span>; i <span class="op">&gt;=</span> <span class="num">1</span>; i<span class="op">++</span>) {
+    <span class="cls">System</span>.out.<span class="fn">println</span>(i);
+    <span class="cmt">// i goes 5,6,7,8... infinite!</span>
+}</div>
+            </div>
+            <div class="diff-right">
+              <div class="diff-lbl">✅ Correct (count down)</div>
+              <div class="diff-code"><span class="kw">for</span> (<span class="kw">int</span> i <span class="op">=</span> <span class="num">5</span>; i <span class="op">&gt;=</span> <span class="num">1</span>; i<span class="op">--</span>) {
+    <span class="cls">System</span>.out.<span class="fn">println</span>(i);
+    <span class="cmt">// prints 5, 4, 3, 2, 1 ✓</span>
+}</div>
+            </div>
+          </div>
+          <div class="fix-tag">✅ Rule: Counting up → use i++. Counting down → use i--. Condition must match direction.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════ TAB 5 — QUIZ ════════ -->
+    <div id="tab-quiz" class="tab-content">
+      <div class="section-title"><span class="dot"></span> Quick Check</div>
+      <p class="section-sub">4 questions. Click an option to see instant feedback with explanation.</p>
+
+      <div class="quiz-container">
+
+        <div class="quiz-block">
+          <div class="quiz-num">Question 1 of 4</div>
+          <div class="quiz-q">How many times does this loop execute?<br><span class="quiz-code">for (int i = 1; i &lt;= 5; i++)</span></div>
+          <div class="quiz-opts">
+            <div class="quiz-opt" onclick="answerQuiz(1,this,false)">⬜ 4 times</div>
+            <div class="quiz-opt" onclick="answerQuiz(1,this,true)">⬜ 5 times</div>
+            <div class="quiz-opt" onclick="answerQuiz(1,this,false)">⬜ 6 times</div>
+            <div class="quiz-opt" onclick="answerQuiz(1,this,false)">⬜ Infinite — never stops</div>
+          </div>
+          <div class="quiz-feedback" id="qf1"></div>
+        </div>
+
+        <div class="quiz-block">
+          <div class="quiz-num">Question 2 of 4</div>
+          <div class="quiz-q">What is the output of this loop?<br><span class="quiz-code">for (int i = 0; i &lt; 3; i++) { System.out.println(i); }</span></div>
+          <div class="quiz-opts">
+            <div class="quiz-opt" onclick="answerQuiz(2,this,false)">⬜ 1, 2, 3</div>
+            <div class="quiz-opt" onclick="answerQuiz(2,this,true)">⬜ 0, 1, 2</div>
+            <div class="quiz-opt" onclick="answerQuiz(2,this,false)">⬜ 0, 1, 2, 3</div>
+            <div class="quiz-opt" onclick="answerQuiz(2,this,false)">⬜ 1, 2</div>
+          </div>
+          <div class="quiz-feedback" id="qf2"></div>
+        </div>
+
+        <div class="quiz-block">
+          <div class="quiz-num">Question 3 of 4</div>
+          <div class="quiz-q">Which part of the for loop runs <strong>only once</strong> — before the first iteration?</div>
+          <div class="quiz-opts">
+            <div class="quiz-opt" onclick="answerQuiz(3,this,false)">⬜ The condition check</div>
+            <div class="quiz-opt" onclick="answerQuiz(3,this,true)">⬜ The initialization</div>
+            <div class="quiz-opt" onclick="answerQuiz(3,this,false)">⬜ The update (i++)</div>
+            <div class="quiz-opt" onclick="answerQuiz(3,this,false)">⬜ The loop body</div>
+          </div>
+          <div class="quiz-feedback" id="qf3"></div>
+        </div>
+
+        <div class="quiz-block">
+          <div class="quiz-num">Question 4 of 4</div>
+          <div class="quiz-q">What happens if you write <span class="quiz-code">for (int i = 5; i &gt;= 1; i++)</span> instead of <span class="quiz-code">i--</span>?</div>
+          <div class="quiz-opts">
+            <div class="quiz-opt" onclick="answerQuiz(4,this,false)">⬜ Loop runs 5 times as expected</div>
+            <div class="quiz-opt" onclick="answerQuiz(4,this,false)">⬜ Compile error — wrong operator</div>
+            <div class="quiz-opt" onclick="answerQuiz(4,this,true)">⬜ Infinite loop — i keeps increasing, condition never becomes false</div>
+            <div class="quiz-opt" onclick="answerQuiz(4,this,false)">⬜ Loop runs 0 times</div>
+          </div>
+          <div class="quiz-feedback" id="qf4"></div>
+        </div>
+
+      </div>
+
+      <div class="score-box" id="score-box">
+        <div class="score-num" id="score-num">0/4</div>
+        <div class="score-label" id="score-lbl"></div>
+        <button class="btn-retake" onclick="retakeQuiz()">↺ Retake Quiz</button>
+      </div>
+    </div>
+
+  </div><!-- /tabs-wrapper -->
+</div><!-- /container -->
+
+<script>
+/* ══════════════════════════════════════════════════════
+   THEME
+══════════════════════════════════════════════════════ */
+function toggleTheme() {
+  var html = document.documentElement;
+  var btn  = document.getElementById('themeToggle');
+  html.dataset.theme = html.dataset.theme === 'dark' ? 'light' : 'dark';
+  btn.textContent    = html.dataset.theme === 'dark' ? '☀ Light' : '🌙 Dark';
+}
+
+/* ══════════════════════════════════════════════════════
+   TABS
+══════════════════════════════════════════════════════ */
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-content').forEach(function(t){ t.classList.remove('active'); });
+  document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ══════════════════════════════════════════════════════
+   LOOP SIMULATOR
+══════════════════════════════════════════════════════ */
+var _loopTimer   = null;
+var _isRunning   = false;
+
+/* Speed slider label */
+document.addEventListener('DOMContentLoaded', function() {
+  updatePreview();
+  document.getElementById('speedSlider').addEventListener('input', function() {
+    var v = parseInt(this.value);
+    var lbl = v <= 300 ? 'Fast' : v <= 700 ? 'Med' : 'Slow';
+    document.getElementById('speedLbl').textContent = lbl;
+  });
+});
+
+function getParams() {
+  var start = parseInt(document.getElementById('s-start').value);
+  var end   = parseInt(document.getElementById('s-end').value);
+  var step  = Math.max(1, parseInt(document.getElementById('s-step').value) || 1);
+  var dir   = document.getElementById('s-dir').value;
+  if (isNaN(start)) start = 1;
+  if (isNaN(end))   end   = 5;
+  return { start: start, end: end, step: step, dir: dir };
+}
+
+function buildIterations(p) {
+  var iters = [];
+  var i = p.start;
+  var maxIter = 50;
+  if (p.dir === 'asc') {
+    while (i <= p.end && iters.length < maxIter) {
+      iters.push(i);
+      i += p.step;
+    }
+  } else {
+    while (i >= p.end && iters.length < maxIter) {
+      iters.push(i);
+      i -= p.step;
+    }
+  }
+  return iters;
+}
+
+function updatePreview() {
+  var p    = getParams();
+  var iters = buildIterations(p);
+  var cond = p.dir === 'asc' ? ('i <= ' + p.end) : ('i >= ' + p.end);
+  var upd  = p.dir === 'asc'
+    ? (p.step === 1 ? 'i++' : 'i += ' + p.step)
+    : (p.step === 1 ? 'i--' : 'i -= ' + p.step);
+
+  var preview = document.getElementById('sim-preview');
+  preview.innerHTML =
+    '<span class="kw">for</span> (<span class="kw">int</span> i <span class="op">=</span> <span class="num">' + p.start + '</span>; ' +
+    '<span class="op">' + cond.replace('<=','&lt;=').replace('>=','&gt;=') + '</span>; ' +
+    '<span class="op">' + upd + '</span>) {\n' +
+    '    <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"i = "</span> <span class="op">+</span> i);\n' +
+    '}\n' +
+    '<span class="cmt">// ' + (iters.length === 0 ? 'Loop never runs (condition false from start)' : 'Runs ' + iters.length + ' time' + (iters.length !== 1 ? 's' : '') + ': ' + iters.slice(0,8).join(', ') + (iters.length > 8 ? '...' : '')) + '</span>';
+}
+
+function resetLoop() {
+  if (_loopTimer) { clearTimeout(_loopTimer); _loopTimer = null; }
+  _isRunning = false;
+  document.getElementById('btn-run').disabled = false;
+  document.getElementById('btn-run').textContent = '▶ Run Loop';
+  document.getElementById('iter-timeline').innerHTML = '';
+  document.getElementById('sim-pills').innerHTML = '';
+  document.getElementById('progress-wrap').style.display = 'none';
+  document.getElementById('progress-fill').style.width = '0%';
+  document.getElementById('progress-pct').textContent = '0%';
+  var dot = document.getElementById('con-dot');
+  dot.className = 'status-dot';
+  document.getElementById('con-status').textContent = 'Ready';
+  document.getElementById('con-body').innerHTML = '<span class="c-dim">// Console output appears here after you run the loop</span>';
+}
+
+function addPill(html, type) {
+  var el = document.createElement('div');
+  el.className = 'rpill rpill-' + type;
+  el.innerHTML = html;
+  document.getElementById('sim-pills').appendChild(el);
+}
+
+function runLoop() {
+  if (_isRunning) return;
+  var p     = getParams();
+  var iters = buildIterations(p);
+
+  resetLoop();
+
+  if (iters.length === 0) {
+    addPill('⚠ Loop condition is false from the start — body never runs', 'warn');
+    var out = document.getElementById('con-body');
+    out.innerHTML = '<span class="c-warn">// Loop condition false from the start</span>\n<span class="c-dim">// Check your start/end/direction settings</span>';
+    document.getElementById('con-dot').className = 'status-dot error';
+    document.getElementById('con-status').textContent = 'Zero iterations';
+    return;
+  }
+
+  if (iters.length >= 50) {
+    addPill('⚠ Capped at 50 iterations to prevent browser overload', 'warn');
+  }
+
+  _isRunning = true;
+  document.getElementById('btn-run').disabled = true;
+  document.getElementById('btn-run').textContent = '⏸ Running...';
+  document.getElementById('progress-wrap').style.display = 'block';
+
+  var dot = document.getElementById('con-dot');
+  dot.className = 'status-dot running';
+  document.getElementById('con-status').textContent = 'Running...';
+  document.getElementById('con-body').innerHTML = '<span class="c-info">$ javac Main.java &amp;&amp; java Main</span>\n';
+
+  addPill('▶ Executing ' + iters.length + ' iteration' + (iters.length !== 1 ? 's' : ''), 'info');
+
+  var timeline = document.getElementById('iter-timeline');
+  var conBody  = document.getElementById('con-body');
+  var delay    = 1200 - parseInt(document.getElementById('speedSlider').value); // invert: high slider = fast
+
+  // Pre-build all placeholder cards
+  iters.forEach(function(val, idx) {
+    var card = document.createElement('div');
+    card.className = 'iter-card';
+    card.id = 'ic-' + idx;
+    card.innerHTML =
+      '<div class="iter-badge" id="ib-' + idx + '">' + (idx + 1) + '</div>' +
+      '<div class="iter-info">' +
+        '<div class="it-label">Iteration ' + (idx + 1) + '</div>' +
+        '<div class="it-val" id="iv-' + idx + '">i = ?</div>' +
+      '</div>' +
+      '<span class="iter-cond" id="ico-' + idx + '"></span>' +
+      '<span class="iter-check" id="ick-' + idx + '" style="display:none">✓</span>';
+    timeline.appendChild(card);
+  });
+
+  function runIter(idx) {
+    if (idx >= iters.length) {
+      // Done
+      _isRunning = false;
+      document.getElementById('btn-run').disabled = false;
+      document.getElementById('btn-run').textContent = '▶ Run Loop';
+      dot.className = 'status-dot done';
+      document.getElementById('con-status').textContent = 'Done (exit 0)';
+      document.getElementById('progress-fill').style.width = '100%';
+      document.getElementById('progress-pct').textContent = '100%';
+      conBody.innerHTML += '\n<span class="c-dim">Process finished with exit code 0</span>';
+      document.getElementById('sim-pills').innerHTML = '';
+      addPill('✓ Loop complete — ' + iters.length + ' iteration' + (iters.length !== 1 ? 's' : '') + ' executed', 'success');
+      return;
+    }
+
+    var val  = iters[idx];
+    var card = document.getElementById('ic-' + idx);
+    var prev = idx > 0 ? document.getElementById('ic-' + (idx - 1)) : null;
+
+    /* Mark previous as done */
+    if (prev) {
+      prev.classList.remove('current');
+      prev.classList.add('done');
+      document.getElementById('ib-' + (idx - 1)).className = 'iter-badge done-badge';
+      document.getElementById('iv-' + (idx - 1)).className = 'it-val done-val';
+      document.getElementById('ick-' + (idx - 1)).style.display = 'inline';
+    }
+
+    /* Show current card */
+    card.classList.add('visible');
+    setTimeout(function() { card.classList.add('current'); }, 30);
+
+    document.getElementById('iv-' + idx).textContent = 'i = ' + val;
+    document.getElementById('ico-' + idx).textContent = 'println("i = ' + val + '")';
+
+    /* Append to console */
+    conBody.innerHTML += 'i = ' + val + '\n';
+    conBody.scrollTop = conBody.scrollHeight;
+
+    /* Update progress */
+    var pct = Math.round(((idx + 1) / iters.length) * 100);
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('progress-pct').textContent = pct + '%';
+
+    _loopTimer = setTimeout(function() { runIter(idx + 1); }, delay);
+  }
+
+  runIter(0);
+}
+
+/* ══════════════════════════════════════════════════════
+   ERROR TAB
+══════════════════════════════════════════════════════ */
+function showErr(id, btn) {
+  document.querySelectorAll('.err-panel').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.err-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.getElementById('err-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ══════════════════════════════════════════════════════
+   QUIZ
+══════════════════════════════════════════════════════ */
+var quizExp = {
+  1: {
+    c: '✅ Correct! i starts at 1 and runs while i ≤ 5. So i = 1, 2, 3, 4, 5 — that is exactly 5 iterations.',
+    w: '❌ Not quite. i starts at 1 and the condition is i ≤ 5. It runs for i = 1, 2, 3, 4, 5 → 5 times total.'
+  },
+  2: {
+    c: '✅ Correct! i starts at 0, condition is i < 3. So i = 0, 1, 2 are printed. When i = 3, the condition 3 < 3 is false → loop stops.',
+    w: '❌ Not quite. i starts at 0. The condition is i < 3 (strictly less than). So it prints 0, 1, 2 — stops before 3.'
+  },
+  3: {
+    c: '✅ Correct! The initialization (int i = 1) runs exactly once before the first condition check. The condition, update, and body all repeat on each iteration.',
+    w: '❌ Not quite. The initialization runs only once. The condition is checked every iteration. The update (i++) runs after every body execution.'
+  },
+  4: {
+    c: '✅ Correct! i starts at 5 and keeps increasing (i++), so it goes 5, 6, 7, 8... The condition i >= 1 never becomes false → infinite loop.',
+    w: '❌ Not quite. Using i++ when counting down means i goes 5, 6, 7... The condition i >= 1 is always true → infinite loop. Use i-- to count down.'
+  }
+};
+
+var quizAnswers = {}, quizCorrect = 0;
+
+function answerQuiz(n, el, correct) {
+  if (quizAnswers[n] !== undefined) return;
+  quizAnswers[n] = correct;
+  if (correct) quizCorrect++;
+
+  el.closest('.quiz-opts').querySelectorAll('.quiz-opt').forEach(function(o){ o.classList.add('disabled'); });
+  el.classList.add(correct ? 'correct' : 'wrong');
+
+  var fb = document.getElementById('qf' + n);
+  fb.innerHTML   = correct ? quizExp[n].c : quizExp[n].w;
+  fb.className   = 'quiz-feedback show ' + (correct ? 'correct' : 'wrong');
+
+  if (Object.keys(quizAnswers).length === 4) setTimeout(showScore, 500);
+}
+
+function showScore() {
+  var box = document.getElementById('score-box');
+  var num = document.getElementById('score-num');
+  var lbl = document.getElementById('score-lbl');
+  num.textContent = quizCorrect + '/4';
+  num.style.color = quizCorrect === 4 ? 'var(--accent3)' : quizCorrect >= 2 ? 'var(--accent)' : 'var(--accent4)';
+  lbl.textContent = quizCorrect === 4 ? '🎉 Perfect! You have mastered for loop basics.' :
+                    quizCorrect >= 2   ? '👍 Good job! Review the ones you missed.' :
+                                         '📖 Revisit the Syntax Breakdown tab and try again.';
+  box.classList.add('show');
+}
+
+function retakeQuiz() {
+  quizAnswers = {}; quizCorrect = 0;
+  document.getElementById('score-box').classList.remove('show');
+  document.querySelectorAll('.quiz-opt').forEach(function(o) {
+    o.className = 'quiz-opt';
+    if (!o.textContent.startsWith('⬜')) o.innerHTML = '⬜ ' + o.innerHTML.replace(/^[✓✗✅❌]\s*/, '');
+  });
+  document.querySelectorAll('.quiz-feedback').forEach(function(f) { f.className = 'quiz-feedback'; f.innerHTML = ''; });
+}
+</script>
+</body>
+</html>

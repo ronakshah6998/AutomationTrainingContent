@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Introduction to Java & IDE Setup</title>
+<style>
+  /* ── TOKENS ─────────────────────────────────────────────── */
+  :root {
+    --bg:        #0d1117;
+    --surface:   #161b22;
+    --surface2:  #1f2937;
+    --border:    #30363d;
+    --accent:    #f89820;
+    --accent2:   #4fa3e0;
+    --accent3:   #58d68d;
+    --accent4:   #e74c3c;
+    --text:      #e6edf3;
+    --text2:     #8b949e;
+    --text3:     #c9d1d9;
+    --tab-bg:    #161b22;
+    --tab-active:#1f2937;
+    --code-bg:   #0d1117;
+    --radius:    10px;
+    --shadow:    0 4px 24px rgba(0,0,0,.45);
+    --font-mono: 'Courier New', Courier, monospace;
+  }
+  [data-theme="light"] {
+    --bg:        #f0f4f8;
+    --surface:   #ffffff;
+    --surface2:  #e8eef5;
+    --border:    #d1d9e0;
+    --text:      #1a202c;
+    --text2:     #4a5568;
+    --text3:     #2d3748;
+    --tab-bg:    #e8eef5;
+    --tab-active:#ffffff;
+    --code-bg:   #1e2127;
+    --shadow:    0 4px 24px rgba(0,0,0,.12);
+  }
+
+  /* ── RESET ──────────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    transition: background .3s, color .3s;
+    line-height: 1.65;
+  }
+
+  /* ── HEADER ─────────────────────────────────────────────── */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 62px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 1px 0 var(--border);
+  }
+  .logo {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 1.05rem; font-weight: 700; letter-spacing: -.3px;
+  }
+  .logo-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--accent), #e05a00);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 900; color: #fff;
+  }
+  .badge {
+    font-size: .68rem; font-weight: 600; padding: 2px 8px;
+    border-radius: 20px; background: var(--accent); color: #000;
+    text-transform: uppercase; letter-spacing: .5px;
+  }
+  .header-right { display: flex; align-items: center; gap: 12px; }
+  #themeToggle {
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text); border-radius: 8px; padding: 6px 14px;
+    cursor: pointer; font-size: .85rem; transition: all .2s;
+  }
+  #themeToggle:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── LAYOUT ─────────────────────────────────────────────── */
+  .container { max-width: 1100px; margin: 0 auto; padding: 32px 20px 80px; }
+
+  /* ── HERO ───────────────────────────────────────────────── */
+  .hero {
+    background: linear-gradient(135deg, var(--surface) 0%, var(--surface2) 100%);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 36px 40px;
+    margin-bottom: 28px;
+    display: flex; align-items: center; gap: 28px;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; top: -60px; right: -60px;
+    width: 240px; height: 240px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(248,152,32,.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-icon {
+    font-size: 64px; flex-shrink: 0;
+    filter: drop-shadow(0 4px 16px rgba(248,152,32,.4));
+  }
+  .hero-text h1 { font-size: 1.75rem; font-weight: 800; line-height: 1.2; }
+  .hero-text h1 span { color: var(--accent); }
+  .hero-text p { color: var(--text2); margin-top: 8px; font-size: .95rem; }
+  .hero-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .pill {
+    padding: 4px 12px; border-radius: 20px; font-size: .78rem; font-weight: 600;
+    border: 1px solid; display: flex; align-items: center; gap: 5px;
+  }
+  .pill-orange { color: var(--accent);  border-color: rgba(248,152,32,.35); background: rgba(248,152,32,.08); }
+  .pill-blue   { color: var(--accent2); border-color: rgba(79,163,224,.35);  background: rgba(79,163,224,.08); }
+  .pill-green  { color: var(--accent3); border-color: rgba(88,214,141,.35);  background: rgba(88,214,141,.08); }
+
+  /* ── TABS ───────────────────────────────────────────────── */
+  .tabs-wrapper {
+    background: var(--tab-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .tab-nav {
+    display: flex; overflow-x: auto;
+    border-bottom: 1px solid var(--border);
+    scrollbar-width: none;
+  }
+  .tab-nav::-webkit-scrollbar { display: none; }
+  .tab-btn {
+    flex-shrink: 0;
+    padding: 14px 22px;
+    background: none; border: none;
+    color: var(--text2); font-size: .88rem; font-weight: 600;
+    cursor: pointer; position: relative;
+    transition: color .2s; letter-spacing: .1px;
+    display: flex; align-items: center; gap: 7px;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active {
+    color: var(--accent);
+    background: var(--tab-active);
+  }
+  .tab-btn.active::after {
+    content: '';
+    position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+    background: var(--accent); border-radius: 2px 2px 0 0;
+  }
+  .tab-icon { font-size: 1rem; }
+  .tab-content { display: none; padding: 32px; }
+  .tab-content.active { display: block; animation: fadeIn .25s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  /* ── SECTION HEADINGS ───────────────────────────────────── */
+  .section-title {
+    font-size: 1.2rem; font-weight: 800; margin-bottom: 6px;
+    display: flex; align-items: center; gap: 9px;
+  }
+  .section-title .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
+  .section-sub { color: var(--text2); font-size: .9rem; margin-bottom: 22px; }
+
+  /* ── CARDS ──────────────────────────────────────────────── */
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px,1fr)); gap: 16px; margin-bottom: 28px; }
+  .card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px;
+    transition: border-color .2s, transform .2s;
+  }
+  .card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .card-icon { font-size: 1.6rem; margin-bottom: 10px; }
+  .card h3 { font-size: .95rem; font-weight: 700; margin-bottom: 6px; }
+  .card p { font-size: .83rem; color: var(--text2); line-height: 1.55; }
+
+  /* ── INFO BOX ───────────────────────────────────────────── */
+  .info-box {
+    border-radius: var(--radius); padding: 16px 20px;
+    font-size: .875rem; margin-bottom: 20px;
+    border-left: 4px solid; display: flex; gap: 12px; align-items: flex-start;
+  }
+  .info-box .ib-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 1px; }
+  .info-box.blue   { background: rgba(79,163,224,.1);  border-color: var(--accent2); }
+  .info-box.orange { background: rgba(248,152,32,.1);  border-color: var(--accent);  }
+  .info-box.green  { background: rgba(88,214,141,.1);  border-color: var(--accent3); }
+  .info-box.red    { background: rgba(231,76,60,.1);   border-color: var(--accent4); }
+
+  /* ── STEPS ──────────────────────────────────────────────── */
+  .steps { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+  .step {
+    display: flex; gap: 14px; align-items: flex-start;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 18px;
+  }
+  .step-num {
+    flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%;
+    background: var(--accent); color: #000; font-weight: 800; font-size: .8rem;
+    display: flex; align-items: center; justify-content: center; margin-top: 1px;
+  }
+  .step-body h4 { font-size: .9rem; font-weight: 700; margin-bottom: 3px; }
+  .step-body p  { font-size: .83rem; color: var(--text2); }
+  .step-body code {
+    font-family: var(--font-mono); font-size: .8rem;
+    background: var(--code-bg); padding: 1px 6px; border-radius: 4px;
+    color: var(--accent3); border: 1px solid var(--border);
+  }
+
+  /* ── IDE TOGGLE ─────────────────────────────────────────── */
+  .ide-toggle {
+    display: flex; gap: 0; margin-bottom: 22px;
+    border: 1px solid var(--border); border-radius: 10px; overflow: hidden; width: fit-content;
+  }
+  .ide-btn {
+    padding: 10px 24px; border: none; cursor: pointer;
+    font-size: .875rem; font-weight: 600; transition: all .2s;
+    display: flex; align-items: center; gap: 8px; background: var(--surface2); color: var(--text2);
+  }
+  .ide-btn.active.intellij { background: #6b57ff; color: #fff; }
+  .ide-btn.active.eclipse  { background: #2c6ab5; color: #fff; }
+
+  .ide-panel { display: none; }
+  .ide-panel.active { display: block; }
+
+  /* ── COMPARE TABLE ──────────────────────────────────────── */
+  .compare-table { width: 100%; border-collapse: collapse; font-size: .875rem; margin-top: 20px; }
+  .compare-table th {
+    text-align: left; padding: 10px 16px;
+    background: var(--surface2); color: var(--text2); font-weight: 700; font-size: .78rem;
+    text-transform: uppercase; letter-spacing: .5px; border-bottom: 1px solid var(--border);
+  }
+  .compare-table td { padding: 11px 16px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .compare-table tr:last-child td { border-bottom: none; }
+  .compare-table tr:hover td { background: rgba(255,255,255,.02); }
+  .yes { color: var(--accent3); font-weight: 700; }
+  .no  { color: var(--text2); }
+
+  /* ── CODE BLOCK ─────────────────────────────────────────── */
+  .code-wrap {
+    background: var(--code-bg); border: 1px solid var(--border);
+    border-radius: var(--radius); overflow: hidden; margin: 16px 0;
+  }
+  .code-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 16px; border-bottom: 1px solid var(--border);
+    background: rgba(255,255,255,.03);
+  }
+  .code-lang { font-size: .75rem; color: var(--text2); font-weight: 600; display: flex; align-items: center; gap: 8px; }
+  .code-dots { display: flex; gap: 5px; }
+  .code-dots span { width: 11px; height: 11px; border-radius: 50%; }
+  .code-dots .r { background: #ff5f57; }
+  .code-dots .y { background: #ffbd2e; }
+  .code-dots .g { background: #28c840; }
+  pre {
+    padding: 20px; overflow-x: auto; font-family: var(--font-mono);
+    font-size: .85rem; line-height: 1.75; color: #abb2bf;
+  }
+  pre code { background: none; border: none; padding: 0; font-size: inherit; color: inherit; }
+
+  /* syntax */
+  .kw  { color: #c678dd; font-weight: 600; }
+  .cls { color: #e5c07b; }
+  .fn  { color: #61afef; }
+  .str { color: #98c379; }
+  .cmt { color: #5c6370; font-style: italic; }
+  .num { color: #d19a66; }
+  .ann { color: #e06c75; }
+
+  /* ── LINE EXPLAIN ───────────────────────────────────────── */
+  .line-explain {
+    display: flex; flex-direction: column; gap: 8px; margin-top: 18px;
+  }
+  .le-row {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--surface2); font-size: .845rem; cursor: pointer;
+    transition: border-color .2s, background .2s;
+  }
+  .le-row:hover { border-color: var(--accent2); }
+  .le-code {
+    font-family: var(--font-mono); font-size: .78rem; color: var(--accent2);
+    background: var(--code-bg); padding: 2px 8px; border-radius: 5px;
+    flex-shrink: 0; align-self: center; white-space: nowrap;
+  }
+  .le-desc { color: var(--text3); line-height: 1.5; }
+
+  /* ── JVM PIPELINE ───────────────────────────────────────── */
+  .jvm-flow {
+    display: flex; align-items: center; flex-wrap: wrap;
+    gap: 8px; margin: 22px 0; justify-content: center;
+  }
+  .jvm-box {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 16px 20px; text-align: center; min-width: 120px;
+    transition: all .3s;
+  }
+  .jvm-box .jb-icon { font-size: 1.8rem; margin-bottom: 6px; }
+  .jvm-box .jb-label { font-size: .78rem; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: .5px; }
+  .jvm-box .jb-val   { font-size: .88rem; font-weight: 600; margin-top: 2px; }
+  .jvm-arrow { font-size: 1.4rem; color: var(--accent); }
+  .jvm-box.lit { border-color: var(--accent); background: rgba(248,152,32,.08); }
+  .jvm-box.lit .jb-label { color: var(--accent); }
+
+  #runPipeline {
+    display: block; margin: 0 auto 10px;
+    background: linear-gradient(135deg, var(--accent), #e05a00);
+    color: #000; border: none; border-radius: 8px;
+    padding: 10px 28px; font-weight: 800; font-size: .9rem;
+    cursor: pointer; transition: opacity .2s, transform .2s;
+  }
+  #runPipeline:hover { opacity: .9; transform: translateY(-1px); }
+
+  /* ── CONSOLE ─────────────────────────────────────────────── */
+  .console {
+    background: #0a0e13; border: 1px solid var(--border);
+    border-radius: var(--radius); overflow: hidden; margin-top: 16px;
+  }
+  .console-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 9px 16px; background: #111820; border-bottom: 1px solid var(--border);
+    font-size: .78rem; color: var(--text2); font-weight: 600;
+  }
+  .console-bar .status { display: flex; align-items: center; gap: 6px; }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #555; transition: background .3s; }
+  .status-dot.running { background: var(--accent3); animation: pulse 1s infinite; }
+  .status-dot.done    { background: var(--accent3); }
+  .status-dot.error   { background: var(--accent4); }
+  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.4} }
+  .console-body {
+    padding: 18px 20px; font-family: var(--font-mono);
+    font-size: .875rem; min-height: 90px; line-height: 1.8;
+    color: #a8ff78;
+  }
+  .console-body .c-err  { color: #ff6b6b; }
+  .console-body .c-info { color: #7ec8e3; }
+  .console-body .c-dim  { color: #555; }
+
+  /* ── ERROR SIMULATOR ────────────────────────────────────── */
+  .err-sim-btns {
+    display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px;
+  }
+  .err-btn {
+    padding: 8px 18px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--surface2); color: var(--text); font-size: .84rem;
+    font-weight: 600; cursor: pointer; transition: all .2s;
+    display: flex; align-items: center; gap: 7px;
+  }
+  .err-btn:hover   { border-color: var(--accent4); color: var(--accent4); }
+  .err-btn.active  { background: rgba(231,76,60,.15); border-color: var(--accent4); color: var(--accent4); }
+
+  .err-panel {
+    display: none; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--radius); overflow: hidden;
+  }
+  .err-panel.active { display: block; animation: fadeIn .2s ease; }
+  .err-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 18px; background: rgba(231,76,60,.12);
+    border-bottom: 1px solid var(--border); font-size: .875rem; font-weight: 700;
+    color: var(--accent4);
+  }
+  .err-body { padding: 18px; }
+  .err-body h4 { font-size: .9rem; font-weight: 700; margin-bottom: 8px; }
+  .err-body p  { font-size: .85rem; color: var(--text2); margin-bottom: 10px; }
+  .err-msg {
+    font-family: var(--font-mono); font-size: .8rem;
+    background: var(--code-bg); border: 1px solid rgba(231,76,60,.3);
+    border-radius: 7px; padding: 12px 16px; color: #ff6b6b;
+    margin-bottom: 12px; white-space: pre; overflow-x: auto;
+  }
+  .fix-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(88,214,141,.1); border: 1px solid rgba(88,214,141,.3);
+    color: var(--accent3); border-radius: 6px; padding: 5px 12px;
+    font-size: .82rem; font-weight: 600; margin-top: 4px;
+  }
+
+  /* ── TRY IT ──────────────────────────────────────────────── */
+  .tryit-area {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--radius); overflow: hidden; margin-bottom: 20px;
+  }
+  .tryit-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 11px 18px; border-bottom: 1px solid var(--border);
+    background: rgba(255,255,255,.03); font-size: .85rem; font-weight: 700;
+  }
+  .tryit-editor {
+    width: 100%; min-height: 200px;
+    background: var(--code-bg); border: none; outline: none;
+    color: #abb2bf; font-family: var(--font-mono); font-size: .875rem;
+    padding: 18px 20px; resize: vertical; line-height: 1.75;
+  }
+  .run-bar {
+    display: flex; align-items: center; gap: 10px; padding: 12px 18px;
+    background: rgba(255,255,255,.02); border-top: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .btn-run {
+    background: var(--accent3); color: #000; border: none; border-radius: 7px;
+    padding: 8px 22px; font-weight: 800; font-size: .875rem; cursor: pointer;
+    display: flex; align-items: center; gap: 7px; transition: opacity .2s, transform .2s;
+  }
+  .btn-run:hover { opacity: .87; transform: translateY(-1px); }
+  .btn-reset {
+    background: none; border: 1px solid var(--border); color: var(--text2);
+    border-radius: 7px; padding: 8px 18px; font-size: .875rem; cursor: pointer;
+    transition: all .2s;
+  }
+  .btn-reset:hover { border-color: var(--text2); color: var(--text); }
+  .hint-label { font-size: .78rem; color: var(--text2); margin-left: auto; }
+
+  /* ── QUIZ SNIPPET ───────────────────────────────────────── */
+  .quiz-block {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px; margin-top: 24px;
+  }
+  .quiz-q { font-weight: 700; font-size: .9rem; margin-bottom: 14px; }
+  .quiz-opts { display: flex; flex-direction: column; gap: 9px; }
+  .quiz-opt {
+    padding: 10px 16px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--bg); font-size: .875rem; cursor: pointer; transition: all .2s;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .quiz-opt:hover { border-color: var(--accent2); }
+  .quiz-opt.correct { border-color: var(--accent3); background: rgba(88,214,141,.1); color: var(--accent3); }
+  .quiz-opt.wrong   { border-color: var(--accent4); background: rgba(231,76,60,.08);  color: var(--accent4); }
+  .quiz-feedback { margin-top: 12px; font-size: .85rem; min-height: 20px; }
+
+  /* ── PROGRESS BAR ───────────────────────────────────────── */
+  .progress-bar-wrap { margin-bottom: 28px; }
+  .pb-label { font-size: .78rem; color: var(--text2); margin-bottom: 6px; font-weight: 600; display: flex; justify-content: space-between; }
+  .pb { height: 5px; background: var(--border); border-radius: 10px; overflow: hidden; }
+  .pb-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 10px; transition: width .6s ease; }
+
+  /* ── RESPONSIVE ─────────────────────────────────────────── */
+  @media (max-width: 650px) {
+    .hero { flex-direction: column; padding: 24px 20px; }
+    .tab-btn { padding: 12px 14px; font-size: .8rem; }
+    .tab-content { padding: 20px 16px; }
+    .jvm-flow { gap: 6px; }
+    .jvm-box { min-width: 90px; padding: 12px 14px; }
+    .hero-text h1 { font-size: 1.35rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ─────────────────────────────────────────────── -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">J</div>
+    Java Essentials
+    <span class="badge">Module 1</span>
+  </div>
+  <div class="header-right">
+    <button id="themeToggle" onclick="toggleTheme()">☀ Light</button>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- ── HERO ──────────────────────────────────────────────── -->
+  <div class="hero">
+    <div class="hero-icon">☕</div>
+    <div class="hero-text">
+      <h1>Introduction to <span>Java</span> &amp; Setting Up Your IDE</h1>
+      <p>Write your first Java program, understand how the JVM works, and set up IntelliJ or Eclipse — the right way.</p>
+      <div class="hero-pills">
+        <span class="pill pill-orange">☕ Java Basics</span>
+        <span class="pill pill-blue">⚙ IDE Setup</span>
+        <span class="pill pill-green">✓ Beginner Friendly</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TABS ───────────────────────────────────────────────── -->
+  <div class="tabs-wrapper">
+    <div class="tab-nav">
+      <button class="tab-btn active" onclick="switchTab('overview',this)">
+        <span class="tab-icon">📖</span> Overview
+      </button>
+      <button class="tab-btn" onclick="switchTab('setup',this)">
+        <span class="tab-icon">⚙</span> Setup
+      </button>
+      <button class="tab-btn" onclick="switchTab('firstprog',this)">
+        <span class="tab-icon">💻</span> First Program
+      </button>
+      <button class="tab-btn" onclick="switchTab('jvm',this)">
+        <span class="tab-icon">⚡</span> How Java Runs
+      </button>
+      <button class="tab-btn" onclick="switchTab('errors',this)">
+        <span class="tab-icon">🚨</span> Common Errors
+      </button>
+      <button class="tab-btn" onclick="switchTab('tryit',this)">
+        <span class="tab-icon">🧪</span> Try It
+      </button>
+    </div>
+
+    <!-- ════════════ OVERVIEW ════════════ -->
+    <div id="tab-overview" class="tab-content active">
+      <div class="section-title"><span class="dot"></span> What is Java?</div>
+      <p class="section-sub">A platform-independent, object-oriented language — used everywhere from Android apps to enterprise systems.</p>
+
+      <div class="cards">
+        <div class="card">
+          <div class="card-icon">🌐</div>
+          <h3>Write Once, Run Anywhere</h3>
+          <p>Java code compiles to <strong>bytecode</strong> — not machine code. The JVM runs it on any OS without recompiling.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🏗</div>
+          <h3>Object-Oriented</h3>
+          <p>Everything lives inside a <strong>class</strong>. Java enforces structure, making large codebases manageable.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🛡</div>
+          <h3>Strongly Typed</h3>
+          <p>Every variable has a declared type. No guessing — errors are caught at <strong>compile time</strong>, not runtime.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🔋</div>
+          <h3>Massive Ecosystem</h3>
+          <p>Maven, Spring, Selenium, JUnit — thousands of battle-tested libraries ready to use.</p>
+        </div>
+      </div>
+
+      <div class="info-box blue">
+        <span class="ib-icon">💡</span>
+        <div><strong>Why Java for Automation?</strong><br>
+        Selenium WebDriver's primary bindings are in Java. Most enterprise automation frameworks (TestNG, Cucumber-JVM, RestAssured) are Java-first. Learning Java = unlocking the full power of the automation ecosystem.</div>
+      </div>
+
+      <div class="section-title" style="margin-top:28px"><span class="dot"></span> The Java Family</div>
+      <div class="cards" style="margin-top:14px">
+        <div class="card">
+          <div class="card-icon">☕</div>
+          <h3>JDK — Java Development Kit</h3>
+          <p>What YOU install. Includes the compiler (<code style="font-family:monospace;color:var(--accent3)">javac</code>), runtime, and developer tools.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🖥</div>
+          <h3>JRE — Java Runtime Env</h3>
+          <p>What end-users install to run Java apps. No compiler — only the JVM + libraries.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">⚙</div>
+          <h3>JVM — Java Virtual Machine</h3>
+          <p>The engine that executes bytecode. Each OS has its own JVM — but bytecode is the same everywhere.</p>
+        </div>
+      </div>
+
+      <!-- mini quiz -->
+      <div class="quiz-block">
+        <div class="quiz-q">🧠 Quick Check: Which component do developers install to compile and run Java programs?</div>
+        <div class="quiz-opts">
+          <div class="quiz-opt" onclick="checkQuiz(this,'wrong')">⬜ JRE (Java Runtime Environment)</div>
+          <div class="quiz-opt" onclick="checkQuiz(this,'correct')">⬜ JDK (Java Development Kit)</div>
+          <div class="quiz-opt" onclick="checkQuiz(this,'wrong')">⬜ JVM (Java Virtual Machine)</div>
+          <div class="quiz-opt" onclick="checkQuiz(this,'wrong')">⬜ JAR (Java Archive)</div>
+        </div>
+        <div class="quiz-feedback" id="quizFeedback1"></div>
+      </div>
+    </div>
+
+    <!-- ════════════ SETUP ════════════ -->
+    <div id="tab-setup" class="tab-content">
+      <div class="section-title"><span class="dot"></span> Install the JDK First</div>
+      <p class="section-sub">Before touching any IDE, you need the Java Development Kit on your machine.</p>
+
+      <ul class="steps">
+        <li class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <h4>Download JDK 17 (LTS)</h4>
+            <p>Go to <code>adoptium.net</code> → choose <strong>Temurin 17 (LTS)</strong> → pick your OS. LTS = Long Term Support = stable for production.</p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <h4>Run the Installer</h4>
+            <p>Windows: double-click the <code>.msi</code>. Mac: open the <code>.pkg</code>. Accept defaults — it installs to <code>C:\Program Files\Java\</code> on Windows.</p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <h4>Set JAVA_HOME (Windows)</h4>
+            <p>System → Environment Variables → New System Variable: <code>JAVA_HOME = C:\Program Files\Java\jdk-17</code> then add <code>%JAVA_HOME%\bin</code> to PATH.</p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <h4>Verify in Terminal</h4>
+            <p>Open CMD / Terminal and run:<br><code>java -version</code> → should print <em>openjdk version "17.x.x"</em></p>
+          </div>
+        </li>
+      </ul>
+
+      <div class="info-box orange" style="margin-top:20px">
+        <span class="ib-icon">⚠</span>
+        <div><strong>Tip:</strong> Always use a <strong>LTS</strong> version for learning and project work. Java 17 or Java 21 are your best bets in 2024+.</div>
+      </div>
+
+      <!-- IDE Toggle -->
+      <div class="section-title" style="margin-top:30px"><span class="dot"></span> Choose Your IDE</div>
+      <p class="section-sub" style="margin-bottom:16px">Both are excellent. Toggle below to see steps for each.</p>
+
+      <div class="ide-toggle">
+        <button class="ide-btn intellij active" onclick="switchIde('intellij',this)">
+          🟣 IntelliJ IDEA
+        </button>
+        <button class="ide-btn eclipse" onclick="switchIde('eclipse',this)">
+          🔵 Eclipse
+        </button>
+      </div>
+
+      <!-- IntelliJ Panel -->
+      <div class="ide-panel active" id="panel-intellij">
+        <div class="info-box blue" style="margin-bottom:16px">
+          <span class="ib-icon">🟣</span>
+          <div><strong>IntelliJ IDEA Community</strong> — Free, feature-rich, and the most popular Java IDE today. Recommended for beginners and professionals.</div>
+        </div>
+        <ul class="steps">
+          <li class="step"><div class="step-num">1</div><div class="step-body"><h4>Download</h4><p>jetbrains.com/idea → Download <strong>Community Edition</strong> (free). Avoid Ultimate unless you need web frameworks.</p></div></li>
+          <li class="step"><div class="step-num">2</div><div class="step-body"><h4>Install &amp; Launch</h4><p>Run the installer → check <em>"Add to PATH"</em> and <em>".java"</em> association. Launch after install.</p></div></li>
+          <li class="step"><div class="step-num">3</div><div class="step-body"><h4>New Project</h4><p>File → New Project → <strong>Java</strong> → set SDK to your JDK 17 path → Name it <code>HelloJava</code> → Finish.</p></div></li>
+          <li class="step"><div class="step-num">4</div><div class="step-body"><h4>Create a Class</h4><p>Right-click <code>src</code> → New → Java Class → name it <code>HelloWorld</code>. IntelliJ creates the class skeleton for you.</p></div></li>
+          <li class="step"><div class="step-num">5</div><div class="step-body"><h4>Run</h4><p>Click the green ▶ button next to <code>main</code> or press <code>Shift+F10</code>. Output appears in the Run panel below.</p></div></li>
+        </ul>
+      </div>
+
+      <!-- Eclipse Panel -->
+      <div class="ide-panel" id="panel-eclipse">
+        <div class="info-box blue" style="margin-bottom:16px">
+          <span class="ib-icon">🔵</span>
+          <div><strong>Eclipse IDE</strong> — Free, open-source, widely used in enterprise. Slightly more manual to set up, but very powerful.</div>
+        </div>
+        <ul class="steps">
+          <li class="step"><div class="step-num">1</div><div class="step-body"><h4>Download</h4><p>eclipse.org/downloads → Get <strong>"Eclipse IDE for Java Developers"</strong> package. Extract the zip to a folder (e.g., <code>C:\eclipse</code>).</p></div></li>
+          <li class="step"><div class="step-num">2</div><div class="step-body"><h4>Launch &amp; Workspace</h4><p>Run <code>eclipse.exe</code>. It asks for a <em>workspace</em> folder — this is where all your projects live. Pick or create one.</p></div></li>
+          <li class="step"><div class="step-num">3</div><div class="step-body"><h4>New Java Project</h4><p>File → New → Java Project → Name it <code>HelloJava</code> → verify JRE is set to your JDK → Finish.</p></div></li>
+          <li class="step"><div class="step-num">4</div><div class="step-body"><h4>Create a Class</h4><p>Right-click <code>src</code> → New → Class → name <code>HelloWorld</code> → check <em>"public static void main"</em> → Finish.</p></div></li>
+          <li class="step"><div class="step-num">5</div><div class="step-body"><h4>Run</h4><p>Right-click the file → <em>Run As → Java Application</em>. Output shows in the Console view at the bottom.</p></div></li>
+        </ul>
+      </div>
+
+      <!-- Comparison table -->
+      <div class="section-title" style="margin-top:30px"><span class="dot"></span> IntelliJ vs Eclipse — At a Glance</div>
+      <table class="compare-table" style="margin-top:16px">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>🟣 IntelliJ IDEA</th>
+            <th>🔵 Eclipse</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Cost</td><td>Free (Community)</td><td>Free (Open Source)</td></tr>
+          <tr><td>Setup Difficulty</td><td class="yes">Easier</td><td class="no">Moderate</td></tr>
+          <tr><td>Code Completion</td><td class="yes">Excellent (AI-assisted)</td><td>Good</td></tr>
+          <tr><td>UI / UX</td><td class="yes">Modern, polished</td><td class="no">Traditional</td></tr>
+          <tr><td>Plugin Ecosystem</td><td>Very rich</td><td class="yes">Very rich (older)</td></tr>
+          <tr><td>Maven/Gradle Support</td><td class="yes">Built-in</td><td>Via plugin (m2e)</td></tr>
+          <tr><td>Industry Usage</td><td class="yes">Growing fast</td><td>Legacy enterprise</td></tr>
+          <tr><td>Best For</td><td>New learners + pros</td><td>Enterprise legacy teams</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ════════════ FIRST PROGRAM ════════════ -->
+    <div id="tab-firstprog" class="tab-content">
+      <div class="section-title"><span class="dot"></span> Hello World — Your First Java Program</div>
+      <p class="section-sub">Every journey starts here. Let's write it, understand every line, then run it.</p>
+
+      <div class="code-wrap">
+        <div class="code-header">
+          <div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+          <div class="code-lang">☕ HelloWorld.java</div>
+          <div></div>
+        </div>
+        <pre><code><span class="cmt">// File must be named HelloWorld.java</span>
+
+<span class="kw">public</span> <span class="kw">class</span> <span class="cls">HelloWorld</span> {
+
+    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">main</span>(<span class="cls">String</span>[] args) {
+
+        <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Hello, World!"</span>);
+
+    }
+
+}</code></pre>
+      </div>
+
+      <div class="section-title" style="margin-top:24px; font-size:1rem"><span class="dot"></span> Line-by-Line Breakdown</div>
+      <p style="font-size:.85rem;color:var(--text2);margin-bottom:14px">Click any row to highlight what it does:</p>
+
+      <div class="line-explain" id="lineExplain">
+        <div class="le-row" onclick="highlightLine(this)">
+          <div class="le-code">public class HelloWorld</div>
+          <div class="le-desc"><strong>Class declaration.</strong> In Java, every file must have a class. The class name must exactly match the filename (<code>HelloWorld.java</code>). <code>public</code> means it's accessible from anywhere.</div>
+        </div>
+        <div class="le-row" onclick="highlightLine(this)">
+          <div class="le-code">public static void main</div>
+          <div class="le-desc"><strong>Entry point.</strong> This is where Java starts executing. <code>static</code> = no object needed; <code>void</code> = returns nothing; <code>main</code> = the JVM looks for this exact method signature.</div>
+        </div>
+        <div class="le-row" onclick="highlightLine(this)">
+          <div class="le-code">String[] args</div>
+          <div class="le-desc"><strong>Command-line arguments.</strong> An array of Strings you can pass when running the program. Not used in Hello World, but always required in the signature.</div>
+        </div>
+        <div class="le-row" onclick="highlightLine(this)">
+          <div class="le-code">System.out.println(...)</div>
+          <div class="le-desc"><strong>Prints to the console.</strong> <code>System</code> is a built-in class; <code>out</code> is an output stream; <code>println</code> prints and adds a newline. Notice the <strong>semicolon</strong> at the end — Java requires it.</div>
+        </div>
+        <div class="le-row" onclick="highlightLine(this)">
+          <div class="le-code">"Hello, World!"</div>
+          <div class="le-desc"><strong>A String literal.</strong> Any text inside double quotes is a String. Java is strict about this — single quotes are for characters (<code>char</code>), not Strings.</div>
+        </div>
+      </div>
+
+      <!-- Simulate Run -->
+      <div style="margin-top:28px">
+        <div class="section-title" style="font-size:1rem"><span class="dot"></span> Simulate: Compile &amp; Run</div>
+        <p style="font-size:.85rem;color:var(--text2);margin-bottom:14px">See what happens when you compile and execute this program step by step.</p>
+        <button class="btn-run" onclick="simulateRun()" id="simRunBtn">▶&nbsp; Run Program</button>
+        <div class="console">
+          <div class="console-bar">
+            <span>Console</span>
+            <div class="status"><div class="status-dot" id="simDot"></div> <span id="simStatus">Ready</span></div>
+          </div>
+          <div class="console-body" id="simConsole">
+            <span class="c-dim">// Click "Run Program" to see output</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════ JVM / HOW JAVA RUNS ════════════ -->
+    <div id="tab-jvm" class="tab-content">
+      <div class="section-title"><span class="dot"></span> How Java Actually Runs</div>
+      <p class="section-sub">This is what separates Java from C or Python. Understanding this prevents 80% of confusion.</p>
+
+      <div class="info-box green">
+        <span class="ib-icon">⚡</span>
+        <div><strong>The Big Idea:</strong> Java does NOT compile directly to machine code. It compiles to an intermediate format called <strong>bytecode</strong> (.class files), and the JVM reads that bytecode and runs it on your machine.</div>
+      </div>
+
+      <button id="runPipeline" onclick="animatePipeline()">▶&nbsp; Animate the Pipeline</button>
+
+      <div class="jvm-flow" id="jvmFlow">
+        <div class="jvm-box" id="jb1">
+          <div class="jb-icon">📝</div>
+          <div class="jb-label">You Write</div>
+          <div class="jb-val">HelloWorld.java</div>
+        </div>
+        <div class="jvm-arrow">→</div>
+        <div class="jvm-box" id="jb2">
+          <div class="jb-icon">🔨</div>
+          <div class="jb-label">javac compiles</div>
+          <div class="jb-val">Compiler</div>
+        </div>
+        <div class="jvm-arrow">→</div>
+        <div class="jvm-box" id="jb3">
+          <div class="jb-icon">⚙</div>
+          <div class="jb-label">Bytecode</div>
+          <div class="jb-val">HelloWorld.class</div>
+        </div>
+        <div class="jvm-arrow">→</div>
+        <div class="jvm-box" id="jb4">
+          <div class="jb-icon">🖥</div>
+          <div class="jb-label">JVM Runs</div>
+          <div class="jb-val">java command</div>
+        </div>
+        <div class="jvm-arrow">→</div>
+        <div class="jvm-box" id="jb5">
+          <div class="jb-icon">✅</div>
+          <div class="jb-label">Output</div>
+          <div class="jb-val">Hello, World!</div>
+        </div>
+      </div>
+
+      <div class="console" id="pipelineConsole" style="margin-top:0">
+        <div class="console-bar">
+          <span>Terminal Simulation</span>
+          <div class="status"><div class="status-dot" id="pipeDot"></div> <span id="pipeStatus">Idle</span></div>
+        </div>
+        <div class="console-body" id="pipeConsoleBody">
+          <span class="c-dim">// Press "Animate the Pipeline" to simulate</span>
+        </div>
+      </div>
+
+      <div class="cards" style="margin-top:28px">
+        <div class="card">
+          <div class="card-icon">🔨</div>
+          <h3>javac — The Compiler</h3>
+          <p>Reads your <code>.java</code> file and converts it to <code>.class</code> bytecode. Run it: <code style="font-family:monospace;font-size:.8rem;color:var(--accent3)">javac HelloWorld.java</code></p>
+        </div>
+        <div class="card">
+          <div class="card-icon">📦</div>
+          <h3>.class — Bytecode</h3>
+          <p>Platform-neutral instructions. Not readable by humans. Not tied to Windows, Mac, or Linux — the JVM handles that.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🖥</div>
+          <h3>JVM — The Engine</h3>
+          <p>Reads bytecode and converts it to native machine instructions in real-time (JIT compilation). Run it: <code style="font-family:monospace;font-size:.8rem;color:var(--accent3)">java HelloWorld</code></p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🌐</div>
+          <h3>Why "Write Once, Run Anywhere"?</h3>
+          <p>The <code>.class</code> bytecode is identical on all platforms. Only the JVM differs per OS — and JetBrains/Oracle ship that for each one.</p>
+        </div>
+      </div>
+
+      <div class="section-title" style="margin-top:28px"><span class="dot"></span> Compile vs Interpret</div>
+      <table class="compare-table" style="margin-top:16px">
+        <thead>
+          <tr><th>Aspect</th><th>Java (Compiled → JVM)</th><th>Python (Interpreted)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Error Detection</td><td class="yes">At compile time (faster feedback)</td><td>At runtime (only when that line runs)</td></tr>
+          <tr><td>Speed</td><td class="yes">Faster at runtime (JIT)</td><td>Slower (interprets line by line)</td></tr>
+          <tr><td>Portability</td><td class="yes">Bytecode runs anywhere</td><td class="yes">Interpreter runs anywhere</td></tr>
+          <tr><td>Type Safety</td><td class="yes">Strict (caught at compile)</td><td>Loose (runtime errors)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ════════════ COMMON ERRORS ════════════ -->
+    <div id="tab-errors" class="tab-content">
+      <div class="section-title"><span class="dot"></span> Common Errors &amp; How to Fix Them</div>
+      <p class="section-sub">Every Java beginner hits these. Know them now, waste zero time later.</p>
+
+      <div class="err-sim-btns">
+        <button class="err-btn active" onclick="showError('jdk',this)">⚠ JDK Not Found</button>
+        <button class="err-btn" onclick="showError('classname',this)">⚠ Class Name Mismatch</button>
+        <button class="err-btn" onclick="showError('semicolon',this)">⚠ Missing Semicolon</button>
+        <button class="err-btn" onclick="showError('mainmethod',this)">⚠ Wrong main() Signature</button>
+        <button class="err-btn" onclick="showError('nullptr',this)">⚠ NullPointerException</button>
+      </div>
+
+      <!-- Error Panels -->
+      <div class="err-panel active" id="err-jdk">
+        <div class="err-header">🔴 Error: JDK Not Configured / 'javac' is not recognized</div>
+        <div class="err-body">
+          <h4>What happened?</h4>
+          <p>The system can't find the Java compiler because JAVA_HOME or PATH is not set correctly — or JDK was never installed.</p>
+          <div class="err-msg">'javac' is not recognized as an internal or external command,
+operable program or batch file.</div>
+          <h4>How to Fix</h4>
+          <p>1. Verify JDK is installed: <strong>C:\Program Files\Java\jdk-17</strong> should exist.<br>
+          2. Set <code>JAVA_HOME</code> = that path in Environment Variables.<br>
+          3. Add <code>%JAVA_HOME%\bin</code> to the <code>PATH</code> variable.<br>
+          4. Open a NEW terminal and run <code>javac -version</code> again.</p>
+          <div class="fix-tag">✅ Fix: Set JAVA_HOME and PATH, then restart terminal</div>
+        </div>
+      </div>
+
+      <div class="err-panel" id="err-classname">
+        <div class="err-header">🔴 Error: Class Name Does Not Match File Name</div>
+        <div class="err-body">
+          <h4>What happened?</h4>
+          <p>The class name inside the file (<code>public class</code>) must exactly match the filename, including case. Java is case-sensitive.</p>
+          <div class="err-msg">error: class helloworld is public, should be declared in a file named helloworld.java
+public class HelloWorld {
+       ^
+1 error</div>
+          <h4>The Mistake</h4>
+          <p>File is named <code>helloworld.java</code> but inside you wrote <code>public class HelloWorld</code> — capital H, capital W.</p>
+          <div class="fix-tag">✅ Fix: Rename file to HelloWorld.java (match exactly, case included)</div>
+        </div>
+      </div>
+
+      <div class="err-panel" id="err-semicolon">
+        <div class="err-header">🔴 Error: Missing Semicolon</div>
+        <div class="err-body">
+          <h4>What happened?</h4>
+          <p>Every statement in Java must end with a semicolon <code>;</code>. Forgetting it is the #1 beginner syntax error.</p>
+          <div class="err-msg">HelloWorld.java:5: error: ';' expected
+        System.out.println("Hello, World!")
+                                           ^
+1 error</div>
+          <h4>The Mistake</h4>
+          <p>Written as: <code>System.out.println("Hello, World!")</code> — notice the missing <code>;</code> at the end.</p>
+          <div class="fix-tag">✅ Fix: Add semicolon → System.out.println("Hello, World!");</div>
+        </div>
+      </div>
+
+      <div class="err-panel" id="err-mainmethod">
+        <div class="err-header">🔴 Error: Main Method Not Found</div>
+        <div class="err-body">
+          <h4>What happened?</h4>
+          <p>The JVM looks for a very specific signature: <code>public static void main(String[] args)</code>. Any deviation means it can't find the entry point.</p>
+          <div class="err-msg">Error: Main method not found in class HelloWorld, please define the main method as:
+   public static void main(String[] args)</div>
+          <h4>Common Mistakes</h4>
+          <p>• Writing <code>Public</code> instead of <code>public</code> (wrong case)<br>
+          • Removing <code>static</code><br>
+          • Writing <code>String args[]</code> instead of <code>String[] args</code> (both work, but typos happen)<br>
+          • Spelling it <code>Main</code> instead of <code>main</code></p>
+          <div class="fix-tag">✅ Fix: Copy the exact signature — public static void main(String[] args)</div>
+        </div>
+      </div>
+
+      <div class="err-panel" id="err-nullptr">
+        <div class="err-header">🔴 Runtime Error: NullPointerException</div>
+        <div class="err-body">
+          <h4>What happened?</h4>
+          <p>You tried to use an object that hasn't been created yet. It's <code>null</code> — pointing to nothing — and you called a method on it.</p>
+          <div class="err-msg">Exception in thread "main" java.lang.NullPointerException: Cannot invoke "String.length()" because "str" is null
+    at HelloWorld.main(HelloWorld.java:5)</div>
+          <h4>The Mistake</h4>
+          <p><code>String str = null;</code> followed by <code>str.length()</code> — <code>str</code> was never assigned a real value, so Java throws NPE.</p>
+          <div class="fix-tag">✅ Fix: Initialize the variable → String str = "Hello";</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════ TRY IT ════════════ -->
+    <div id="tab-tryit" class="tab-content">
+      <div class="section-title"><span class="dot"></span> Try It — Interactive Simulator</div>
+      <p class="section-sub">Edit the code below and hit Run. The simulator checks for common Java patterns and shows realistic output.</p>
+
+      <div class="tryit-area">
+        <div class="tryit-header">
+          <span>📄 HelloWorld.java</span>
+          <span style="font-size:.78rem;color:var(--text2)">Edit the code freely</span>
+        </div>
+        <textarea class="tryit-editor" id="tryEditor" spellcheck="false">public class HelloWorld {
+
+    public static void main(String[] args) {
+        System.out.println("Hello, World!");
+        System.out.println("Java is awesome!");
+        
+        int x = 10;
+        int y = 20;
+        System.out.println("Sum = " + (x + y));
+    }
+
+}</textarea>
+        <div class="run-bar">
+          <button class="btn-run" onclick="runTryIt()">▶&nbsp; Run</button>
+          <button class="btn-reset" onclick="resetTryIt()">↺ Reset</button>
+          <span class="hint-label">💡 Try changing "Hello, World!" or adding a new println</span>
+        </div>
+      </div>
+
+      <div class="console" id="tryConsole">
+        <div class="console-bar">
+          <span>Console Output</span>
+          <div class="status"><div class="status-dot" id="tryDot"></div><span id="tryStatus">Ready</span></div>
+        </div>
+        <div class="console-body" id="tryOutput">
+          <span class="c-dim">// Output will appear here after you click Run</span>
+        </div>
+      </div>
+
+      <!-- Challenge Section -->
+      <div style="margin-top:28px">
+        <div class="section-title" style="font-size:1rem"><span class="dot"></span> Mini Challenges</div>
+        <div class="cards" style="margin-top:16px">
+          <div class="card" style="cursor:pointer" onclick="loadChallenge(1)">
+            <div class="card-icon">1️⃣</div>
+            <h3>Print Your Name</h3>
+            <p>Modify the program to print <em>your name</em> and <em>your role</em> on separate lines. Click to load starter code.</p>
+          </div>
+          <div class="card" style="cursor:pointer" onclick="loadChallenge(2)">
+            <div class="card-icon">2️⃣</div>
+            <h3>Simple Arithmetic</h3>
+            <p>Declare two integers, compute their sum, difference, and product. Print all three. Click to load starter.</p>
+          </div>
+          <div class="card" style="cursor:pointer" onclick="loadChallenge(3)">
+            <div class="card-icon">3️⃣</div>
+            <h3>Trigger an Error</h3>
+            <p>Intentionally remove a semicolon or break the class name. See what the simulator reports.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Final quiz -->
+      <div class="quiz-block">
+        <div class="quiz-q">🧠 What is the correct way to print text in Java?</div>
+        <div class="quiz-opts">
+          <div class="quiz-opt" onclick="checkQuiz2(this,'wrong')">⬜ <code>print("Hello")</code></div>
+          <div class="quiz-opt" onclick="checkQuiz2(this,'correct')">⬜ <code>System.out.println("Hello");</code></div>
+          <div class="quiz-opt" onclick="checkQuiz2(this,'wrong')">⬜ <code>console.log("Hello");</code></div>
+          <div class="quiz-opt" onclick="checkQuiz2(this,'wrong')">⬜ <code>echo "Hello";</code></div>
+        </div>
+        <div class="quiz-feedback" id="quizFeedback2"></div>
+      </div>
+    </div>
+
+  </div><!-- /tabs-wrapper -->
+</div><!-- /container -->
+
+<script>
+/* ── THEME ────────────────────────────────────────────────── */
+function toggleTheme() {
+  const html = document.documentElement;
+  const btn  = document.getElementById('themeToggle');
+  if (html.dataset.theme === 'dark') {
+    html.dataset.theme = 'light';
+    btn.textContent = '🌙 Dark';
+  } else {
+    html.dataset.theme = 'dark';
+    btn.textContent = '☀ Light';
+  }
+}
+
+/* ── TABS ─────────────────────────────────────────────────── */
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ── IDE TOGGLE ───────────────────────────────────────────── */
+function switchIde(ide, btn) {
+  document.querySelectorAll('.ide-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.ide-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + ide).classList.add('active');
+  btn.classList.add('active', ide);
+}
+
+/* ── LINE HIGHLIGHT ──────────────────────────────────────── */
+function highlightLine(el) {
+  document.querySelectorAll('.le-row').forEach(r => r.style.borderColor = '');
+  el.style.borderColor = 'var(--accent2)';
+  el.style.background   = 'rgba(79,163,224,.07)';
+  setTimeout(() => {
+    el.style.background = '';
+  }, 2000);
+}
+
+/* ── FIRST PROGRAM SIMULATE RUN ──────────────────────────── */
+let simRunning = false;
+function simulateRun() {
+  if (simRunning) return;
+  simRunning = true;
+  const con    = document.getElementById('simConsole');
+  const dot    = document.getElementById('simDot');
+  const status = document.getElementById('simStatus');
+  const btn    = document.getElementById('simRunBtn');
+
+  btn.disabled = true;
+  con.innerHTML = '';
+  dot.className = 'status-dot running';
+
+  const lines = [
+    { cls:'c-info', text:'$ javac HelloWorld.java', delay: 0 },
+    { cls:'c-dim',  text:'Compiling...', delay: 400 },
+    { cls:'c-info', text:'$ java HelloWorld', delay: 1000 },
+    { cls:'',       text:'Hello, World!', delay: 1600 },
+    { cls:'c-dim',  text:'', delay: 2000 },
+    { cls:'c-dim',  text:'Process finished with exit code 0', delay: 2100 },
+  ];
+
+  status.textContent = 'Compiling...';
+
+  lines.forEach(({ cls, text, delay }) => {
+    setTimeout(() => {
+      const span = document.createElement('span');
+      if (cls) span.className = cls;
+      span.textContent = text;
+      con.appendChild(span);
+      con.appendChild(document.createTextNode('\n'));
+      if (text === 'Hello, World!') {
+        status.textContent = 'Running...';
+        dot.className = 'status-dot running';
+      }
+    }, delay);
+  });
+
+  setTimeout(() => {
+    dot.className = 'status-dot done';
+    status.textContent = 'Done (exit 0)';
+    btn.disabled = false;
+    simRunning = false;
+  }, 2400);
+}
+
+/* ── JVM PIPELINE ANIMATE ────────────────────────────────── */
+let pipeRunning = false;
+function animatePipeline() {
+  if (pipeRunning) return;
+  pipeRunning = true;
+
+  const boxes  = [1,2,3,4,5].map(i => document.getElementById('jb' + i));
+  const body   = document.getElementById('pipeConsoleBody');
+  const dot    = document.getElementById('pipeDot');
+  const status = document.getElementById('pipeStatus');
+  const btn    = document.getElementById('runPipeline');
+
+  boxes.forEach(b => b.classList.remove('lit'));
+  body.innerHTML = '';
+  dot.className = 'status-dot running';
+  status.textContent = 'Running…';
+  btn.disabled = true;
+
+  const steps = [
+    { boxIdx:0, delay:0,    text:'📝 You write: HelloWorld.java', cls:'c-info' },
+    { boxIdx:1, delay:700,  text:'🔨 javac HelloWorld.java → Compiling...', cls:'c-info' },
+    { boxIdx:2, delay:1500, text:'⚙  HelloWorld.class created (bytecode)', cls:'' },
+    { boxIdx:3, delay:2300, text:'🖥  java HelloWorld → JVM loading bytecode...', cls:'c-info' },
+    { boxIdx:4, delay:3200, text:'✅ Hello, World!', cls:'' },
+  ];
+
+  steps.forEach(({ boxIdx, delay, text, cls }) => {
+    setTimeout(() => {
+      boxes[boxIdx].classList.add('lit');
+      const span = document.createElement('span');
+      if (cls) span.className = cls;
+      span.textContent = text;
+      body.appendChild(span);
+      body.appendChild(document.createTextNode('\n'));
+    }, delay);
+  });
+
+  setTimeout(() => {
+    dot.className = 'status-dot done';
+    status.textContent = 'Complete';
+    btn.disabled = false;
+    pipeRunning = false;
+    const span = document.createElement('span');
+    span.className = 'c-dim';
+    span.textContent = '\nProcess finished with exit code 0';
+    body.appendChild(span);
+  }, 3800);
+}
+
+/* ── ERROR SIMULATOR ─────────────────────────────────────── */
+function showError(id, btn) {
+  document.querySelectorAll('.err-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.err-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('err-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ── TRY IT RUNNER ───────────────────────────────────────── */
+const DEFAULT_CODE = `public class HelloWorld {
+
+    public static void main(String[] args) {
+        System.out.println("Hello, World!");
+        System.out.println("Java is awesome!");
+        
+        int x = 10;
+        int y = 20;
+        System.out.println("Sum = " + (x + y));
+    }
+
+}`;
+
+function runTryIt() {
+  const code   = document.getElementById('tryEditor').value;
+  const output = document.getElementById('tryOutput');
+  const dot    = document.getElementById('tryDot');
+  const status = document.getElementById('tryStatus');
+
+  dot.className = 'status-dot running';
+  status.textContent = 'Running…';
+  output.innerHTML = '';
+
+  setTimeout(() => {
+    const result = simulateJava(code);
+    output.innerHTML = result.html;
+    dot.className = 'status-dot ' + (result.error ? 'error' : 'done');
+    status.textContent = result.error ? 'Error (exit 1)' : 'Done (exit 0)';
+  }, 500);
+}
+
+function simulateJava(code) {
+  // Basic checks
+  if (!code.includes('public class')) {
+    return { error: true, html: '<span class="c-err">error: class declaration missing\n       Expected: public class ClassName { ... }</span>' };
+  }
+  if (!code.includes('public static void main')) {
+    return { error: true, html: '<span class="c-err">Error: Main method not found.\nDefine: public static void main(String[] args)</span>' };
+  }
+  // Check for missing semicolons on println lines
+  const lines = code.split('\n');
+  for (let i = 0; i < lines.length; i++) {
+    const l = lines[i].trim();
+    if (l.includes('System.out.') && !l.endsWith(';') && !l.endsWith('{') && !l.endsWith('}') && l.length > 0) {
+      return { error: true, html: `<span class="c-err">error: ';' expected at line ${i+1}\n   ${l}\n   ${'~'.repeat(l.length-1)}^\n1 error</span>` };
+    }
+  }
+
+  // Extract println contents
+  const outputs = [];
+  const printRe = /System\.out\.println\((.+?)\);/g;
+  let match;
+  while ((match = printRe.exec(code)) !== null) {
+    let arg = match[1].trim();
+    // string literal
+    if (arg.startsWith('"') && arg.endsWith('"')) {
+      outputs.push(arg.slice(1,-1));
+    } else if (arg.includes('+')) {
+      // simple string concat with int expression
+      // extract string prefix
+      const strMatch = arg.match(/"([^"]*?)"\s*\+\s*(.+)/);
+      if (strMatch) {
+        const prefix = strMatch[1];
+        const expr   = strMatch[2].trim().replace(/[()]/g,'');
+        // try to evaluate simple arithmetic
+        try {
+          // replace variables with simple extracted values
+          const varRe = /int\s+(\w+)\s*=\s*(\d+)/g;
+          let varMatch;
+          const vars = {};
+          while ((varMatch = varRe.exec(code)) !== null) vars[varMatch[1]] = parseInt(varMatch[2]);
+          let evalExpr = expr;
+          for (const [k,v] of Object.entries(vars)) evalExpr = evalExpr.replaceAll(k, v);
+          // eslint-disable-next-line no-eval
+          const val = Function('"use strict";return (' + evalExpr + ')')();
+          outputs.push(prefix + val);
+        } catch {
+          outputs.push(prefix + '?');
+        }
+      } else {
+        outputs.push(arg);
+      }
+    } else {
+      outputs.push(arg);
+    }
+  }
+
+  if (outputs.length === 0) {
+    return { error: false, html: '<span class="c-dim">// No output produced</span>' };
+  }
+
+  const html = '<span class="c-info">$ javac HelloWorld.java</span>\n<span class="c-info">$ java HelloWorld</span>\n' +
+    outputs.map(o => escHtml(o)).join('\n') +
+    '\n\n<span class="c-dim">Process finished with exit code 0</span>';
+  return { error: false, html };
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function resetTryIt() {
+  document.getElementById('tryEditor').value = DEFAULT_CODE;
+  document.getElementById('tryOutput').innerHTML = '<span class="c-dim">// Output will appear here after you click Run</span>';
+  document.getElementById('tryDot').className = 'status-dot';
+  document.getElementById('tryStatus').textContent = 'Ready';
+}
+
+const CHALLENGES = {
+  1: `public class HelloWorld {
+
+    public static void main(String[] args) {
+        // Challenge 1: Print your name and role
+        System.out.println("Name: ");   // Replace with your name
+        System.out.println("Role: ");   // e.g., "QA Engineer"
+    }
+
+}`,
+  2: `public class HelloWorld {
+
+    public static void main(String[] args) {
+        // Challenge 2: Arithmetic
+        int a = 15;
+        int b = 7;
+        
+        System.out.println("Sum = " + (a + b));
+        // Add: Difference and Product lines here
+    }
+
+}`,
+  3: `public class HelloWorld {
+
+    public static void main(String[] args) {
+        // Challenge 3: This has a bug — find and observe the error!
+        System.out.println("Spot the bug")
+        System.out.println("Can you see it?");
+    }
+
+}`
+};
+
+function loadChallenge(n) {
+  document.getElementById('tryEditor').value = CHALLENGES[n];
+  document.getElementById('tryOutput').innerHTML = '<span class="c-dim">// Code loaded. Click Run to execute.</span>';
+  document.getElementById('tryDot').className = 'status-dot';
+  document.getElementById('tryStatus').textContent = 'Ready';
+}
+
+/* ── QUIZ ─────────────────────────────────────────────────── */
+function checkQuiz(el, result) {
+  const parent = el.closest('.quiz-opts');
+  if (parent.querySelector('.correct, .wrong')) return;
+  el.classList.add(result);
+  const fb = document.getElementById('quizFeedback1');
+  if (result === 'correct') {
+    fb.innerHTML = '✅ <strong>Correct!</strong> The JDK includes the compiler (javac), runtime, and developer tools. JRE is for running only; JVM is the execution engine.';
+    fb.style.color = 'var(--accent3)';
+  } else {
+    fb.innerHTML = '❌ <strong>Not quite.</strong> The JDK (Java Development Kit) is the full package developers install — it includes javac and the JVM.';
+    fb.style.color = 'var(--accent4)';
+    el.classList.add('wrong');
+  }
+}
+
+function checkQuiz2(el, result) {
+  const parent = el.closest('.quiz-opts');
+  if (parent.querySelector('.correct, .wrong')) return;
+  el.classList.add(result);
+  const fb = document.getElementById('quizFeedback2');
+  if (result === 'correct') {
+    fb.innerHTML = '✅ <strong>Correct!</strong> <code>System.out.println()</code> is Java\'s standard way to print to the console, always ending with a semicolon.';
+    fb.style.color = 'var(--accent3)';
+  } else {
+    fb.innerHTML = '❌ <strong>Not quite.</strong> Java uses <code>System.out.println("text");</code> — not Python\'s print(), not JS\'s console.log().';
+    fb.style.color = 'var(--accent4)';
+  }
+}
+</script>
+</body>
+</html>

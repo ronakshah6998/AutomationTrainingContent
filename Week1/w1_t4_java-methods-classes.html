@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Methods & Class Structure in Java</title>
+<style>
+/* ── TOKENS ─────────────────────────────────────────────── */
+:root {
+  --bg:        #0d1117;
+  --surface:   #161b22;
+  --surface2:  #1f2937;
+  --border:    #30363d;
+  --accent:    #f89820;
+  --accent2:   #4fa3e0;
+  --accent3:   #58d68d;
+  --accent4:   #e74c3c;
+  --accent5:   #c678dd;
+  --text:      #e6edf3;
+  --text2:     #8b949e;
+  --text3:     #c9d1d9;
+  --tab-bg:    #161b22;
+  --tab-active:#1f2937;
+  --code-bg:   #0d1117;
+  --radius:    10px;
+  --font-mono: 'Courier New', Courier, monospace;
+}
+[data-theme="light"] {
+  --bg:        #f0f4f8;
+  --surface:   #ffffff;
+  --surface2:  #e8eef5;
+  --border:    #d1d9e0;
+  --text:      #1a202c;
+  --text2:     #4a5568;
+  --text3:     #2d3748;
+  --tab-bg:    #e8eef5;
+  --tab-active:#ffffff;
+  --code-bg:   #e2e8f0;
+}
+[data-theme="light"] pre,
+[data-theme="light"] .code-pre { color: #1a202c; background: #e2e8f0; }
+[data-theme="light"] .quiz-code,
+[data-theme="light"] .card code,
+[data-theme="light"] .info-box code,
+[data-theme="light"] code {
+  background: #dde4ee; color: var(--text); border: 1px solid var(--border);
+}
+[data-theme="light"] .kw  { color: #7c3aed; }
+[data-theme="light"] .cls { color: #b45309; }
+[data-theme="light"] .fn  { color: #1d4ed8; }
+[data-theme="light"] .str { color: #15803d; }
+[data-theme="light"] .cmt { color: #6b7280; }
+[data-theme="light"] .num { color: #c2410c; }
+[data-theme="light"] .op  { color: #0369a1; }
+[data-theme="light"] .ret { color: #9333ea; }
+
+/* ── RESET ───────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg); color: var(--text);
+  min-height: 100vh; transition: background .3s, color .3s;
+  line-height: 1.65; user-select: none; -webkit-user-select: none;
+}
+
+/* ── WATERMARK ───────────────────────────────────────────── */
+#watermark {
+  position: fixed; bottom: 14px; right: 18px; font-size: .7rem;
+  color: var(--text2); opacity: .44; pointer-events: none; z-index: 800;
+  letter-spacing: .2px; white-space: nowrap;
+}
+
+/* ── HEADER ──────────────────────────────────────────────── */
+header {
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: 0 32px; display: flex; align-items: center;
+  justify-content: space-between; height: 62px;
+  position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 0 var(--border);
+}
+.logo { display: flex; align-items: center; gap: 10px; font-size: 1.05rem; font-weight: 700; }
+.logo-icon {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: linear-gradient(135deg, var(--accent), #e05a00);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; font-weight: 900; color: #fff;
+}
+.badge {
+  font-size: .68rem; font-weight: 600; padding: 2px 8px; border-radius: 20px;
+  background: var(--accent3); color: #000; text-transform: uppercase; letter-spacing: .5px;
+}
+#themeToggle {
+  background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+  border-radius: 8px; padding: 6px 14px; cursor: pointer; font-size: .85rem; transition: all .2s;
+}
+#themeToggle:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── LAYOUT ──────────────────────────────────────────────── */
+.container { max-width: 1100px; margin: 0 auto; padding: 32px 20px 80px; }
+
+/* ── HERO ────────────────────────────────────────────────── */
+.hero {
+  background: linear-gradient(135deg, var(--surface), var(--surface2));
+  border: 1px solid var(--border); border-radius: 14px;
+  padding: 36px 40px; margin-bottom: 28px;
+  display: flex; align-items: center; gap: 28px;
+  position: relative; overflow: hidden;
+}
+.hero::before {
+  content: ''; position: absolute; top: -60px; right: -60px;
+  width: 240px; height: 240px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(88,214,141,.14) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-icon { font-size: 64px; flex-shrink: 0; filter: drop-shadow(0 4px 16px rgba(88,214,141,.35)); }
+.hero-text h1 { font-size: 1.75rem; font-weight: 800; line-height: 1.2; }
+.hero-text h1 span { color: var(--accent3); }
+.hero-text p { color: var(--text2); margin-top: 8px; font-size: .95rem; }
+.hero-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.pill {
+  padding: 4px 12px; border-radius: 20px; font-size: .78rem; font-weight: 600;
+  border: 1px solid; display: flex; align-items: center; gap: 5px;
+}
+.pill-orange { color: var(--accent);  border-color: rgba(248,152,32,.35); background: rgba(248,152,32,.08); }
+.pill-blue   { color: var(--accent2); border-color: rgba(79,163,224,.35);  background: rgba(79,163,224,.08); }
+.pill-green  { color: var(--accent3); border-color: rgba(88,214,141,.35);  background: rgba(88,214,141,.08); }
+.pill-purple { color: var(--accent5); border-color: rgba(198,120,221,.35); background: rgba(198,120,221,.08); }
+
+/* ── BREADCRUMB ──────────────────────────────────────────── */
+.breadcrumb { display: flex; align-items: center; gap: 8px; font-size: .8rem; color: var(--text2); margin-bottom: 20px; }
+.breadcrumb span { color: var(--accent3); font-weight: 600; }
+
+/* ── TABS ────────────────────────────────────────────────── */
+.tabs-wrapper { background: var(--tab-bg); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.tab-nav { display: flex; overflow-x: auto; border-bottom: 1px solid var(--border); scrollbar-width: none; }
+.tab-nav::-webkit-scrollbar { display: none; }
+.tab-btn {
+  flex-shrink: 0; padding: 14px 20px; background: none; border: none;
+  color: var(--text2); font-size: .85rem; font-weight: 600; cursor: pointer;
+  position: relative; transition: color .2s; display: flex; align-items: center; gap: 6px;
+}
+.tab-btn:hover { color: var(--text); }
+.tab-btn.active { color: var(--accent3); background: var(--tab-active); }
+.tab-btn.active::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+  background: var(--accent3); border-radius: 2px 2px 0 0;
+}
+.tab-content { display: none; padding: 32px; }
+.tab-content.active { display: block; animation: fadeIn .25s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* ── SECTION HEADINGS ────────────────────────────────────── */
+.section-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 6px; display: flex; align-items: center; gap: 9px; }
+.section-title .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent3); }
+.section-sub { color: var(--text2); font-size: .9rem; margin-bottom: 22px; }
+
+/* ── CARDS ───────────────────────────────────────────────── */
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px; margin-bottom: 28px; }
+.card {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px; transition: border-color .2s, transform .2s;
+}
+.card:hover { border-color: var(--accent3); transform: translateY(-2px); }
+.card-icon { font-size: 1.6rem; margin-bottom: 10px; }
+.card h3 { font-size: .95rem; font-weight: 700; margin-bottom: 6px; }
+.card p { font-size: .83rem; color: var(--text2); line-height: 1.55; }
+.card code {
+  font-family: var(--font-mono); font-size: .78rem; background: var(--code-bg);
+  padding: 1px 6px; border-radius: 4px; color: var(--accent3); border: 1px solid var(--border);
+}
+
+/* ── INFO BOX ────────────────────────────────────────────── */
+.info-box {
+  border-radius: var(--radius); padding: 16px 20px; font-size: .875rem;
+  margin-bottom: 20px; border-left: 4px solid; display: flex; gap: 12px; align-items: flex-start;
+}
+.info-box .ib-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 1px; }
+.info-box.blue   { background: rgba(79,163,224,.1);  border-color: var(--accent2); }
+.info-box.orange { background: rgba(248,152,32,.1);  border-color: var(--accent); }
+.info-box.green  { background: rgba(88,214,141,.1);  border-color: var(--accent3); }
+.info-box.red    { background: rgba(231,76,60,.1);   border-color: var(--accent4); }
+.info-box.purple { background: rgba(198,120,221,.1); border-color: var(--accent5); }
+.info-box code {
+  font-family: var(--font-mono); font-size: .82rem; background: var(--code-bg);
+  padding: 1px 6px; border-radius: 4px; color: var(--accent3); border: 1px solid var(--border);
+}
+
+/* ── CODE BLOCK ──────────────────────────────────────────── */
+.code-wrap { background: var(--code-bg); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin: 16px 0; }
+.code-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px; border-bottom: 1px solid var(--border); background: rgba(255,255,255,.03);
+}
+.code-lang { font-size: .75rem; color: var(--text2); font-weight: 600; }
+.code-dots { display: flex; gap: 5px; }
+.code-dots span { width: 11px; height: 11px; border-radius: 50%; }
+.code-dots .r { background: #ff5f57; } .code-dots .y { background: #ffbd2e; } .code-dots .g { background: #28c840; }
+.code-pre {
+  padding: 20px; overflow-x: auto; font-family: var(--font-mono);
+  font-size: .85rem; line-height: 1.75; color: #abb2bf; white-space: pre;
+}
+.kw  { color: #c678dd; font-weight: 600; }
+.cls { color: #e5c07b; }
+.fn  { color: #61afef; }
+.str { color: #98c379; }
+.cmt { color: #5c6370; font-style: italic; }
+.num { color: #d19a66; }
+.op  { color: #56b6c2; }
+.ret { color: #c678dd; }
+
+/* ── ANATOMY BLOCK ───────────────────────────────────────── */
+.anatomy-wrap {
+  background: var(--code-bg); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 28px 24px; margin: 20px 0;
+}
+.anatomy-line {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 4px; font-family: var(--font-mono); font-size: .88rem;
+  position: relative;
+}
+.anatomy-line .a-code { flex-shrink: 0; }
+.anatomy-line .a-badge {
+  font-family: 'Segoe UI', sans-serif; font-size: .7rem; font-weight: 700;
+  padding: 2px 9px; border-radius: 12px; text-transform: uppercase;
+  letter-spacing: .4px; white-space: nowrap; flex-shrink: 0;
+}
+.ab-kw     { background: rgba(198,120,221,.18); color: #c678dd; }
+.ab-name   { background: rgba(97,175,239,.18);  color: #61afef; }
+.ab-entry  { background: rgba(88,214,141,.18);  color: #58d68d; }
+.ab-body   { background: rgba(248,152,32,.18);  color: #f89820; }
+.ab-params { background: rgba(86,182,194,.18);  color: #56b6c2; }
+.ab-ret    { background: rgba(198,120,221,.18);  color: #c678dd; }
+.anatomy-indent { display: inline-block; width: 24px; }
+
+/* ── METHOD SYNTAX CARD ──────────────────────────────────── */
+.method-syntax-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px; margin: 18px 0 26px;
+}
+.msyn-card {
+  background: var(--surface2); border: 2px solid var(--border);
+  border-radius: var(--radius); padding: 16px; transition: all .2s;
+}
+.msyn-card:hover { transform: translateY(-2px); }
+.msyn-card.kw-card   { border-color: rgba(198,120,221,.4); }
+.msyn-card.ret-card  { border-color: rgba(97,175,239,.4);  }
+.msyn-card.name-card { border-color: rgba(97,175,239,.4);  }
+.msyn-card.par-card  { border-color: rgba(86,182,194,.4);  }
+.msyn-card.body-card { border-color: rgba(88,214,141,.4);  }
+.msyn-tag {
+  font-size: .68rem; font-weight: 700; padding: 2px 8px; border-radius: 5px;
+  text-transform: uppercase; letter-spacing: .4px; display: inline-block; margin-bottom: 8px;
+}
+.msyn-card h4 { font-family: var(--font-mono); font-size: .88rem; font-weight: 800; margin-bottom: 5px; }
+.msyn-card p  { font-size: .8rem; color: var(--text2); line-height: 1.5; }
+
+/* ── ITER STEPS ──────────────────────────────────────────── */
+.iter-steps { display: flex; flex-direction: column; gap: 10px; margin: 16px 0; }
+.iter-row {
+  display: flex; gap: 14px; align-items: flex-start;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 14px 18px; transition: border-color .2s;
+}
+.iter-row:hover { border-color: var(--accent3); }
+.iter-num {
+  flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%;
+  background: var(--accent3); color: #000; font-weight: 800; font-size: .8rem;
+  display: flex; align-items: center; justify-content: center; margin-top: 1px;
+}
+.iter-body h4 { font-size: .88rem; font-weight: 700; margin-bottom: 3px; }
+.iter-body p  { font-size: .82rem; color: var(--text2); }
+.iter-body code {
+  font-family: var(--font-mono); font-size: .8rem; background: var(--code-bg);
+  padding: 1px 6px; border-radius: 4px; color: var(--accent3); border: 1px solid var(--border);
+}
+
+/* ── COMPARE TABLE ───────────────────────────────────────── */
+.compare-table { width: 100%; border-collapse: collapse; font-size: .875rem; margin: 16px 0; }
+.compare-table th {
+  text-align: left; padding: 10px 16px; background: var(--surface2); color: var(--text2);
+  font-weight: 700; font-size: .78rem; text-transform: uppercase; letter-spacing: .5px;
+  border-bottom: 1px solid var(--border);
+}
+.compare-table td { padding: 11px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.compare-table tr:last-child td { border-bottom: none; }
+.compare-table tr:hover td { background: rgba(255,255,255,.02); }
+.mono { font-family: var(--font-mono); font-size: .82rem; color: var(--accent3); }
+
+/* ── METHOD SIMULATOR ────────────────────────────────────── */
+.sim-wrap { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.sim-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 13px 20px; background: rgba(255,255,255,.03);
+  border-bottom: 1px solid var(--border); font-weight: 700; font-size: .88rem;
+}
+.sim-body { padding: 24px; }
+
+/* Method picker */
+.method-tabs { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+.method-tab-btn {
+  padding: 8px 18px; border-radius: 8px; border: 1px solid var(--border);
+  background: var(--surface); color: var(--text2); font-size: .83rem; font-weight: 600;
+  cursor: pointer; transition: all .2s;
+}
+.method-tab-btn:hover { border-color: var(--accent3); color: var(--accent3); }
+.method-tab-btn.active { background: rgba(88,214,141,.12); border-color: var(--accent3); color: var(--accent3); }
+
+/* Inputs */
+.sim-inputs { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-bottom: 18px; }
+.sim-field label { display: block; font-size: .78rem; font-weight: 700; color: var(--text2); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .4px; }
+.sim-input {
+  width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border);
+  background: var(--code-bg); color: var(--text); font-size: .9rem; font-family: var(--font-mono);
+  outline: none; transition: border-color .2s;
+}
+.sim-input:focus { border-color: var(--accent3); }
+
+/* Preview */
+.sim-preview {
+  background: var(--code-bg); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 14px 18px; font-family: var(--font-mono); font-size: .85rem;
+  line-height: 1.75; color: #abb2bf; margin-bottom: 18px; white-space: pre; overflow-x: auto;
+}
+
+/* Run bar */
+.sim-run-bar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 18px; }
+.btn-run-method {
+  background: linear-gradient(135deg, var(--accent3), #3aa86d);
+  color: #000; border: none; border-radius: 8px; padding: 10px 28px;
+  font-weight: 800; font-size: .9rem; cursor: pointer; transition: opacity .2s, transform .2s;
+  display: flex; align-items: center; gap: 8px;
+}
+.btn-run-method:hover { opacity: .88; transform: translateY(-1px); }
+.btn-run-method:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+.btn-reset-method {
+  background: none; border: 1px solid var(--border); color: var(--text2);
+  border-radius: 8px; padding: 10px 18px; font-size: .875rem; cursor: pointer; transition: all .2s;
+}
+.btn-reset-method:hover { border-color: var(--text2); color: var(--text); }
+
+/* Result pills */
+.result-pills { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; min-height: 34px; }
+.rpill { display: flex; align-items: center; gap: 6px; padding: 5px 14px; border-radius: 20px; font-size: .82rem; font-weight: 600; border: 1px solid; animation: fadeIn .2s; }
+.rpill-success { background: rgba(88,214,141,.12); border-color: rgba(88,214,141,.4); color: var(--accent3); }
+.rpill-error   { background: rgba(231,76,60,.12);  border-color: rgba(231,76,60,.4);  color: var(--accent4); }
+.rpill-info    { background: rgba(79,163,224,.12); border-color: rgba(79,163,224,.4); color: var(--accent2); }
+.rpill-warn    { background: rgba(248,152,32,.12); border-color: rgba(248,152,32,.4); color: var(--accent); }
+
+/* Execution trace */
+.exec-trace {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius); overflow: hidden; display: none;
+}
+.exec-trace.show { display: block; animation: fadeIn .25s; }
+.exec-trace-hdr { padding: 10px 16px; background: rgba(88,214,141,.08); border-bottom: 1px solid var(--border); font-size: .8rem; font-weight: 700; color: var(--accent3); }
+.exec-step { display: flex; align-items: flex-start; gap: 12px; padding: 10px 16px; border-bottom: 1px solid var(--border); font-size: .83rem; }
+.exec-step:last-child { border-bottom: none; }
+.exec-step-num { flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%; font-size: .7rem; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+.s-call   { background: rgba(79,163,224,.2);  color: var(--accent2); }
+.s-exec   { background: rgba(88,214,141,.2);  color: var(--accent3); }
+.s-return { background: rgba(198,120,221,.2); color: var(--accent5); }
+.s-out    { background: rgba(248,152,32,.2);  color: var(--accent); }
+.exec-step-txt { color: var(--text3); line-height: 1.55; }
+.exec-step-txt code { font-family: var(--font-mono); font-size: .8rem; background: var(--code-bg); padding: 1px 6px; border-radius: 4px; color: var(--accent3); }
+
+/* Console */
+.console-out { background: #0a0e13; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-top: 16px; }
+[data-theme="light"] .console-out { background: #1e2737; }
+.console-bar { display: flex; align-items: center; justify-content: space-between; padding: 9px 16px; background: #111820; border-bottom: 1px solid var(--border); font-size: .78rem; color: var(--text2); font-weight: 600; }
+[data-theme="light"] .console-bar { background: #1a2535; color: #8b949e; }
+.console-status { display: flex; align-items: center; gap: 6px; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: #555; transition: background .3s; }
+.status-dot.running { background: var(--accent3); animation: blink 1s infinite; }
+.status-dot.done    { background: var(--accent3); }
+.status-dot.error   { background: var(--accent4); }
+@keyframes blink { 0%,100%{opacity:1}50%{opacity:.3} }
+.console-body { padding: 16px 20px; font-family: var(--font-mono); font-size: .875rem; min-height: 70px; line-height: 1.8; color: #a8ff78; white-space: pre-wrap; }
+.c-dim  { color: #555; }
+.c-info { color: #7ec8e3; }
+
+/* ── ERROR PANEL ─────────────────────────────────────────── */
+.err-sim-btns { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
+.err-btn {
+  padding: 8px 18px; border-radius: 8px; border: 1px solid var(--border);
+  background: var(--surface2); color: var(--text); font-size: .84rem; font-weight: 600;
+  cursor: pointer; transition: all .2s;
+}
+.err-btn:hover  { border-color: var(--accent4); color: var(--accent4); }
+.err-btn.active { background: rgba(231,76,60,.15); border-color: var(--accent4); color: var(--accent4); }
+.err-panel { display: none; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.err-panel.active { display: block; animation: fadeIn .2s ease; }
+.err-hdr { display: flex; align-items: center; gap: 10px; padding: 12px 18px; background: rgba(231,76,60,.12); border-bottom: 1px solid var(--border); font-size: .875rem; font-weight: 700; color: var(--accent4); }
+.err-body { padding: 20px; }
+.err-body h4 { font-size: .9rem; font-weight: 700; margin-bottom: 8px; }
+.err-body p  { font-size: .85rem; color: var(--text2); margin-bottom: 12px; }
+.err-msg { font-family: var(--font-mono); font-size: .8rem; background: var(--code-bg); border: 1px solid rgba(231,76,60,.3); border-radius: 7px; padding: 12px 16px; color: #ff6b6b; margin-bottom: 14px; white-space: pre; overflow-x: auto; }
+.code-diff { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0; }
+.diff-wrong, .diff-right { border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
+.diff-lbl { padding: 7px 12px; font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
+.diff-wrong .diff-lbl { background: rgba(231,76,60,.15); color: var(--accent4); }
+.diff-right .diff-lbl { background: rgba(88,214,141,.15); color: var(--accent3); }
+.diff-code { padding: 12px 14px; font-family: var(--font-mono); font-size: .8rem; background: var(--code-bg); line-height: 1.7; color: #abb2bf; white-space: pre; }
+.fix-tag { display: inline-flex; align-items: center; gap: 6px; background: rgba(88,214,141,.1); border: 1px solid rgba(88,214,141,.3); color: var(--accent3); border-radius: 6px; padding: 5px 12px; font-size: .82rem; font-weight: 600; margin-top: 4px; }
+
+/* ── QUIZ ────────────────────────────────────────────────── */
+.quiz-container { display: flex; flex-direction: column; gap: 24px; }
+.quiz-block { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px 24px; }
+.quiz-num { font-size: .72rem; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+.quiz-q { font-weight: 700; font-size: .92rem; margin-bottom: 14px; line-height: 1.5; }
+.quiz-opts { display: flex; flex-direction: column; gap: 9px; }
+.quiz-opt {
+  padding: 10px 16px; border-radius: 8px; border: 1px solid var(--border);
+  background: var(--bg); font-size: .875rem; cursor: pointer; transition: all .2s;
+  display: flex; align-items: flex-start; gap: 10px; text-align: left;
+}
+.quiz-opt:hover:not(.correct):not(.wrong) { border-color: var(--accent3); background: rgba(88,214,141,.04); }
+.quiz-opt.correct { border-color: var(--accent3); background: rgba(88,214,141,.1); color: var(--accent3); pointer-events: none; }
+.quiz-opt.wrong   { border-color: var(--accent4); background: rgba(231,76,60,.08); color: var(--accent4); pointer-events: none; }
+.quiz-opt.disabled { pointer-events: none; opacity: .5; }
+.quiz-feedback { margin-top: 12px; font-size: .845rem; padding: 10px 14px; border-radius: 7px; display: none; }
+.quiz-feedback.show { display: block; animation: fadeIn .2s; }
+.quiz-feedback.correct { background: rgba(88,214,141,.1); color: var(--accent3); border: 1px solid rgba(88,214,141,.25); }
+.quiz-feedback.wrong   { background: rgba(231,76,60,.08); color: var(--accent4); border: 1px solid rgba(231,76,60,.2); }
+.quiz-code { font-family: var(--font-mono); background: var(--code-bg); padding: 1px 7px; border-radius: 4px; font-size: .85em; color: var(--text); border: 1px solid var(--border); }
+.score-box { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; text-align: center; display: none; margin-top: 24px; }
+.score-box.show { display: block; animation: fadeIn .3s; }
+.score-num { font-size: 3rem; font-weight: 900; line-height: 1; }
+.score-label { color: var(--text2); font-size: .9rem; margin-top: 6px; margin-bottom: 16px; }
+.btn-retake { background: var(--surface2); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 9px 24px; font-size: .875rem; font-weight: 700; cursor: pointer; transition: all .2s; }
+.btn-retake:hover { border-color: var(--accent3); color: var(--accent3); }
+
+/* ── RESPONSIVE ──────────────────────────────────────────── */
+@media (max-width: 700px) {
+  .hero { flex-direction: column; padding: 24px 20px; }
+  .tab-btn { padding: 12px 12px; font-size: .78rem; }
+  .tab-content { padding: 20px 16px; }
+  .hero-text h1 { font-size: 1.35rem; }
+  .code-diff { grid-template-columns: 1fr; }
+  .sim-inputs { grid-template-columns: 1fr 1fr; }
+  .method-syntax-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div id="watermark">Ronak Shah — Automation Training Content</div>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">J</div>
+    Java Essentials
+    <span class="badge">Module 5</span>
+  </div>
+  <button id="themeToggle" onclick="toggleTheme()">☀ Light</button>
+</header>
+
+<div class="container">
+  <div class="breadcrumb">
+    Java Essentials <span style="color:var(--border)">›</span> Module 5 <span style="color:var(--border)">›</span> <span>Methods &amp; Class Structure</span>
+  </div>
+
+  <div class="hero">
+    <div class="hero-icon">🏗️</div>
+    <div class="hero-text">
+      <h1>Methods &amp; <span>Class Structure</span> in Java</h1>
+      <p>Learn how Java organises code into classes and methods — the foundation of every Java program ever written.</p>
+      <div class="hero-pills">
+        <span class="pill pill-green">🏗️ Class Structure</span>
+        <span class="pill pill-blue">🔧 Methods</span>
+        <span class="pill pill-orange">▶ Live Simulator</span>
+        <span class="pill pill-purple">🧠 Quick Check</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="tabs-wrapper">
+    <div class="tab-nav">
+      <button class="tab-btn active" onclick="switchTab('basics',this)"><span>📘</span> Basics</button>
+      <button class="tab-btn" onclick="switchTab('structure',this)"><span>🏗️</span> Class Structure</button>
+      <button class="tab-btn" onclick="switchTab('methods',this)"><span>🔧</span> Methods</button>
+      <button class="tab-btn" onclick="switchTab('simulator',this)"><span>▶</span> Simulator</button>
+      <button class="tab-btn" onclick="switchTab('errors',this)"><span>🚨</span> Common Errors</button>
+      <button class="tab-btn" onclick="switchTab('quiz',this)"><span>🧠</span> Quick Check</button>
+    </div>
+
+    <!-- ════════════ TAB 1: BASICS ════════════ -->
+    <div id="tab-basics" class="tab-content active">
+      <div class="section-title"><span class="dot"></span> What is a Class?</div>
+      <p class="section-sub">A class is the fundamental building block of every Java program — it bundles data and behaviour together in one place.</p>
+
+      <div class="info-box green">
+        <span class="ib-icon">💡</span>
+        <div><strong>Real-world analogy:</strong> A class is like a <strong>blueprint</strong>. The blueprint for a house defines how many rooms it has, what the walls look like, and what actions can happen inside. The actual house built from it is an <em>object</em>. In Java, you define the blueprint once (class) and create as many houses (objects) as you need.</div>
+      </div>
+
+      <div class="info-box blue">
+        <span class="ib-icon">🔧</span>
+        <div><strong>What is a Method?</strong> A method is a named block of code inside a class that performs a specific task. Think of it as a button on a machine — press it and something defined happens. You can press the same button many times without rewriting the logic.</div>
+      </div>
+
+      <div class="section-title" style="margin-top:8px;font-size:1rem"><span class="dot"></span> Class vs Method — At a Glance</div>
+      <table class="compare-table">
+        <thead><tr><th>Concept</th><th>What It Is</th><th>Analogy</th><th>Syntax</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>Class</strong></td>
+            <td>A blueprint/container for data and methods</td>
+            <td>House blueprint</td>
+            <td class="mono">public class Car { }</td>
+          </tr>
+          <tr>
+            <td><strong>Method</strong></td>
+            <td>A named action defined inside a class</td>
+            <td>Button on a machine</td>
+            <td class="mono">void drive() { }</td>
+          </tr>
+          <tr>
+            <td><strong>Object</strong></td>
+            <td>A real instance created from a class</td>
+            <td>Actual house built</td>
+            <td class="mono">Car myCar = new Car();</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-title" style="margin-top:28px;font-size:1rem"><span class="dot"></span> Why This Matters in Automation</div>
+      <div class="cards" style="margin-top:14px">
+        <div class="card">
+          <div class="card-icon">♻️</div>
+          <h3>Reusable Logic</h3>
+          <p>Write a <code>login()</code> method once. Call it in 50 test cases. Any change to login logic is fixed in one place — not 50.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🧹</div>
+          <h3>Clean Code Structure</h3>
+          <p>Group related methods in one class — <code>LoginPage</code>, <code>ApiHelper</code>, <code>TestUtils</code>. Navigation becomes intuitive.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🔄</div>
+          <h3>Page Object Model</h3>
+          <p>Selenium's POM pattern is entirely built on classes and methods. Each page is a class; each action is a method.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🧪</div>
+          <h3>Test Helper Methods</h3>
+          <p><code>waitForElement()</code>, <code>takeScreenshot()</code>, <code>readExcelData()</code> — all reusable methods you'll write and call constantly.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════ TAB 2: CLASS STRUCTURE ════════════ -->
+    <div id="tab-structure" class="tab-content">
+      <div class="section-title"><span class="dot"></span> A Java Class — Line by Line</div>
+      <p class="section-sub">Every Java program has at least one class and one main method. Here is the minimal structure — and what every part means.</p>
+
+      <div class="code-wrap">
+        <div class="code-header">
+          <div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+          <span class="code-lang">☕ HelloWorld.java — Full Class</span>
+        </div>
+        <pre class="code-pre"><span class="kw">public</span> <span class="kw">class</span> <span class="cls">HelloWorld</span> {
+
+    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">main</span>(<span class="cls">String</span>[] args) {
+
+        <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Hello, World!"</span>);
+
+    }
+
+}</pre>
+      </div>
+
+      <div class="section-title" style="margin-top:24px;font-size:1rem"><span class="dot"></span> Breaking It Down</div>
+
+      <div class="anatomy-wrap">
+        <div class="anatomy-line">
+          <span class="a-code"><span class="kw">public</span> <span class="kw">class</span> <span class="cls">HelloWorld</span> {</span>
+          <span class="a-badge ab-kw">public</span>
+          <span class="a-badge ab-name">class name</span>
+        </div>
+        <div class="anatomy-line" style="margin-left:24px">
+          <span class="a-code"><span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">main</span>(<span class="cls">String</span>[] args) {</span>
+          <span class="a-badge ab-entry">entry point</span>
+          <span class="a-badge ab-params">parameters</span>
+        </div>
+        <div class="anatomy-line" style="margin-left:48px">
+          <span class="a-code" style="color:#5c6370;font-style:italic">// your code goes here</span>
+          <span class="a-badge ab-body">body</span>
+        </div>
+        <div class="anatomy-line" style="margin-left:24px">
+          <span class="a-code" style="color:var(--text2)">}</span>
+          <span style="font-size:.72rem;color:var(--text2);font-family:'Segoe UI',sans-serif">closes main</span>
+        </div>
+        <div class="anatomy-line">
+          <span class="a-code" style="color:var(--text2)">}</span>
+          <span style="font-size:.72rem;color:var(--text2);font-family:'Segoe UI',sans-serif">closes class</span>
+        </div>
+      </div>
+
+      <div class="iter-steps">
+        <div class="iter-row">
+          <div class="iter-num">1</div>
+          <div class="iter-body">
+            <h4><code>public</code> — Access Modifier</h4>
+            <p>Makes the class accessible from anywhere. For classes containing <code>main</code>, this must always be <code>public</code>.</p>
+          </div>
+        </div>
+        <div class="iter-row">
+          <div class="iter-num">2</div>
+          <div class="iter-body">
+            <h4><code>class HelloWorld</code> — Class Declaration</h4>
+            <p>The keyword <code>class</code> tells Java this is a class definition. <code>HelloWorld</code> is the name — it must match the filename exactly (<code>HelloWorld.java</code>).</p>
+          </div>
+        </div>
+        <div class="iter-row">
+          <div class="iter-num">3</div>
+          <div class="iter-body">
+            <h4><code>public static void main(String[] args)</code> — Entry Point</h4>
+            <p>Java looks for this exact signature to start execution. <code>static</code> means no object is needed; <code>void</code> means it returns nothing; <code>args</code> accepts command-line arguments.</p>
+          </div>
+        </div>
+        <div class="iter-row">
+          <div class="iter-num">4</div>
+          <div class="iter-body">
+            <h4><code>{ }</code> — Curly Braces</h4>
+            <p>Opening <code>{</code> starts a block. Closing <code>}</code> ends it. Every class body and every method body must be wrapped in matching braces.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-title" style="margin-top:24px;font-size:1rem"><span class="dot"></span> A Real-World Class Example</div>
+      <div class="code-wrap">
+        <div class="code-header">
+          <div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+          <span class="code-lang">☕ Car.java — Class with Multiple Methods</span>
+        </div>
+        <pre class="code-pre"><span class="kw">public</span> <span class="kw">class</span> <span class="cls">Car</span> {
+
+    <span class="cmt">// Fields (data stored in the class)</span>
+    <span class="kw">String</span> brand  <span class="op">=</span> <span class="str">"Toyota"</span>;
+    <span class="kw">int</span>    speed  <span class="op">=</span> <span class="num">0</span>;
+
+    <span class="cmt">// Method 1 — no return value</span>
+    <span class="kw">public</span> <span class="kw">void</span> <span class="fn">accelerate</span>() {
+        speed <span class="op">+=</span> <span class="num">10</span>;
+        <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Speed: "</span> <span class="op">+</span> speed);
+    }
+
+    <span class="cmt">// Method 2 — returns a value</span>
+    <span class="kw">public</span> <span class="kw">String</span> <span class="fn">getBrand</span>() {
+        <span class="kw">return</span> brand;
+    }
+
+    <span class="cmt">// Entry point</span>
+    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">main</span>(<span class="cls">String</span>[] args) {
+        <span class="cls">Car</span> myCar <span class="op">=</span> <span class="kw">new</span> <span class="cls">Car</span>();  <span class="cmt">// create object</span>
+        myCar.<span class="fn">accelerate</span>();        <span class="cmt">// call method</span>
+        <span class="cls">System</span>.out.<span class="fn">println</span>(myCar.<span class="fn">getBrand</span>());
+    }
+}</pre>
+      </div>
+    </div>
+
+    <!-- ════════════ TAB 3: METHODS ════════════ -->
+    <div id="tab-methods" class="tab-content">
+      <div class="section-title"><span class="dot"></span> Method Syntax — Every Part Explained</div>
+      <p class="section-sub">A method has five key parts. Each one has a specific role — miss any one and Java will not compile.</p>
+
+      <div class="anatomy-wrap" style="margin-bottom:20px">
+        <div class="anatomy-line">
+          <span class="a-code">
+            <span class="kw">public</span>&nbsp;
+            <span class="kw">static</span>&nbsp;
+            <span class="kw" style="color:#56b6c2">int</span>&nbsp;
+            <span class="fn">add</span>(<span class="kw">int</span> a, <span class="kw">int</span> b) {&nbsp;&nbsp;<span class="kw">return</span> a <span class="op">+</span> b;&nbsp;&nbsp;}
+          </span>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;justify-content:flex-start">
+          <span class="a-badge ab-kw">① access: public</span>
+          <span class="a-badge ab-kw">② static</span>
+          <span class="a-badge ab-ret">③ return type: int</span>
+          <span class="a-badge ab-name">④ name: add</span>
+          <span class="a-badge ab-params">⑤ parameters: (int a, int b)</span>
+          <span class="a-badge ab-body">⑥ body: { return a+b; }</span>
+        </div>
+      </div>
+
+      <div class="method-syntax-grid">
+        <div class="msyn-card ret-card">
+          <span class="msyn-tag" style="background:rgba(86,182,194,.15);color:#56b6c2">Return Type</span>
+          <h4>void / int / String</h4>
+          <p>Declares what type of value the method gives back. <strong>void</strong> means it returns nothing.</p>
+        </div>
+        <div class="msyn-card name-card">
+          <span class="msyn-tag" style="background:rgba(97,175,239,.15);color:#61afef">Method Name</span>
+          <h4>camelCase name</h4>
+          <p>Identifies the method. Call it by this name. Convention: start with a verb — <strong>get</strong>Name, <strong>calculate</strong>Tax.</p>
+        </div>
+        <div class="msyn-card par-card">
+          <span class="msyn-tag" style="background:rgba(86,182,194,.15);color:#56b6c2">Parameters</span>
+          <h4>(int a, int b)</h4>
+          <p>Inputs the method receives. Each needs a type and name. Use empty <code>()</code> if no inputs needed.</p>
+        </div>
+        <div class="msyn-card body-card">
+          <span class="msyn-tag" style="background:rgba(88,214,141,.15);color:#58d68d">Body + Return</span>
+          <h4>{ logic; return; }</h4>
+          <p>The block of code that runs. If return type is not void, must have a <code>return</code> statement.</p>
+        </div>
+      </div>
+
+      <div class="section-title" style="font-size:1rem"><span class="dot"></span> void vs Return — Side by Side</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0 24px">
+        <div class="code-wrap" style="margin:0">
+          <div class="code-header">
+            <div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+            <span class="code-lang">☕ void — No return value</span>
+          </div>
+          <pre class="code-pre"><span class="cmt">// void = does not return anything</span>
+<span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">greet</span>(<span class="cls">String</span> name) {
+    <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Hello, "</span> <span class="op">+</span> name);
+}
+
+<span class="cmt">// Calling it:</span>
+<span class="fn">greet</span>(<span class="str">"Rahul"</span>);
+<span class="cmt">// Output: Hello, Rahul</span></pre>
+        </div>
+        <div class="code-wrap" style="margin:0">
+          <div class="code-header">
+            <div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+            <span class="code-lang">☕ int — Returns a value</span>
+          </div>
+          <pre class="code-pre"><span class="cmt">// int = returns a whole number</span>
+<span class="kw">public</span> <span class="kw">static</span> <span class="kw">int</span> <span class="fn">add</span>(<span class="kw">int</span> a, <span class="kw">int</span> b) {
+    <span class="kw">return</span> a <span class="op">+</span> b;
+}
+
+<span class="cmt">// Calling it:</span>
+<span class="kw">int</span> result <span class="op">=</span> <span class="fn">add</span>(<span class="num">3</span>, <span class="num">7</span>);
+<span class="cls">System</span>.out.<span class="fn">println</span>(result); <span class="cmt">// 10</span></pre>
+        </div>
+      </div>
+
+      <div class="section-title" style="font-size:1rem"><span class="dot"></span> More Method Examples</div>
+      <div class="code-wrap">
+        <div class="code-header">
+          <div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+          <span class="code-lang">☕ Method Patterns Used in Automation</span>
+        </div>
+        <pre class="code-pre"><span class="cmt">// 1. No parameters, no return — action method</span>
+<span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">clickLoginButton</span>() {
+    driver.<span class="fn">findElement</span>(By.<span class="fn">id</span>(<span class="str">"login"</span>)).<span class="fn">click</span>();
+}
+
+<span class="cmt">// 2. Parameters, no return — data input method</span>
+<span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">enterCredentials</span>(<span class="cls">String</span> user, <span class="cls">String</span> pass) {
+    usernameField.<span class="fn">sendKeys</span>(user);
+    passwordField.<span class="fn">sendKeys</span>(pass);
+}
+
+<span class="cmt">// 3. Parameters, returns value — utility method</span>
+<span class="kw">public</span> <span class="kw">static</span> <span class="kw">int</span> <span class="fn">calculateDiscount</span>(<span class="kw">int</span> price, <span class="kw">int</span> pct) {
+    <span class="kw">return</span> price <span class="op">-</span> (price <span class="op">*</span> pct <span class="op">/</span> <span class="num">100</span>);
+}
+
+<span class="cmt">// 4. No parameters, returns value — getter method</span>
+<span class="kw">public</span> <span class="kw">static</span> <span class="cls">String</span> <span class="fn">getPageTitle</span>() {
+    <span class="kw">return</span> driver.<span class="fn">getTitle</span>();
+}</pre>
+      </div>
+
+      <div class="section-title" style="margin-top:24px;font-size:1rem"><span class="dot"></span> How a Method Call Works</div>
+      <div class="iter-steps">
+        <div class="iter-row">
+          <div class="iter-num">1</div>
+          <div class="iter-body">
+            <h4>Method is called</h4>
+            <p>When Java reaches <code>add(3, 7)</code> it stops the current code and jumps to the <code>add</code> method definition.</p>
+          </div>
+        </div>
+        <div class="iter-row">
+          <div class="iter-num">2</div>
+          <div class="iter-body">
+            <h4>Arguments become parameters</h4>
+            <p><code>3</code> is assigned to <code>a</code>, <code>7</code> is assigned to <code>b</code>. These are local to the method — they don't exist outside it.</p>
+          </div>
+        </div>
+        <div class="iter-row">
+          <div class="iter-num">3</div>
+          <div class="iter-body">
+            <h4>Method body executes</h4>
+            <p><code>return a + b</code> → <code>return 3 + 7</code> → <code>return 10</code>. The result is handed back to the caller.</p>
+          </div>
+        </div>
+        <div class="iter-row">
+          <div class="iter-num">4</div>
+          <div class="iter-body">
+            <h4>Execution returns to the caller</h4>
+            <p>The value <code>10</code> is placed where the method was called. <code>int result = add(3, 7)</code> → <code>int result = 10</code>.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════ TAB 4: SIMULATOR ════════════ -->
+    <div id="tab-simulator" class="tab-content">
+      <div class="section-title"><span class="dot"></span> Method Simulator</div>
+      <p class="section-sub">Pick a method, enter input values, hit Run — and watch the method execute step by step with a full trace.</p>
+
+      <div class="sim-wrap">
+        <div class="sim-header">
+          <span>🔧 Interactive Method Execution</span>
+          <span style="font-size:.78rem;font-weight:400;color:var(--text2)">Simulates real Java method calls</span>
+        </div>
+        <div class="sim-body">
+
+          <div class="method-tabs">
+            <button class="method-tab-btn active" onclick="setMethod('add',this)">➕ add(a, b)</button>
+            <button class="method-tab-btn" onclick="setMethod('multiply',this)">✖ multiply(a, b)</button>
+            <button class="method-tab-btn" onclick="setMethod('max',this)">⬆ max(a, b)</button>
+            <button class="method-tab-btn" onclick="setMethod('greet',this)">👋 greet(name)</button>
+            <button class="method-tab-btn" onclick="setMethod('isEven',this)">🔢 isEven(n)</button>
+          </div>
+
+          <div class="sim-inputs" id="sim-inputs-wrap"></div>
+
+          <pre class="sim-preview" id="sim-preview"></pre>
+
+          <div class="sim-run-bar">
+            <button class="btn-run-method" id="btn-run" onclick="runMethod()">▶&nbsp; Run Method</button>
+            <button class="btn-reset-method" onclick="resetSim()">↺ Reset</button>
+          </div>
+
+          <div class="result-pills" id="sim-pills"></div>
+
+          <div class="exec-trace" id="exec-trace">
+            <div class="exec-trace-hdr">⚙ Execution Trace — step by step</div>
+            <div id="exec-steps"></div>
+          </div>
+
+          <div class="console-out">
+            <div class="console-bar">
+              <span>Console</span>
+              <div class="console-status">
+                <div class="status-dot" id="con-dot"></div>
+                <span id="con-status">Ready</span>
+              </div>
+            </div>
+            <div class="console-body" id="con-body"><span class="c-dim">// Output appears here after you run the method</span></div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════ TAB 5: COMMON ERRORS ════════════ -->
+    <div id="tab-errors" class="tab-content">
+      <div class="section-title"><span class="dot"></span> Common Method &amp; Class Mistakes</div>
+      <p class="section-sub">These four errors cause most beginner Java compilation failures. Know each one — avoid them forever.</p>
+
+      <div class="err-sim-btns">
+        <button class="err-btn active" onclick="showErr('noreturn',this)">⚠ Missing return</button>
+        <button class="err-btn" onclick="showErr('wrongtype',this)">⚠ Wrong return type</button>
+        <button class="err-btn" onclick="showErr('badcall',this)">⚠ Incorrect method call</button>
+        <button class="err-btn" onclick="showErr('syntax',this)">⚠ Syntax / brace error</button>
+      </div>
+
+      <!-- MISSING RETURN -->
+      <div class="err-panel active" id="err-noreturn">
+        <div class="err-hdr">🔴 Error: Missing return Statement in Non-void Method</div>
+        <div class="err-body">
+          <h4>What happened?</h4>
+          <p>If a method declares a return type (e.g. <code>int</code>, <code>String</code>), Java requires a <code>return</code> statement in <strong>every possible code path</strong>. Missing it causes a compile error — even if the logic seems obvious.</p>
+          <div class="err-msg">error: missing return statement
+    public static int add(int a, int b) {
+        int result = a + b;
+        // forgot to return!
+    }                       ^</div>
+          <div class="code-diff">
+            <div class="diff-wrong">
+              <div class="diff-lbl">❌ Wrong (no return)</div>
+              <div class="diff-code"><span class="kw">public</span> <span class="kw">static</span> <span class="kw">int</span> <span class="fn">add</span>(<span class="kw">int</span> a, <span class="kw">int</span> b) {
+    <span class="kw">int</span> result <span class="op">=</span> a <span class="op">+</span> b;
+    <span class="cmt">// result computed but not returned!</span>
+}</div>
+            </div>
+            <div class="diff-right">
+              <div class="diff-lbl">✅ Correct</div>
+              <div class="diff-code"><span class="kw">public</span> <span class="kw">static</span> <span class="kw">int</span> <span class="fn">add</span>(<span class="kw">int</span> a, <span class="kw">int</span> b) {
+    <span class="kw">int</span> result <span class="op">=</span> a <span class="op">+</span> b;
+    <span class="kw">return</span> result; <span class="cmt">// ✓ returned</span>
+}</div>
+            </div>
+          </div>
+          <div class="fix-tag">✅ Rule: Every non-void method must have a <code>return</code> statement that returns the declared type.</div>
+        </div>
+      </div>
+
+      <!-- WRONG RETURN TYPE -->
+      <div class="err-panel" id="err-wrongtype">
+        <div class="err-hdr">🔴 Error: Returning the Wrong Type</div>
+        <div class="err-body">
+          <h4>What happened?</h4>
+          <p>The method declares it returns <code>int</code>, but the <code>return</code> statement hands back a <code>String</code> or <code>double</code>. Java is strictly typed — the returned value must exactly match the declared return type.</p>
+          <div class="err-msg">error: incompatible types: String cannot be converted to int
+    public static int getScore() {
+        return "100";    // wrong! String ≠ int
+    }               ^</div>
+          <div class="code-diff">
+            <div class="diff-wrong">
+              <div class="diff-lbl">❌ Wrong (type mismatch)</div>
+              <div class="diff-code"><span class="kw">public</span> <span class="kw">static</span> <span class="kw">int</span> <span class="fn">getScore</span>() {
+    <span class="kw">return</span> <span class="str">"100"</span>; <span class="cmt">// String ≠ int!</span>
+}</div>
+            </div>
+            <div class="diff-right">
+              <div class="diff-lbl">✅ Correct</div>
+              <div class="diff-code"><span class="kw">public</span> <span class="kw">static</span> <span class="kw">int</span> <span class="fn">getScore</span>() {
+    <span class="kw">return</span> <span class="num">100</span>; <span class="cmt">// int ✓</span>
+}
+<span class="cmt">// OR change return type to String</span></div>
+            </div>
+          </div>
+          <div class="fix-tag">✅ Rule: The value after <code>return</code> must match exactly what the method signature declares.</div>
+        </div>
+      </div>
+
+      <!-- BAD METHOD CALL -->
+      <div class="err-panel" id="err-badcall">
+        <div class="err-hdr">🔴 Error: Incorrect Method Call — Wrong Number of Arguments</div>
+        <div class="err-body">
+          <h4>What happened?</h4>
+          <p>The method definition says it needs two <code>int</code> parameters, but the call passes one, three, or the wrong types. Java checks this at compile time and rejects it immediately.</p>
+          <div class="err-msg">error: method add in class Main cannot be applied to given types
+    int result = add(5);    // expected 2 args, got 1
+                 ^
+required: int, int
+found:    int</div>
+          <div class="code-diff">
+            <div class="diff-wrong">
+              <div class="diff-lbl">❌ Wrong (wrong args)</div>
+              <div class="diff-code"><span class="kw">public</span> <span class="kw">static</span> <span class="kw">int</span> <span class="fn">add</span>(<span class="kw">int</span> a, <span class="kw">int</span> b) {...}
+
+<span class="cmt">// Calls with wrong count:</span>
+<span class="fn">add</span>(<span class="num">5</span>);          <span class="cmt">// 1 arg → error</span>
+<span class="fn">add</span>(<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>);    <span class="cmt">// 3 args → error</span></div>
+            </div>
+            <div class="diff-right">
+              <div class="diff-lbl">✅ Correct</div>
+              <div class="diff-code"><span class="kw">public</span> <span class="kw">static</span> <span class="kw">int</span> <span class="fn">add</span>(<span class="kw">int</span> a, <span class="kw">int</span> b) {...}
+
+<span class="cmt">// Exactly 2 ints:</span>
+<span class="kw">int</span> r <span class="op">=</span> <span class="fn">add</span>(<span class="num">3</span>, <span class="num">7</span>); <span class="cmt">// ✓</span></div>
+            </div>
+          </div>
+          <div class="fix-tag">✅ Rule: The number and types of arguments in the call must exactly match the method's parameter list.</div>
+        </div>
+      </div>
+
+      <!-- SYNTAX / BRACE -->
+      <div class="err-panel" id="err-syntax">
+        <div class="err-hdr">🔴 Error: Missing or Mismatched Curly Braces</div>
+        <div class="err-body">
+          <h4>What happened?</h4>
+          <p>Every opening <code>{</code> must have a matching closing <code>}</code>. A missing brace causes cascading errors — Java loses track of where the method and class boundaries are, giving confusing messages.</p>
+          <div class="err-msg">error: reached end of file while parsing
+}
+^
+1 error   (missing closing brace for method or class)</div>
+          <div class="code-diff">
+            <div class="diff-wrong">
+              <div class="diff-lbl">❌ Wrong (missing brace)</div>
+              <div class="diff-code"><span class="kw">public</span> <span class="kw">class</span> <span class="cls">Main</span> {
+    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">main</span>(<span class="cls">String</span>[] args) {
+        <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Hi"</span>);
+    <span class="cmt">// missing } to close main!</span>
+} <span class="cmt">// this closes class — not main</span></div>
+            </div>
+            <div class="diff-right">
+              <div class="diff-lbl">✅ Correct</div>
+              <div class="diff-code"><span class="kw">public</span> <span class="kw">class</span> <span class="cls">Main</span> {
+    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">main</span>(<span class="cls">String</span>[] args) {
+        <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Hi"</span>);
+    }  <span class="cmt">// closes main ✓</span>
+}  <span class="cmt">// closes class ✓</span></div>
+            </div>
+          </div>
+          <div class="fix-tag">✅ Rule: For every <code>{</code> there must be a matching <code>}</code>. Count them — they must be equal.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════ TAB 6: QUIZ ════════════ -->
+    <div id="tab-quiz" class="tab-content">
+      <div class="section-title"><span class="dot"></span> Quick Check</div>
+      <p class="section-sub">4 questions. Click an option for instant feedback with explanation.</p>
+
+      <div class="quiz-container">
+
+        <div class="quiz-block">
+          <div class="quiz-num">Question 1 of 4</div>
+          <div class="quiz-q">What is the return type of this method?<br><span class="quiz-code">public static int add(int a, int b) { return a + b; }</span></div>
+          <div class="quiz-opts">
+            <div class="quiz-opt" onclick="answerQuiz(1,this,false)">⬜ void</div>
+            <div class="quiz-opt" onclick="answerQuiz(1,this,false)">⬜ String</div>
+            <div class="quiz-opt" onclick="answerQuiz(1,this,true)">⬜ int</div>
+            <div class="quiz-opt" onclick="answerQuiz(1,this,false)">⬜ double</div>
+          </div>
+          <div class="quiz-feedback" id="qf1"></div>
+        </div>
+
+        <div class="quiz-block">
+          <div class="quiz-num">Question 2 of 4</div>
+          <div class="quiz-q">What does <span class="quiz-code">void</span> as a return type mean?</div>
+          <div class="quiz-opts">
+            <div class="quiz-opt" onclick="answerQuiz(2,this,false)">⬜ The method returns 0</div>
+            <div class="quiz-opt" onclick="answerQuiz(2,this,true)">⬜ The method returns nothing</div>
+            <div class="quiz-opt" onclick="answerQuiz(2,this,false)">⬜ The method has no parameters</div>
+            <div class="quiz-opt" onclick="answerQuiz(2,this,false)">⬜ The method is private</div>
+          </div>
+          <div class="quiz-feedback" id="qf2"></div>
+        </div>
+
+        <div class="quiz-block">
+          <div class="quiz-num">Question 3 of 4</div>
+          <div class="quiz-q">In Java, the class name must match the <strong>filename</strong>. If the class is <span class="quiz-code">public class Calculator</span>, what must the file be named?</div>
+          <div class="quiz-opts">
+            <div class="quiz-opt" onclick="answerQuiz(3,this,false)">⬜ calculator.java</div>
+            <div class="quiz-opt" onclick="answerQuiz(3,this,false)">⬜ CALCULATOR.java</div>
+            <div class="quiz-opt" onclick="answerQuiz(3,this,true)">⬜ Calculator.java</div>
+            <div class="quiz-opt" onclick="answerQuiz(3,this,false)">⬜ Main.java — filename does not matter</div>
+          </div>
+          <div class="quiz-feedback" id="qf3"></div>
+        </div>
+
+        <div class="quiz-block">
+          <div class="quiz-num">Question 4 of 4</div>
+          <div class="quiz-q">Which call correctly invokes this method?<br><span class="quiz-code">public static String greet(String name) { return "Hello " + name; }</span></div>
+          <div class="quiz-opts">
+            <div class="quiz-opt" onclick="answerQuiz(4,this,false)">⬜ <span class="quiz-code">greet();</span></div>
+            <div class="quiz-opt" onclick="answerQuiz(4,this,false)">⬜ <span class="quiz-code">greet(42);</span></div>
+            <div class="quiz-opt" onclick="answerQuiz(4,this,true)">⬜ <span class="quiz-code">String msg = greet("Rahul");</span></div>
+            <div class="quiz-opt" onclick="answerQuiz(4,this,false)">⬜ <span class="quiz-code">void greet("Rahul");</span></div>
+          </div>
+          <div class="quiz-feedback" id="qf4"></div>
+        </div>
+
+      </div>
+
+      <div class="score-box" id="score-box">
+        <div class="score-num" id="score-num">0/4</div>
+        <div class="score-label" id="score-lbl"></div>
+        <button class="btn-retake" onclick="retakeQuiz()">↺ Retake Quiz</button>
+      </div>
+    </div>
+
+  </div><!-- /tabs-wrapper -->
+</div><!-- /container -->
+
+<script>
+/* ══════════════════════════════════════════════════════
+   THEME
+══════════════════════════════════════════════════════ */
+function toggleTheme() {
+  var html = document.documentElement;
+  var btn  = document.getElementById('themeToggle');
+  html.dataset.theme = html.dataset.theme === 'dark' ? 'light' : 'dark';
+  btn.textContent    = html.dataset.theme === 'dark' ? '☀ Light' : '🌙 Dark';
+}
+
+/* ══════════════════════════════════════════════════════
+   TABS
+══════════════════════════════════════════════════════ */
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-content').forEach(function(t){ t.classList.remove('active'); });
+  document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ══════════════════════════════════════════════════════
+   METHOD DEFINITIONS
+══════════════════════════════════════════════════════ */
+var METHODS = {
+  add: {
+    label: 'add(a, b)',
+    inputs: [
+      { id: 'p-a', label: 'int a', placeholder: 'e.g. 3', type: 'number' },
+      { id: 'p-b', label: 'int b', placeholder: 'e.g. 7', type: 'number' }
+    ],
+    signature: '<span class="kw">public</span> <span class="kw">static</span> <span class="kw">int</span> <span class="fn">add</span>(<span class="kw">int</span> a, <span class="kw">int</span> b) {\n    <span class="kw">return</span> a <span class="op">+</span> b;\n}',
+    previewFn: function(vals) {
+      var a = vals['p-a'] || '?', b = vals['p-b'] || '?';
+      return '<span class="kw">public</span> <span class="kw">static</span> <span class="kw">int</span> <span class="fn">add</span>(<span class="kw">int</span> a, <span class="kw">int</span> b) {\n    <span class="kw">return</span> a <span class="op">+</span> b;\n}\n\n<span class="cmt">// Calling: add(' + a + ', ' + b + ');</span>';
+    },
+    run: function(vals) {
+      var a = parseFloat(vals['p-a']), b = parseFloat(vals['p-b']);
+      if (isNaN(a) || isNaN(b)) return { error: true, msg: 'Both a and b must be numbers.' };
+      if (!Number.isInteger(a) || !Number.isInteger(b)) return { error: true, msg: 'This method uses int — enter whole numbers only.' };
+      var result = a + b;
+      return {
+        error: false, result: result,
+        steps: [
+          { t: 's-call', i: '→',  m: 'Method called: <code>add(' + a + ', ' + b + ')</code>' },
+          { t: 's-exec', i: '⚙', m: 'Parameter binding: <code>a = ' + a + '</code>, <code>b = ' + b + '</code>' },
+          { t: 's-exec', i: '⚙', m: 'Executing body: <code>' + a + ' + ' + b + ' = ' + result + '</code>' },
+          { t: 's-return', i: '←', m: 'Return value: <code>' + result + '</code>' },
+          { t: 's-out', i: '✓', m: 'Result stored in caller: <code>int result = ' + result + '</code>' }
+        ],
+        console: 'add(' + a + ', ' + b + ') → ' + result,
+        pill: '✓ add(' + a + ', ' + b + ') = ' + result
+      };
+    }
+  },
+  multiply: {
+    label: 'multiply(a, b)',
+    inputs: [
+      { id: 'p-a', label: 'int a', placeholder: 'e.g. 4', type: 'number' },
+      { id: 'p-b', label: 'int b', placeholder: 'e.g. 5', type: 'number' }
+    ],
+    previewFn: function(vals) {
+      var a = vals['p-a'] || '?', b = vals['p-b'] || '?';
+      return '<span class="kw">public</span> <span class="kw">static</span> <span class="kw">int</span> <span class="fn">multiply</span>(<span class="kw">int</span> a, <span class="kw">int</span> b) {\n    <span class="kw">return</span> a <span class="op">*</span> b;\n}\n\n<span class="cmt">// Calling: multiply(' + a + ', ' + b + ');</span>';
+    },
+    run: function(vals) {
+      var a = parseFloat(vals['p-a']), b = parseFloat(vals['p-b']);
+      if (isNaN(a) || isNaN(b)) return { error: true, msg: 'Both a and b must be numbers.' };
+      if (!Number.isInteger(a) || !Number.isInteger(b)) return { error: true, msg: 'This method uses int — enter whole numbers only.' };
+      var result = a * b;
+      return {
+        error: false, result: result,
+        steps: [
+          { t: 's-call',   i: '→',  m: 'Method called: <code>multiply(' + a + ', ' + b + ')</code>' },
+          { t: 's-exec',   i: '⚙', m: 'Parameter binding: <code>a = ' + a + '</code>, <code>b = ' + b + '</code>' },
+          { t: 's-exec',   i: '⚙', m: 'Executing body: <code>' + a + ' * ' + b + ' = ' + result + '</code>' },
+          { t: 's-return', i: '←', m: 'Return value: <code>' + result + '</code>' },
+          { t: 's-out',    i: '✓', m: 'Result: <code>int result = ' + result + '</code>' }
+        ],
+        console: 'multiply(' + a + ', ' + b + ') → ' + result,
+        pill: '✓ multiply(' + a + ', ' + b + ') = ' + result
+      };
+    }
+  },
+  max: {
+    label: 'max(a, b)',
+    inputs: [
+      { id: 'p-a', label: 'int a', placeholder: 'e.g. 10', type: 'number' },
+      { id: 'p-b', label: 'int b', placeholder: 'e.g. 25', type: 'number' }
+    ],
+    previewFn: function(vals) {
+      var a = vals['p-a'] || '?', b = vals['p-b'] || '?';
+      return '<span class="kw">public</span> <span class="kw">static</span> <span class="kw">int</span> <span class="fn">max</span>(<span class="kw">int</span> a, <span class="kw">int</span> b) {\n    <span class="kw">if</span> (a <span class="op">></span> b) <span class="kw">return</span> a;\n    <span class="kw">else</span> <span class="kw">return</span> b;\n}\n\n<span class="cmt">// Calling: max(' + a + ', ' + b + ');</span>';
+    },
+    run: function(vals) {
+      var a = parseFloat(vals['p-a']), b = parseFloat(vals['p-b']);
+      if (isNaN(a) || isNaN(b)) return { error: true, msg: 'Both a and b must be numbers.' };
+      if (!Number.isInteger(a) || !Number.isInteger(b)) return { error: true, msg: 'This method uses int — enter whole numbers only.' };
+      var result = Math.max(a, b);
+      var branch = a > b ? 'a > b is true → return a' : (a === b ? 'a == b → return b (same value)' : 'a > b is false → return b');
+      return {
+        error: false, result: result,
+        steps: [
+          { t: 's-call',   i: '→',  m: 'Method called: <code>max(' + a + ', ' + b + ')</code>' },
+          { t: 's-exec',   i: '⚙', m: 'Parameter binding: <code>a = ' + a + '</code>, <code>b = ' + b + '</code>' },
+          { t: 's-exec',   i: '⚙', m: 'Evaluating condition: <code>' + a + ' > ' + b + '</code> → <strong>' + (a > b) + '</strong>' },
+          { t: 's-exec',   i: '⚙', m: branch },
+          { t: 's-return', i: '←', m: 'Return value: <code>' + result + '</code>' }
+        ],
+        console: 'max(' + a + ', ' + b + ') → ' + result,
+        pill: '✓ max(' + a + ', ' + b + ') = ' + result
+      };
+    }
+  },
+  greet: {
+    label: 'greet(name)',
+    inputs: [
+      { id: 'p-name', label: 'String name', placeholder: 'e.g. Rahul', type: 'text' }
+    ],
+    previewFn: function(vals) {
+      var n = vals['p-name'] || '?';
+      return '<span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">greet</span>(<span class="cls">String</span> name) {\n    <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Hello, "</span> <span class="op">+</span> name <span class="op">+</span> <span class="str">"!"</span>);\n}\n\n<span class="cmt">// Calling: greet("' + n + '");</span>';
+    },
+    run: function(vals) {
+      var name = (vals['p-name'] || '').trim();
+      if (!name) return { error: true, msg: 'Please enter a name.' };
+      var output = 'Hello, ' + name + '!';
+      return {
+        error: false, result: null,
+        steps: [
+          { t: 's-call',   i: '→',  m: 'Method called: <code>greet("' + name + '")</code>' },
+          { t: 's-exec',   i: '⚙', m: 'Parameter binding: <code>name = "' + name + '"</code>' },
+          { t: 's-exec',   i: '⚙', m: 'Executing: <code>System.out.println("Hello, ' + name + '!")</code>' },
+          { t: 's-out',    i: '✓', m: 'Console output: <code>' + output + '</code>' },
+          { t: 's-return', i: '←', m: 'Method returns: <code>void</code> — nothing returned' }
+        ],
+        console: output,
+        pill: '✓ greet("' + name + '") → printed to console'
+      };
+    }
+  },
+  isEven: {
+    label: 'isEven(n)',
+    inputs: [
+      { id: 'p-n', label: 'int n', placeholder: 'e.g. 8', type: 'number' }
+    ],
+    previewFn: function(vals) {
+      var n = vals['p-n'] || '?';
+      return '<span class="kw">public</span> <span class="kw">static</span> <span class="kw">boolean</span> <span class="fn">isEven</span>(<span class="kw">int</span> n) {\n    <span class="kw">return</span> (n <span class="op">%</span> <span class="num">2</span>) <span class="op">==</span> <span class="num">0</span>;\n}\n\n<span class="cmt">// Calling: isEven(' + n + ');</span>';
+    },
+    run: function(vals) {
+      var n = parseFloat(vals['p-n']);
+      if (isNaN(n)) return { error: true, msg: 'Please enter a whole number.' };
+      if (!Number.isInteger(n)) return { error: true, msg: 'This method uses int — enter a whole number.' };
+      var result = (n % 2 === 0);
+      return {
+        error: false, result: result,
+        steps: [
+          { t: 's-call',   i: '→',  m: 'Method called: <code>isEven(' + n + ')</code>' },
+          { t: 's-exec',   i: '⚙', m: 'Parameter binding: <code>n = ' + n + '</code>' },
+          { t: 's-exec',   i: '⚙', m: 'Evaluating: <code>' + n + ' % 2 = ' + (n % 2) + '</code>' },
+          { t: 's-exec',   i: '⚙', m: 'Condition: <code>' + (n % 2) + ' == 0</code> → <strong>' + result + '</strong>' },
+          { t: 's-return', i: '←', m: 'Return value: <code>' + result + '</code> (boolean)' }
+        ],
+        console: 'isEven(' + n + ') → ' + result,
+        pill: '✓ isEven(' + n + ') = ' + result
+      };
+    }
+  }
+};
+
+var _curMethod = 'add';
+
+function setMethod(key, btn) {
+  _curMethod = key;
+  document.querySelectorAll('.method-tab-btn').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  buildInputs();
+  resetSim();
+}
+
+function buildInputs() {
+  var m   = METHODS[_curMethod];
+  var wrap = document.getElementById('sim-inputs-wrap');
+  wrap.innerHTML = m.inputs.map(function(inp) {
+    return '<div class="sim-field">' +
+      '<label>' + inp.label + '</label>' +
+      '<input class="sim-input" id="' + inp.id + '" type="' + inp.type + '" placeholder="' + inp.placeholder + '" oninput="updatePreview()"/>' +
+    '</div>';
+  }).join('');
+  updatePreview();
+}
+
+function getVals() {
+  var m = METHODS[_curMethod], vals = {};
+  m.inputs.forEach(function(inp) {
+    var el = document.getElementById(inp.id);
+    vals[inp.id] = el ? el.value : '';
+  });
+  return vals;
+}
+
+function updatePreview() {
+  var m = METHODS[_curMethod];
+  var preview = document.getElementById('sim-preview');
+  if (preview) preview.innerHTML = m.previewFn(getVals());
+}
+
+function addPill(html, type) {
+  var el = document.createElement('div');
+  el.className = 'rpill rpill-' + type;
+  el.innerHTML = html;
+  document.getElementById('sim-pills').appendChild(el);
+}
+
+function resetSim() {
+  document.getElementById('sim-pills').innerHTML = '';
+  document.getElementById('exec-trace').classList.remove('show');
+  document.getElementById('exec-steps').innerHTML = '';
+  var dot = document.getElementById('con-dot');
+  if (dot) { dot.className = 'status-dot'; }
+  document.getElementById('con-status').textContent = 'Ready';
+  document.getElementById('con-body').innerHTML = '<span class="c-dim">// Output appears here after you run the method</span>';
+  var btn = document.getElementById('btn-run');
+  if (btn) { btn.disabled = false; btn.innerHTML = '▶&nbsp; Run Method'; }
+  updatePreview();
+}
+
+function runMethod() {
+  var m      = METHODS[_curMethod];
+  var vals   = getVals();
+  var result = m.run(vals);
+
+  document.getElementById('sim-pills').innerHTML = '';
+  document.getElementById('exec-trace').classList.remove('show');
+  document.getElementById('exec-steps').innerHTML = '';
+
+  var dot    = document.getElementById('con-dot');
+  var status = document.getElementById('con-status');
+  var body   = document.getElementById('con-body');
+
+  if (result.error) {
+    addPill('❌ ' + result.msg, 'error');
+    dot.className = 'status-dot error';
+    status.textContent = 'Error';
+    body.innerHTML = '<span style="color:#ff6b6b">// Error: ' + result.msg + '</span>';
+    return;
+  }
+
+  // Animate trace steps
+  dot.className = 'status-dot running';
+  status.textContent = 'Running...';
+
+  var stepsEl = document.getElementById('exec-steps');
+  document.getElementById('exec-trace').classList.add('show');
+
+  var delay = 0;
+  result.steps.forEach(function(step, idx) {
+    setTimeout(function() {
+      var div = document.createElement('div');
+      div.className = 'exec-step';
+      div.innerHTML = '<div class="exec-step-num ' + step.t + '">' + step.i + '</div>' +
+                      '<div class="exec-step-txt">' + step.m + '</div>';
+      stepsEl.appendChild(div);
+    }, delay);
+    delay += 420;
+  });
+
+  setTimeout(function() {
+    dot.className = 'status-dot done';
+    status.textContent = 'Done (exit 0)';
+    body.innerHTML = '<span class="c-info">$ javac Main.java &amp;&amp; java Main</span>\n' + result.console + '\n\n<span class="c-dim">Process finished with exit code 0</span>';
+    addPill(result.pill, 'success');
+  }, delay);
+}
+
+/* ══════════════════════════════════════════════════════
+   ERROR TAB
+══════════════════════════════════════════════════════ */
+function showErr(id, btn) {
+  document.querySelectorAll('.err-panel').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.err-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.getElementById('err-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ══════════════════════════════════════════════════════
+   QUIZ
+══════════════════════════════════════════════════════ */
+var quizExp = {
+  1: {
+    c: '✅ Correct! The return type is declared before the method name. <code>public static <strong>int</strong> add(…)</code> — the keyword <code>int</code> is the return type, meaning this method hands back a whole number.',
+    w: '❌ Not quite. The return type is written before the method name. Here it is <code>int</code>, not void (which means nothing returned), String, or double.'
+  },
+  2: {
+    c: '✅ Correct! <code>void</code> means the method performs an action but does not give back any value to the caller. Methods that just print something or click a button are typically void.',
+    w: '❌ Not quite. <code>void</code> does not mean 0 is returned — it means nothing is returned at all. It has no connection to parameters or access level.'
+  },
+  3: {
+    c: '✅ Correct! Java is case-sensitive. The class <code>Calculator</code> must be in a file named exactly <code>Calculator.java</code> — every character including capitalisation must match.',
+    w: '❌ Not quite. Java is case-sensitive. <code>calculator.java</code> or <code>CALCULATOR.java</code> will not work. The filename must be <code>Calculator.java</code> — exact match required.'
+  },
+  4: {
+    c: '✅ Correct! The method returns a <code>String</code> and takes one <code>String</code> parameter. <code>String msg = greet("Rahul")</code> correctly passes a String and captures the returned String.',
+    w: '❌ Not quite. <code>greet()</code> is missing the required argument. <code>greet(42)</code> passes an int instead of a String. <code>void greet("Rahul")</code> is not valid syntax for a method call.'
+  }
+};
+
+var quizAnswers = {}, quizCorrect = 0;
+
+function answerQuiz(n, el, correct) {
+  if (quizAnswers[n] !== undefined) return;
+  quizAnswers[n] = correct;
+  if (correct) quizCorrect++;
+  el.closest('.quiz-opts').querySelectorAll('.quiz-opt').forEach(function(o){ o.classList.add('disabled'); });
+  el.classList.add(correct ? 'correct' : 'wrong');
+  var fb = document.getElementById('qf' + n);
+  fb.innerHTML  = correct ? quizExp[n].c : quizExp[n].w;
+  fb.className  = 'quiz-feedback show ' + (correct ? 'correct' : 'wrong');
+  if (Object.keys(quizAnswers).length === 4) setTimeout(showScore, 500);
+}
+
+function showScore() {
+  var box = document.getElementById('score-box');
+  var num = document.getElementById('score-num');
+  var lbl = document.getElementById('score-lbl');
+  num.textContent = quizCorrect + '/4';
+  num.style.color = quizCorrect === 4 ? 'var(--accent3)' : quizCorrect >= 2 ? 'var(--accent)' : 'var(--accent4)';
+  lbl.textContent = quizCorrect === 4 ? '🎉 Perfect! You understand Java methods and class structure.' :
+                    quizCorrect >= 2   ? '👍 Good progress! Review the ones you missed.' :
+                                         '📖 Revisit the Methods tab and try again.';
+  box.classList.add('show');
+}
+
+function retakeQuiz() {
+  quizAnswers = {}; quizCorrect = 0;
+  document.getElementById('score-box').classList.remove('show');
+  document.querySelectorAll('.quiz-opt').forEach(function(o){ o.className = 'quiz-opt'; });
+  document.querySelectorAll('.quiz-feedback').forEach(function(f){ f.className = 'quiz-feedback'; f.innerHTML = ''; });
+}
+
+/* ══ INIT ═══════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', function() {
+  buildInputs();
+});
+</script>
+</body>
+</html>

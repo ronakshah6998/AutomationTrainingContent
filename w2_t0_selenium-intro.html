@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Introduction to Automation & Selenium</title>
+<style>
+  :root {
+    --bg:        #0d1117;
+    --surface:   #161b22;
+    --surface2:  #1f2937;
+    --border:    #30363d;
+    --accent:    #f89820;
+    --accent2:   #4fa3e0;
+    --accent3:   #58d68d;
+    --accent4:   #e74c3c;
+    --accent5:   #c678dd;
+    --text:      #e6edf3;
+    --text2:     #8b949e;
+    --text3:     #c9d1d9;
+    --tab-bg:    #161b22;
+    --tab-active:#1f2937;
+    --code-bg:   #0d1117;
+    --radius:    10px;
+    --shadow:    0 4px 24px rgba(0,0,0,.45);
+    --font-mono: 'Courier New', Courier, monospace;
+  }
+  [data-theme="light"] {
+    --bg:        #f0f4f8;
+    --surface:   #ffffff;
+    --surface2:  #e8eef5;
+    --border:    #d1d9e0;
+    --text:      #1a202c;
+    --text2:     #4a5568;
+    --text3:     #2d3748;
+    --tab-bg:    #e8eef5;
+    --tab-active:#ffffff;
+    --code-bg:   #e2e8f0;
+    --shadow:    0 4px 24px rgba(0,0,0,.12);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; transition: background .3s, color .3s; line-height: 1.65; }
+
+  /* HEADER */
+  header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 32px; display: flex; align-items: center; justify-content: space-between; height: 62px; position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 0 var(--border); }
+  .logo { display: flex; align-items: center; gap: 10px; font-size: 1.05rem; font-weight: 700; letter-spacing: -.3px; }
+  .logo-icon { width: 32px; height: 32px; border-radius: 8px; background: linear-gradient(135deg, #43b89c, #1a7a5e); display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 900; color: #fff; }
+  .badge { font-size: .68rem; font-weight: 600; padding: 2px 8px; border-radius: 20px; background: var(--accent3); color: #000; text-transform: uppercase; letter-spacing: .5px; }
+  .header-right { display: flex; align-items: center; gap: 12px; }
+  .module-nav { display: flex; align-items: center; gap: 6px; font-size: .78rem; color: var(--text2); }
+  .module-nav a { color: var(--accent2); text-decoration: none; font-weight: 600; padding: 4px 10px; border: 1px solid var(--border); border-radius: 6px; transition: all .2s; }
+  .module-nav a:hover { border-color: var(--accent2); background: rgba(79,163,224,.08); }
+  #themeToggle { background: var(--surface2); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 6px 14px; cursor: pointer; font-size: .85rem; transition: all .2s; }
+  #themeToggle:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* LAYOUT */
+  .container { max-width: 1100px; margin: 0 auto; padding: 32px 20px 80px; }
+  .breadcrumb { display: flex; align-items: center; gap: 8px; font-size: .8rem; color: var(--text2); margin-bottom: 20px; }
+  .breadcrumb span { color: var(--accent3); font-weight: 600; }
+  .breadcrumb .sep { color: var(--border); }
+
+  /* HERO */
+  .hero { background: linear-gradient(135deg, var(--surface) 0%, var(--surface2) 100%); border: 1px solid var(--border); border-radius: 14px; padding: 36px 40px; margin-bottom: 28px; display: flex; align-items: center; gap: 28px; position: relative; overflow: hidden; }
+  .hero::before { content: ''; position: absolute; top: -60px; right: -60px; width: 240px; height: 240px; border-radius: 50%; background: radial-gradient(circle, rgba(88,214,141,.15) 0%, transparent 70%); pointer-events: none; }
+  .hero-icon { font-size: 64px; flex-shrink: 0; filter: drop-shadow(0 4px 16px rgba(88,214,141,.4)); }
+  .hero-text h1 { font-size: 1.75rem; font-weight: 800; line-height: 1.2; }
+  .hero-text h1 span { color: var(--accent3); }
+  .hero-text p { color: var(--text2); margin-top: 8px; font-size: .95rem; }
+  .hero-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .pill { padding: 4px 12px; border-radius: 20px; font-size: .78rem; font-weight: 600; border: 1px solid; display: flex; align-items: center; gap: 5px; }
+  .pill-orange { color: var(--accent);  border-color: rgba(248,152,32,.35); background: rgba(248,152,32,.08); }
+  .pill-blue   { color: var(--accent2); border-color: rgba(79,163,224,.35);  background: rgba(79,163,224,.08); }
+  .pill-green  { color: var(--accent3); border-color: rgba(88,214,141,.35);  background: rgba(88,214,141,.08); }
+  .pill-purple { color: var(--accent5); border-color: rgba(198,120,221,.35); background: rgba(198,120,221,.08); }
+
+  /* TABS */
+  .tabs-wrapper { background: var(--tab-bg); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .tab-nav { display: flex; overflow-x: auto; border-bottom: 1px solid var(--border); scrollbar-width: none; }
+  .tab-nav::-webkit-scrollbar { display: none; }
+  .tab-btn { flex-shrink: 0; padding: 14px 20px; background: none; border: none; color: var(--text2); font-size: .85rem; font-weight: 600; cursor: pointer; position: relative; transition: color .2s; letter-spacing: .1px; display: flex; align-items: center; gap: 7px; }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: var(--accent3); background: var(--tab-active); }
+  .tab-btn.active::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: var(--accent3); border-radius: 2px 2px 0 0; }
+  .tab-icon { font-size: 1rem; }
+  .tab-content { display: none; padding: 32px; }
+  .tab-content.active { display: block; animation: fadeIn .25s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  /* SECTION HEADINGS */
+  .section-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 6px; display: flex; align-items: center; gap: 9px; }
+  .dot        { width: 10px; height: 10px; border-radius: 50%; background: var(--accent3); display: inline-block; flex-shrink: 0; }
+  .dot-orange { width: 10px; height: 10px; border-radius: 50%; background: var(--accent);  display: inline-block; flex-shrink: 0; }
+  .dot-blue   { width: 10px; height: 10px; border-radius: 50%; background: var(--accent2); display: inline-block; flex-shrink: 0; }
+  .dot-purple { width: 10px; height: 10px; border-radius: 50%; background: var(--accent5); display: inline-block; flex-shrink: 0; }
+  .section-sub { color: var(--text2); font-size: .9rem; margin-bottom: 22px; }
+
+  /* CARDS */
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px,1fr)); gap: 16px; margin-bottom: 28px; }
+  .cards-2 { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px,1fr)); gap: 16px; margin-bottom: 28px; }
+  .card { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; transition: border-color .2s, transform .2s; }
+  .card:hover { border-color: var(--accent3); transform: translateY(-2px); }
+  .card-icon { font-size: 1.6rem; margin-bottom: 10px; }
+  .card h3 { font-size: .95rem; font-weight: 700; margin-bottom: 6px; }
+  .card p { font-size: .83rem; color: var(--text2); line-height: 1.55; }
+  .card code { font-family: var(--font-mono); font-size: .78rem; background: var(--code-bg); padding: 1px 6px; border-radius: 4px; color: var(--accent3); border: 1px solid var(--border); }
+
+  /* INFO BOX */
+  .info-box { border-radius: var(--radius); padding: 16px 20px; font-size: .875rem; margin-bottom: 20px; border-left: 4px solid; display: flex; gap: 12px; align-items: flex-start; }
+  .info-box .ib-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 1px; }
+  .info-box.blue   { background: rgba(79,163,224,.1);  border-color: var(--accent2); }
+  .info-box.orange { background: rgba(248,152,32,.1);  border-color: var(--accent);  }
+  .info-box.green  { background: rgba(88,214,141,.1);  border-color: var(--accent3); }
+  .info-box.red    { background: rgba(231,76,60,.1);   border-color: var(--accent4); }
+  .info-box.purple { background: rgba(198,120,221,.1); border-color: var(--accent5); }
+  .qcode { font-family: var(--font-mono); background: rgba(255,255,255,.07); padding: 1px 6px; border-radius: 4px; font-size: .85em; }
+  [data-theme="light"] .qcode { background: rgba(0,0,0,.07); }
+
+  /* STEPS */
+  .steps { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+  .step { display: flex; gap: 14px; align-items: flex-start; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 18px; transition: border-color .2s; }
+  .step:hover { border-color: var(--accent3); }
+  .step-num { flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; background: var(--accent3); color: #000; font-weight: 800; font-size: .8rem; display: flex; align-items: center; justify-content: center; margin-top: 1px; }
+  .step-body h4 { font-size: .9rem; font-weight: 700; margin-bottom: 3px; }
+  .step-body p  { font-size: .83rem; color: var(--text2); }
+  .step-body code { font-family: var(--font-mono); font-size: .8rem; background: var(--code-bg); padding: 1px 6px; border-radius: 4px; color: var(--accent3); border: 1px solid var(--border); }
+
+  /* CODE BLOCK */
+  .code-wrap { background: #0d1117; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin: 16px 0; }
+  .code-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; border-bottom: 1px solid var(--border); background: rgba(255,255,255,.03); }
+  .code-lang { font-size: .75rem; color: var(--text2); font-weight: 600; display: flex; align-items: center; gap: 8px; }
+  .code-dots { display: flex; gap: 5px; }
+  .code-dots span { width: 11px; height: 11px; border-radius: 50%; }
+  .code-dots .r { background: #ff5f57; } .code-dots .y { background: #ffbd2e; } .code-dots .g { background: #28c840; }
+  pre { padding: 20px; overflow-x: auto; font-family: var(--font-mono); font-size: .85rem; line-height: 1.75; color: #abb2bf; }
+  pre code { background: none; border: none; padding: 0; }
+  .kw  { color: #c678dd; font-weight: 600; }
+  .cls { color: #e5c07b; }
+  .fn  { color: #61afef; }
+  .str { color: #98c379; }
+  .cm  { color: #5c6370; font-style: italic; }
+  .num { color: #d19a66; }
+  .op  { color: #56b6c2; }
+
+  /* COMPARE TABLE */
+  .compare-table { width: 100%; border-collapse: collapse; font-size: .875rem; margin: 16px 0 24px; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); }
+  .compare-table th { text-align: left; padding: 11px 16px; background: var(--surface2); color: var(--text2); font-weight: 700; font-size: .78rem; text-transform: uppercase; letter-spacing: .5px; border-bottom: 1px solid var(--border); }
+  .compare-table td { padding: 11px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; font-size: .855rem; }
+  .compare-table tr:last-child td { border-bottom: none; }
+  .compare-table tr:hover td { background: rgba(255,255,255,.02); }
+  .tc-green  { color: var(--accent3); font-weight: 700; }
+  .tc-orange { color: var(--accent);  font-weight: 600; }
+  .tc-red    { color: var(--accent4); }
+  .tc-blue   { color: var(--accent2); font-weight: 600; }
+  .tc-dim    { color: var(--text2); }
+
+  /* BROWSER/LANG TAGS */
+  .tag-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+  .tag { display: inline-flex; align-items: center; gap: 6px; padding: 5px 14px; border-radius: 8px; font-size: .82rem; font-weight: 600; border: 1px solid var(--border); background: var(--surface2); }
+  .tag-chrome  { border-color: rgba(248,152,32,.4); color: var(--accent); }
+  .tag-firefox { border-color: rgba(231,76,60,.4);  color: var(--accent4); }
+  .tag-edge    { border-color: rgba(79,163,224,.4);  color: var(--accent2); }
+  .tag-java    { border-color: rgba(248,152,32,.4);  color: var(--accent); }
+  .tag-python  { border-color: rgba(88,214,141,.4);  color: var(--accent3); }
+  .tag-cs      { border-color: rgba(198,120,221,.4); color: var(--accent5); }
+  .tag-js      { border-color: rgba(255,220,50,.4);  color: #ffd432; }
+
+  /* SELENIUM COMPONENT CARDS */
+  .sel-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px,1fr)); gap: 16px; margin-bottom: 24px; }
+  .sel-card { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; transition: border-color .2s, transform .2s; }
+  .sel-card:hover { transform: translateY(-2px); }
+  .sel-card.webdriver { border-top: 3px solid var(--accent3); }
+  .sel-card.ide       { border-top: 3px solid var(--accent2); }
+  .sel-card.grid      { border-top: 3px solid var(--accent5); }
+  .sel-card-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .sel-badge { font-size: .7rem; font-weight: 800; padding: 2px 9px; border-radius: 5px; text-transform: uppercase; letter-spacing: .4px; }
+  .sb-wd   { background: rgba(88,214,141,.2);  color: var(--accent3); }
+  .sb-ide  { background: rgba(79,163,224,.2);  color: var(--accent2); }
+  .sb-grid { background: rgba(198,120,221,.2); color: var(--accent5); }
+  .sel-card h3 { font-size: .95rem; font-weight: 700; }
+  .sel-card p  { font-size: .83rem; color: var(--text2); line-height: 1.55; margin-top: 8px; }
+  .sel-card .when { font-size: .78rem; margin-top: 10px; padding: 6px 10px; border-radius: 6px; background: var(--bg); color: var(--text2); border: 1px solid var(--border); }
+  .sel-card .when strong { color: var(--text3); }
+
+  /* ARCHITECTURE DIAGRAM */
+  .arch-diagram { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px 20px; margin: 20px 0; }
+  .arch-layers { display: flex; flex-direction: column; align-items: center; gap: 0; }
+  .arch-layer {
+    width: 100%; max-width: 560px;
+    border-radius: 10px; border: 2px solid; padding: 14px 24px;
+    font-size: .875rem; font-weight: 700; text-align: center;
+    transition: all .35s ease; position: relative; cursor: pointer;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .arch-layer:hover { transform: scale(1.02); }
+  .arch-layer .al-title { font-size: .9rem; font-weight: 800; }
+  .arch-layer .al-sub   { font-size: .75rem; font-weight: 400; opacity: .8; margin-top: 2px; }
+  .arch-layer .al-badge { font-size: .68rem; padding: 3px 10px; border-radius: 20px; font-weight: 700; flex-shrink: 0; }
+  .al-1 { border-color: var(--accent2); color: var(--accent2); background: rgba(79,163,224,.1); }
+  .al-2 { border-color: var(--accent3); color: var(--accent3); background: rgba(88,214,141,.1); }
+  .al-3 { border-color: var(--accent);  color: var(--accent);  background: rgba(248,152,32,.1); }
+  .al-4 { border-color: var(--accent5); color: var(--accent5); background: rgba(198,120,221,.1); }
+  .al-5 { border-color: var(--accent4); color: var(--accent4); background: rgba(231,76,60,.1); }
+  .al-1 .al-badge { background: rgba(79,163,224,.2);  color: var(--accent2); }
+  .al-2 .al-badge { background: rgba(88,214,141,.2);  color: var(--accent3); }
+  .al-3 .al-badge { background: rgba(248,152,32,.2);  color: var(--accent); }
+  .al-4 .al-badge { background: rgba(198,120,221,.2); color: var(--accent5); }
+  .al-5 .al-badge { background: rgba(231,76,60,.2);   color: var(--accent4); }
+  .arch-layer.lit { box-shadow: 0 0 0 3px rgba(248,152,32,.4), 0 0 20px rgba(248,152,32,.15); transform: scale(1.04) !important; }
+  .arch-arrow-wrap { display: flex; align-items: center; justify-content: center; gap: 16px; padding: 4px 0; }
+  .arch-arrow-line { flex: 1; height: 2px; background: var(--border); max-width: 220px; transition: background .4s; }
+  .arch-arrow-line.active { background: var(--accent3); }
+  .arch-arrow-icon { font-size: 1.2rem; color: var(--text2); transition: color .4s; }
+  .arch-arrow-icon.active { color: var(--accent3); }
+  .arch-arrow-label { font-size: .72rem; color: var(--text2); font-weight: 600; text-align: center; }
+
+  /* Layer detail popup */
+  .layer-detail { display: none; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px 18px; margin-top: 8px; font-size: .84rem; color: var(--text2); max-width: 560px; width: 100%; animation: fadeIn .2s; }
+  .layer-detail.show { display: block; }
+  .layer-detail strong { color: var(--text3); }
+
+  /* RESULT PILLS */
+  .result-pills { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; min-height: 36px; }
+  .rpill { display: flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; font-size: .82rem; font-weight: 600; border: 1px solid; animation: fadeIn .2s ease; }
+  .rpill-success { background: rgba(88,214,141,.12); border-color: rgba(88,214,141,.4); color: var(--accent3); }
+  .rpill-error   { background: rgba(231,76,60,.12);  border-color: rgba(231,76,60,.4);  color: var(--accent4); }
+  .rpill-info    { background: rgba(79,163,224,.12); border-color: rgba(79,163,224,.4); color: var(--accent2); }
+  .rpill-warn    { background: rgba(248,152,32,.12); border-color: rgba(248,152,32,.4); color: var(--accent); }
+
+  /* SIMULATOR */
+  .sim-shell { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .sim-toolbar { display: flex; align-items: center; justify-content: space-between; padding: 13px 20px; background: rgba(255,255,255,.03); border-bottom: 1px solid var(--border); }
+  .sim-toolbar-title { font-weight: 700; font-size: .88rem; display: flex; align-items: center; gap: 8px; }
+  .sim-body { padding: 24px; }
+  .sim-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 24px; }
+  .sim-select { padding: 9px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: .875rem; outline: none; transition: border-color .2s; cursor: pointer; }
+  .sim-select:focus { border-color: var(--accent3); }
+  .btn-run { background: linear-gradient(135deg, var(--accent3), #27ae60); color: #000; border: none; border-radius: 8px; padding: 10px 26px; font-weight: 800; font-size: .875rem; cursor: pointer; display: flex; align-items: center; gap: 7px; transition: opacity .2s, transform .2s; }
+  .btn-run:hover { opacity: .88; transform: translateY(-1px); }
+  .btn-run:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+  .btn-reset-sim { background: none; border: 1px solid var(--border); color: var(--text2); border-radius: 8px; padding: 9px 18px; font-size: .875rem; cursor: pointer; transition: all .2s; }
+  .btn-reset-sim:hover { border-color: var(--text2); color: var(--text); }
+
+  /* Sim layers panel */
+  .sim-layers { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+  .sim-layer-row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 13px 18px; border-radius: 10px; border: 2px solid var(--border);
+    background: var(--bg); transition: all .35s ease;
+    font-size: .875rem;
+  }
+  .sim-layer-row .slr-icon  { font-size: 1.5rem; flex-shrink: 0; }
+  .sim-layer-row .slr-name  { font-weight: 700; font-size: .9rem; }
+  .sim-layer-row .slr-desc  { font-size: .8rem; color: var(--text2); margin-top: 2px; }
+  .sim-layer-row .slr-right { margin-left: auto; display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .slr-status { font-size: .72rem; font-weight: 700; padding: 3px 10px; border-radius: 12px; }
+  .slr-status.idle    { background: rgba(255,255,255,.05); color: var(--text2); }
+  .slr-status.active  { background: rgba(248,152,32,.2); color: var(--accent); animation: pulse 1s infinite; }
+  .slr-status.done    { background: rgba(88,214,141,.2); color: var(--accent3); }
+  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.5} }
+  .sim-layer-row.layer-active { border-color: var(--accent3); background: rgba(88,214,141,.06); }
+  .sim-layer-row.layer-done   { border-color: rgba(88,214,141,.3); opacity: .7; }
+
+  /* Sim command display */
+  .sim-command-box { background: #0d1117; border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 18px; font-family: var(--font-mono); font-size: .84rem; color: #abb2bf; min-height: 48px; margin-bottom: 12px; transition: border-color .3s; }
+  .sim-command-box.active { border-color: rgba(88,214,141,.4); color: #a8ff78; }
+
+  /* Sim log */
+  .sim-log { background: #0d1117; border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 18px; font-family: var(--font-mono); font-size: .82rem; min-height: 100px; line-height: 1.85; color: #abb2bf; transition: border-color .3s; max-height: 220px; overflow-y: auto; }
+  .sim-log.running { border-color: rgba(88,214,141,.35); }
+  .log-line { display: block; animation: fadeIn .2s ease; }
+  .log-send   { color: var(--accent2); }
+  .log-exec   { color: var(--accent3); }
+  .log-return { color: var(--accent);  }
+  .log-done   { color: var(--accent3); font-weight: 700; }
+  .log-dim    { color: #5c6370; font-style: italic; }
+  .log-step   { color: var(--accent5); }
+
+  /* ERROR PANEL */
+  .err-sim-btns { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
+  .err-btn { padding: 8px 18px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-size: .84rem; font-weight: 600; cursor: pointer; transition: all .2s; display: flex; align-items: center; gap: 7px; }
+  .err-btn:hover  { border-color: var(--accent4); color: var(--accent4); }
+  .err-btn.active { background: rgba(231,76,60,.15); border-color: var(--accent4); color: var(--accent4); }
+  .err-panel { display: none; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .err-panel.active { display: block; animation: fadeIn .2s ease; }
+  .err-header { display: flex; align-items: center; gap: 10px; padding: 12px 18px; background: rgba(231,76,60,.12); border-bottom: 1px solid var(--border); font-size: .875rem; font-weight: 700; color: var(--accent4); }
+  .err-body { padding: 20px; }
+  .err-body h4 { font-size: .9rem; font-weight: 700; margin-bottom: 6px; }
+  .err-body p  { font-size: .85rem; color: var(--text2); margin-bottom: 12px; }
+  .myth-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0; }
+  .myth-box, .reality-box { border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
+  .myth-box .box-label    { padding: 7px 12px; font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; background: rgba(231,76,60,.15); color: var(--accent4); }
+  .reality-box .box-label { padding: 7px 12px; font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; background: rgba(88,214,141,.15); color: var(--accent3); }
+  .box-content { padding: 12px 14px; font-size: .84rem; background: var(--bg); color: var(--text3); line-height: 1.6; }
+  .fix-tag { display: inline-flex; align-items: center; gap: 6px; background: rgba(88,214,141,.1); border: 1px solid rgba(88,214,141,.3); color: var(--accent3); border-radius: 6px; padding: 5px 12px; font-size: .82rem; font-weight: 600; margin-top: 4px; }
+
+  /* QUIZ */
+  .quiz-container { display: flex; flex-direction: column; gap: 24px; }
+  .quiz-block { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px 24px; }
+  .quiz-num { font-size: .72rem; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+  .quiz-q { font-weight: 700; font-size: .92rem; margin-bottom: 14px; line-height: 1.5; }
+  .quiz-opts { display: flex; flex-direction: column; gap: 9px; }
+  .quiz-opt { padding: 10px 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); font-size: .875rem; cursor: pointer; transition: all .2s; display: flex; align-items: center; gap: 10px; text-align: left; }
+  .quiz-opt:hover:not(.correct):not(.wrong) { border-color: var(--accent3); background: rgba(88,214,141,.04); }
+  .quiz-opt.correct { border-color: var(--accent3); background: rgba(88,214,141,.1); color: var(--accent3); pointer-events: none; }
+  .quiz-opt.wrong   { border-color: var(--accent4); background: rgba(231,76,60,.08); color: var(--accent4); pointer-events: none; }
+  .quiz-opt.disabled { pointer-events: none; opacity: .55; }
+  .quiz-feedback { margin-top: 12px; font-size: .845rem; padding: 10px 14px; border-radius: 7px; display: none; }
+  .quiz-feedback.show { display: block; animation: fadeIn .2s; }
+  .quiz-feedback.correct { background: rgba(88,214,141,.1); color: var(--accent3); border: 1px solid rgba(88,214,141,.25); }
+  .quiz-feedback.wrong   { background: rgba(231,76,60,.08);  color: var(--accent4); border: 1px solid rgba(231,76,60,.2); }
+  .score-box { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; text-align: center; display: none; margin-top: 24px; }
+  .score-box.show { display: block; animation: fadeIn .3s ease; }
+  .score-num { font-size: 3rem; font-weight: 900; line-height: 1; }
+  .score-label { color: var(--text2); font-size: .9rem; margin-top: 6px; margin-bottom: 16px; }
+  .btn-retake { background: var(--surface2); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 9px 24px; font-size: .875rem; font-weight: 700; cursor: pointer; transition: all .2s; }
+  .btn-retake:hover { border-color: var(--accent3); color: var(--accent3); }
+
+  /* LIGHT MODE FIXES */
+  [data-theme="light"] .qcode { background: rgba(0,0,0,.07); color: #1a202c; }
+  [data-theme="light"] .sim-command-box, [data-theme="light"] .sim-log { background: #f8f9fa; color: #2d3748; }
+  [data-theme="light"] .sim-command-box.active { color: #1a7a5e; }
+  [data-theme="light"] .log-send { color: #2980b9; } [data-theme="light"] .log-exec { color: #1a7a5e; }
+  [data-theme="light"] .log-return { color: #e05a00; } [data-theme="light"] .log-done { color: #1a7a5e; }
+  [data-theme="light"] .sim-layer-row { background: #fff; }
+
+  @media (max-width: 700px) {
+    .hero { flex-direction: column; padding: 24px 20px; }
+    .tab-btn { padding: 12px 12px; font-size: .78rem; }
+    .tab-content { padding: 20px 16px; }
+    .hero-text h1 { font-size: 1.35rem; }
+    .myth-row { grid-template-columns: 1fr; }
+    .arch-layer { padding: 12px 14px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">Se</div>
+    Automation Training
+    <span class="badge">Module 1</span>
+  </div>
+  <div class="header-right">
+    <div class="module-nav">
+      <span>Course:</span>
+      <span style="color:var(--text)">Selenium Intro</span>
+      <a href="#">Next ▶</a>
+    </div>
+    <button id="themeToggle" onclick="toggleTheme()">☀ Light</button>
+  </div>
+</header>
+
+<div class="container">
+  <div class="breadcrumb">
+    Automation Training <span class="sep">›</span> Module 1 <span class="sep">›</span> <span>Intro to Automation &amp; Selenium</span>
+  </div>
+
+  <div class="hero">
+    <div class="hero-icon">🤖</div>
+    <div class="hero-text">
+      <h1>Automation &amp; <span>Selenium</span> — From Zero</h1>
+      <p>Understand what automation testing is, why the industry relies on it, and exactly how Selenium communicates with real browsers under the hood.</p>
+      <div class="hero-pills">
+        <span class="pill pill-green">🤖 Automation Basics</span>
+        <span class="pill pill-blue">🌐 Selenium WebDriver</span>
+        <span class="pill pill-orange">🏗 Architecture</span>
+        <span class="pill pill-purple">⚡ Live Simulator</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="tabs-wrapper">
+    <div class="tab-nav">
+      <button class="tab-btn active" onclick="switchTab('basics',this)"><span class="tab-icon">📘</span> Basics</button>
+      <button class="tab-btn" onclick="switchTab('why',this)"><span class="tab-icon">⚡</span> Why Automate</button>
+      <button class="tab-btn" onclick="switchTab('selenium',this)"><span class="tab-icon">🌐</span> Selenium</button>
+      <button class="tab-btn" onclick="switchTab('arch',this)"><span class="tab-icon">🏗</span> Architecture</button>
+      <button class="tab-btn" onclick="switchTab('sim',this)"><span class="tab-icon">⚙</span> Flow Simulator</button>
+      <button class="tab-btn" onclick="switchTab('myths',this)"><span class="tab-icon">❌</span> Misconceptions</button>
+      <button class="tab-btn" onclick="switchTab('quiz',this)"><span class="tab-icon">🧠</span> Quick Check</button>
+    </div>
+
+    <!-- ══════════════ TAB 1: BASICS ══════════════ -->
+    <div id="tab-basics" class="tab-content active">
+      <div class="section-title"><span class="dot"></span> What is Automation Testing?</div>
+      <p class="section-sub">Automation testing uses software tools to execute test cases automatically — no human clicking required. It's how modern teams ship fast without breaking things.</p>
+
+      <div class="info-box blue">
+        <span class="ib-icon">💡</span>
+        <div><strong>Real-world analogy:</strong> Imagine you work in a factory and have to check if 1,000 bottles are sealed correctly. Doing it by hand every day is slow and error-prone. An automated machine does the same check in seconds, every time, perfectly. Automation testing is exactly that — but for software.</div>
+      </div>
+
+      <div class="cards">
+        <div class="card">
+          <div class="card-icon">🖐</div>
+          <h3>Manual Testing</h3>
+          <p>A human tester opens the browser, clicks buttons, fills forms, and verifies results step by step. Works well for exploratory testing but does not scale.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🤖</div>
+          <h3>Automation Testing</h3>
+          <p>A script written in code performs all those same steps automatically — faster, repeatable, and consistent. Runs 24/7 without fatigue.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🔄</div>
+          <h3>When to Automate</h3>
+          <p>Tests that run repeatedly (regression), are predictable in steps, and have a clear pass/fail are ideal for automation. New or exploratory tests stay manual.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🏢</div>
+          <h3>Why Companies Use It</h3>
+          <p>Faster releases, fewer bugs reaching production, reduced testing cost over time, and the ability to run thousands of tests in parallel across browsers.</p>
+        </div>
+      </div>
+
+      <div class="section-title"><span class="dot-blue"></span> Manual vs Automation — Side by Side</div>
+      <table class="compare-table">
+        <thead><tr><th>Aspect</th><th>Manual Testing</th><th>Automation Testing</th></tr></thead>
+        <tbody>
+          <tr><td>Execution Speed</td><td class="tc-red">Slow — human pace</td><td class="tc-green">Fast — milliseconds per step</td></tr>
+          <tr><td>Effort Over Time</td><td class="tc-red">High — same work every cycle</td><td class="tc-green">Low — write once, run forever</td></tr>
+          <tr><td>Accuracy</td><td class="tc-orange">Prone to human error</td><td class="tc-green">100% consistent every run</td></tr>
+          <tr><td>Reusability</td><td class="tc-red">None — redo every sprint</td><td class="tc-green">Full — reuse across releases</td></tr>
+          <tr><td>Best for</td><td class="tc-blue">Exploratory, UX, new features</td><td class="tc-blue">Regression, smoke, sanity</td></tr>
+          <tr><td>Setup Cost</td><td class="tc-green">Zero</td><td class="tc-orange">Initial investment required</td></tr>
+        </tbody>
+      </table>
+
+      <div class="info-box green">
+        <span class="ib-icon">🚀</span>
+        <div><strong>Key takeaway:</strong> Manual and automation testing are <strong>not enemies</strong>. Great teams use both. Manual handles creativity and edge cases; automation handles repetition and regression at scale.</div>
+      </div>
+    </div>
+
+    <!-- ══════════════ TAB 2: WHY AUTOMATION ══════════════ -->
+    <div id="tab-why" class="tab-content">
+      <div class="section-title"><span class="dot"></span> Why Automation Testing Matters</div>
+      <p class="section-sub">These four scenarios are where manual testing breaks down completely — and where automation becomes essential.</p>
+
+      <ul class="steps">
+        <li class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <h4>Repetitive Testing</h4>
+            <p>Login, checkout, search — core flows tested after every code change. A human runs these 50 times a week; automation runs them in 2 minutes every commit.</p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <h4>Faster Execution</h4>
+            <p>A Selenium test suite of 500 cases completes in under 15 minutes. The same suite manually takes 2–3 days. CI/CD pipelines depend on this speed.</p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <h4>Regression Testing</h4>
+            <p>Every new feature risks breaking existing ones. Automation runs all previous tests automatically after each release — catching regressions instantly.</p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <h4>Cross-Browser Testing</h4>
+            <p>The same test script runs on Chrome, Firefox, and Edge simultaneously using Selenium Grid — verifying consistency across all browsers without extra effort.</p>
+          </div>
+        </li>
+      </ul>
+
+      <div class="section-title" style="margin-top:28px"><span class="dot-orange"></span> Real-World Example — Login Test</div>
+      <p class="section-sub">The same login test needs to run across every code change, every sprint, every release.</p>
+
+      <div class="cards-2">
+        <div class="card" style="border-top:3px solid var(--accent4)">
+          <div class="card-icon">🖐</div>
+          <h3>Manual — 500 Runs</h3>
+          <p><strong style="color:var(--accent4)">~250 hours</strong> of tester time<br>
+          Risk of missed steps increases over time<br>
+          Cannot run overnight or on weekends<br>
+          No parallel execution across browsers<br>
+          <strong style="color:var(--accent4)">Cost: Very High</strong></p>
+        </div>
+        <div class="card" style="border-top:3px solid var(--accent3)">
+          <div class="card-icon">🤖</div>
+          <h3>Automation — 500 Runs</h3>
+          <p><strong style="color:var(--accent3)">~8 minutes</strong> total execution<br>
+          Zero human error — identical every run<br>
+          Runs on schedule, on every commit, overnight<br>
+          Parallel across Chrome + Firefox + Edge<br>
+          <strong style="color:var(--accent3)">Cost: Near Zero after setup</strong></p>
+        </div>
+      </div>
+
+      <div class="code-wrap">
+        <div class="code-header">
+          <div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+          <div class="code-lang">☕ Java — Automated Login Test</div>
+        </div>
+        <pre><code><span class="cm">// This runs 500 times identically — no human needed</span>
+<span class="cls">WebDriver</span> driver = <span class="kw">new</span> <span class="cls">ChromeDriver</span>();
+driver.<span class="fn">get</span>(<span class="str">"https://yourapp.com/login"</span>);
+
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"username"</span>)).<span class="fn">sendKeys</span>(<span class="str">"testuser"</span>);
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"password"</span>)).<span class="fn">sendKeys</span>(<span class="str">"secret123"</span>);
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"loginBtn"</span>)).<span class="fn">click</span>();
+
+<span class="cm">// Assert dashboard loaded</span>
+<span class="cls">Assert</span>.<span class="fn">assertEquals</span>(driver.<span class="fn">getTitle</span>(), <span class="str">"Dashboard"</span>);
+driver.<span class="fn">quit</span>();</code></pre>
+      </div>
+    </div>
+
+    <!-- ══════════════ TAB 3: SELENIUM ══════════════ -->
+    <div id="tab-selenium" class="tab-content">
+      <div class="section-title"><span class="dot"></span> What is Selenium?</div>
+      <p class="section-sub">Selenium is a free, open-source automation framework for controlling web browsers programmatically. It's the industry standard for web UI automation.</p>
+
+      <div class="info-box green">
+        <span class="ib-icon">🌐</span>
+        <div><strong>In one line:</strong> Selenium lets your code open a browser, navigate to a URL, find elements on a page, and interact with them — exactly as a human would — but at machine speed.</div>
+      </div>
+
+      <div class="section-title"><span class="dot-blue"></span> Three Components of Selenium</div>
+      <p class="section-sub">Selenium is not one tool — it's a suite of three distinct components, each serving a different use case.</p>
+
+      <div class="sel-cards">
+        <div class="sel-card webdriver">
+          <div class="sel-card-head">
+            <span class="sel-badge sb-wd">WebDriver</span>
+            <h3>Selenium WebDriver</h3>
+          </div>
+          <p>The core engine. Directly controls a real browser through its native driver. You write code in Java/Python/etc. that issues browser commands — open page, click, type, assert. Most widely used component.</p>
+          <div class="when"><strong>When used:</strong> All automation scripts — this is Selenium for most people.</div>
+        </div>
+        <div class="sel-card ide">
+          <div class="sel-card-head">
+            <span class="sel-badge sb-ide">IDE</span>
+            <h3>Selenium IDE</h3>
+          </div>
+          <p>A browser extension (Chrome &amp; Firefox) with a record-and-playback interface. You interact with the browser and it records your actions into a test case. No coding required.</p>
+          <div class="when"><strong>When used:</strong> Quick prototyping, non-technical testers, generating starter scripts.</div>
+        </div>
+        <div class="sel-card grid">
+          <div class="sel-card-head">
+            <span class="sel-badge sb-grid">Grid</span>
+            <h3>Selenium Grid</h3>
+          </div>
+          <p>Distributes test execution across multiple machines and browsers simultaneously. A Hub coordinates multiple Nodes, each running different browser/OS combinations in parallel.</p>
+          <div class="when"><strong>When used:</strong> Cross-browser testing, large test suites, CI/CD pipelines needing parallel execution.</div>
+        </div>
+      </div>
+
+      <div class="section-title"><span class="dot-orange"></span> Supported Browsers</div>
+      <div class="tag-row">
+        <span class="tag tag-chrome">🟡 Google Chrome</span>
+        <span class="tag tag-firefox">🦊 Mozilla Firefox</span>
+        <span class="tag tag-edge">🔵 Microsoft Edge</span>
+        <span class="tag">🍎 Safari</span>
+        <span class="tag">🔷 Opera</span>
+      </div>
+
+      <div class="section-title" style="margin-top:20px"><span class="dot-blue"></span> Supported Languages</div>
+      <div class="tag-row">
+        <span class="tag tag-java">☕ Java</span>
+        <span class="tag tag-python">🐍 Python</span>
+        <span class="tag tag-cs">© C#</span>
+        <span class="tag tag-js">JS JavaScript</span>
+        <span class="tag">💎 Ruby</span>
+        <span class="tag">🐘 PHP</span>
+      </div>
+
+      <div class="info-box orange" style="margin-top:20px">
+        <span class="ib-icon">💡</span>
+        <div><strong>Important:</strong> Selenium is <em>not</em> a complete testing framework. It provides the browser automation API. For assertions, reports, and test management you need TestNG / JUnit (Java) or pytest (Python) alongside it.</div>
+      </div>
+    </div>
+
+    <!-- ══════════════ TAB 4: ARCHITECTURE ══════════════ -->
+    <div id="tab-arch" class="tab-content">
+      <div class="section-title"><span class="dot"></span> Selenium Architecture — Full Stack</div>
+      <p class="section-sub">Every time your code calls <span class="qcode">driver.click()</span>, five distinct layers activate in sequence. Click any layer to understand its role.</p>
+
+      <div class="arch-diagram">
+        <div class="arch-layers" id="archLayers">
+
+          <div class="arch-layer al-1" onclick="toggleLayer('ld1')">
+            <div>
+              <div class="al-title">① Test Script</div>
+              <div class="al-sub">Your Java/Python code using Selenium API</div>
+            </div>
+            <span class="al-badge">Layer 1</span>
+          </div>
+          <div class="layer-detail" id="ld1">
+            <strong>Your code.</strong> You write test logic using the WebDriver API — <code class="qcode">driver.findElement(By.id("btn")).click()</code>. This is plain Java/Python. It knows nothing about browsers directly; it just calls API methods.
+          </div>
+
+          <div class="arch-arrow-wrap"><div class="arch-arrow-line" id="aa1"></div><div class="arch-arrow-icon" id="ai1">↓</div><div class="arch-arrow-line" id="aa1b"></div></div>
+          <div style="font-size:.7rem;color:var(--text2);text-align:center;margin-bottom:4px;">Selenium Client Library (Java/Python bindings)</div>
+
+          <div class="arch-layer al-2" onclick="toggleLayer('ld2')">
+            <div>
+              <div class="al-title">② WebDriver API</div>
+              <div class="al-sub">Translates method calls into HTTP messages</div>
+            </div>
+            <span class="al-badge">Layer 2</span>
+          </div>
+          <div class="layer-detail" id="ld2">
+            <strong>The bridge.</strong> The language binding (e.g. selenium-java.jar) translates your <code class="qcode">.click()</code> call into a structured HTTP request following the <strong>W3C WebDriver Protocol</strong> (formerly JSON Wire Protocol). This is what makes Selenium language-agnostic.
+          </div>
+
+          <div class="arch-arrow-wrap"><div class="arch-arrow-line" id="aa2"></div><div class="arch-arrow-icon" id="ai2">↓</div><div class="arch-arrow-line" id="aa2b"></div></div>
+          <div style="font-size:.7rem;color:var(--text2);text-align:center;margin-bottom:4px;">W3C WebDriver Protocol — HTTP/JSON over localhost</div>
+
+          <div class="arch-layer al-3" onclick="toggleLayer('ld3')">
+            <div>
+              <div class="al-title">③ Browser Driver</div>
+              <div class="al-sub">ChromeDriver / GeckoDriver / EdgeDriver</div>
+            </div>
+            <span class="al-badge">Layer 3</span>
+          </div>
+          <div class="layer-detail" id="ld3">
+            <strong>The translator.</strong> ChromeDriver (for Chrome) or GeckoDriver (for Firefox) is a separate executable that runs a local HTTP server. It receives the W3C protocol requests from Selenium and converts them into browser-specific native commands. <em>You must download the matching driver version for your browser.</em>
+          </div>
+
+          <div class="arch-arrow-wrap"><div class="arch-arrow-line" id="aa3"></div><div class="arch-arrow-icon" id="ai3">↓</div><div class="arch-arrow-line" id="aa3b"></div></div>
+          <div style="font-size:.7rem;color:var(--text2);text-align:center;margin-bottom:4px;">Native browser automation protocol (DevTools / CDP)</div>
+
+          <div class="arch-layer al-4" onclick="toggleLayer('ld4')">
+            <div>
+              <div class="al-title">④ Real Browser</div>
+              <div class="al-sub">Chrome, Firefox, Edge — actual running browser</div>
+            </div>
+            <span class="al-badge">Layer 4</span>
+          </div>
+          <div class="layer-detail" id="ld4">
+            <strong>The executor.</strong> The actual browser process receives native commands and executes them — opening pages, clicking DOM elements, filling inputs, scrolling, taking screenshots. The user sees the browser move in real time. After execution, the result travels back up the same chain.
+          </div>
+
+          <div class="arch-arrow-wrap"><div class="arch-arrow-line" id="aa4"></div><div class="arch-arrow-icon" id="ai4">↓ ↑</div><div class="arch-arrow-line" id="aa4b"></div></div>
+          <div style="font-size:.7rem;color:var(--text2);text-align:center;margin-bottom:4px;">Response travels back up all layers</div>
+
+          <div class="arch-layer al-5" onclick="toggleLayer('ld5')">
+            <div>
+              <div class="al-title">⑤ Test Result</div>
+              <div class="al-sub">Response returned to your test assertion</div>
+            </div>
+            <span class="al-badge">Layer 5</span>
+          </div>
+          <div class="layer-detail" id="ld5">
+            <strong>The response.</strong> The browser result (element found, action done, text value, error) travels back through Browser Driver → WebDriver API → your script. Your test code receives the return value and passes it to an assertion like <code class="qcode">Assert.assertEquals(...)</code>.
+          </div>
+
+        </div>
+      </div>
+
+      <div class="section-title" style="margin-top:8px"><span class="dot-orange"></span> ChromeDriver vs GeckoDriver</div>
+      <table class="compare-table">
+        <thead><tr><th>Property</th><th>ChromeDriver</th><th>GeckoDriver</th></tr></thead>
+        <tbody>
+          <tr><td>Controls</td><td class="tc-orange">Google Chrome / Chromium</td><td class="tc-blue">Mozilla Firefox</td></tr>
+          <tr><td>Made by</td><td>Google (Chromium team)</td><td>Mozilla</td></tr>
+          <tr><td>Protocol</td><td class="tc-green">W3C WebDriver + CDP</td><td class="tc-green">W3C WebDriver</td></tr>
+          <tr><td>Port (default)</td><td class="tc-dim">9515</td><td class="tc-dim">4444</td></tr>
+          <tr><td>Version matching</td><td colspan="2" class="tc-orange">Must match installed browser version exactly</td></tr>
+        </tbody>
+      </table>
+
+      <div class="info-box purple">
+        <span class="ib-icon">📌</span>
+        <div><strong>Remember:</strong> Selenium does <em>not</em> talk to the browser directly. It talks to the <strong>driver</strong>, and the driver talks to the browser. That extra layer is what makes Selenium browser-independent — swap the driver, get a different browser.</div>
+      </div>
+    </div>
+
+    <!-- ══════════════ TAB 5: FLOW SIMULATOR ══════════════ -->
+    <div id="tab-sim" class="tab-content">
+      <div class="section-title"><span class="dot"></span> Live Flow Simulator</div>
+      <p class="section-sub">Pick a Selenium command, click <strong>Run Test</strong>, and watch the request travel through every architecture layer in real time.</p>
+
+      <div class="sim-shell">
+        <div class="sim-toolbar">
+          <div class="sim-toolbar-title">⚙ Selenium Runtime Simulator</div>
+          <span style="font-size:.78rem;color:var(--text2)">Simulates real WebDriver request/response flow</span>
+        </div>
+        <div class="sim-body">
+          <div class="sim-controls">
+            <select class="sim-select" id="simCommand" onchange="resetSimulator()">
+              <option value="get">driver.get("https://google.com")</option>
+              <option value="click">driver.findElement(By.id("btn")).click()</option>
+              <option value="sendkeys">driver.findElement(By.name("q")).sendKeys("Selenium")</option>
+              <option value="gettext">element.getText()</option>
+              <option value="assert">Assert.assertEquals(title, "Google")</option>
+            </select>
+            <button class="btn-run" id="simRunBtn" onclick="runSimulator()">▶ Run Test</button>
+            <button class="btn-reset-sim" onclick="resetSimulator()">↺ Reset</button>
+          </div>
+
+          <div style="font-size:.75rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">Active Command</div>
+          <div class="sim-command-box" id="simCommandBox">
+            <span style="color:var(--text2)">// Select a command above and click Run Test</span>
+          </div>
+
+          <div style="font-size:.75rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">Layer Execution</div>
+          <div class="sim-layers" id="simLayers">
+            <div class="sim-layer-row" id="sl-1">
+              <span class="slr-icon">📝</span>
+              <div><div class="slr-name">Test Script (Java)</div><div class="slr-desc">Your automation code</div></div>
+              <div class="slr-right"><span class="slr-status idle" id="ss-1">Idle</span></div>
+            </div>
+            <div class="sim-layer-row" id="sl-2">
+              <span class="slr-icon">🔌</span>
+              <div><div class="slr-name">Selenium Client Library</div><div class="slr-desc">Java bindings — translates to HTTP</div></div>
+              <div class="slr-right"><span class="slr-status idle" id="ss-2">Idle</span></div>
+            </div>
+            <div class="sim-layer-row" id="sl-3">
+              <span class="slr-icon">📡</span>
+              <div><div class="slr-name">W3C WebDriver Protocol</div><div class="slr-desc">HTTP/JSON request over localhost</div></div>
+              <div class="slr-right"><span class="slr-status idle" id="ss-3">Idle</span></div>
+            </div>
+            <div class="sim-layer-row" id="sl-4">
+              <span class="slr-icon">🔧</span>
+              <div><div class="slr-name">ChromeDriver</div><div class="slr-desc">Receives &amp; translates to native commands</div></div>
+              <div class="slr-right"><span class="slr-status idle" id="ss-4">Idle</span></div>
+            </div>
+            <div class="sim-layer-row" id="sl-5">
+              <span class="slr-icon">🌐</span>
+              <div><div class="slr-name">Chrome Browser</div><div class="slr-desc">Executes the action in real DOM</div></div>
+              <div class="slr-right"><span class="slr-status idle" id="ss-5">Idle</span></div>
+            </div>
+            <div class="sim-layer-row" id="sl-6">
+              <span class="slr-icon">📤</span>
+              <div><div class="slr-name">Response Returned</div><div class="slr-desc">Result travels back to test script</div></div>
+              <div class="slr-right"><span class="slr-status idle" id="ss-6">Idle</span></div>
+            </div>
+          </div>
+
+          <div class="result-pills" id="simPills"></div>
+
+          <div style="font-size:.75rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Execution Log</div>
+          <div class="sim-log" id="simLog">
+            <span class="log-dim">// Execution log will appear here...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════ TAB 6: MISCONCEPTIONS ══════════════ -->
+    <div id="tab-myths" class="tab-content">
+      <div class="section-title"><span class="dot"></span> Common Misconceptions About Selenium</div>
+      <p class="section-sub">These myths cause confusion for every beginner. Clear them up now before they cost you hours of debugging.</p>
+
+      <div class="err-sim-btns">
+        <button class="err-btn active" onclick="showMyth('m1',this)">① Not a Testing Tool?</button>
+        <button class="err-btn" onclick="showMyth('m2',this)">② Desktop Apps?</button>
+        <button class="err-btn" onclick="showMyth('m3',this)">③ Reports?</button>
+        <button class="err-btn" onclick="showMyth('m4',this)">④ No Driver Needed?</button>
+      </div>
+
+      <div class="err-panel active" id="err-m1">
+        <div class="err-header">🔍 Misconception 1 — "Selenium is a testing tool"</div>
+        <div class="err-body">
+          <h4>Why people believe this</h4>
+          <p>Selenium is universally used for testing, so beginners assume it IS a testing tool. Its name even includes "test" in many articles.</p>
+          <div class="myth-row">
+            <div class="myth-box"><div class="box-label">❌ Myth</div><div class="box-content">Selenium is a testing framework. It handles test execution, assertions, and pass/fail reporting out of the box.</div></div>
+            <div class="reality-box"><div class="box-label">✅ Reality</div><div class="box-content">Selenium is a <strong>browser automation tool</strong>. It controls browsers. For assertions and test management, you need <strong>TestNG or JUnit</strong> alongside it.</div></div>
+          </div>
+          <div class="fix-tag">✅ Rule: Selenium drives the browser. TestNG/JUnit runs the tests. Both are needed.</div>
+        </div>
+      </div>
+
+      <div class="err-panel" id="err-m2">
+        <div class="err-header">🔍 Misconception 2 — "Selenium can automate desktop applications"</div>
+        <div class="err-body">
+          <h4>Why people believe this</h4>
+          <p>Selenium is so powerful for browsers that beginners assume it handles Windows apps, file dialogs, and desktop GUIs too.</p>
+          <div class="myth-row">
+            <div class="myth-box"><div class="box-label">❌ Myth</div><div class="box-content">Selenium can automate any application — including Windows apps, file dialogs, Electron apps, and native GUIs.</div></div>
+            <div class="reality-box"><div class="box-label">✅ Reality</div><div class="box-content">Selenium works <strong>only in web browsers</strong>. For desktop apps use <strong>Appium</strong> (mobile/desktop) or <strong>WinAppDriver</strong> (Windows).</div></div>
+          </div>
+          <div class="fix-tag">✅ Rule: Web → Selenium. Desktop → Appium/WinAppDriver. Mobile → Appium.</div>
+        </div>
+      </div>
+
+      <div class="err-panel" id="err-m3">
+        <div class="err-header">🔍 Misconception 3 — "Selenium generates test reports"</div>
+        <div class="err-body">
+          <h4>Why people believe this</h4>
+          <p>After running a test, people expect a report. Since Selenium ran it, surely Selenium generates the report?</p>
+          <div class="myth-row">
+            <div class="myth-box"><div class="box-label">❌ Myth</div><div class="box-content">Selenium automatically generates HTML test reports with pass/fail counts, screenshots, and execution time.</div></div>
+            <div class="reality-box"><div class="box-label">✅ Reality</div><div class="box-content">Selenium produces <strong>no reports</strong>. Use <strong>Extent Reports</strong>, <strong>Allure</strong>, or <strong>TestNG HTML reports</strong> for reporting — these integrate with your test framework.</div></div>
+          </div>
+          <div class="fix-tag">✅ Rule: Reports come from TestNG + Extent/Allure. Selenium just drives the browser.</div>
+        </div>
+      </div>
+
+      <div class="err-panel" id="err-m4">
+        <div class="err-header">🔍 Misconception 4 — "Selenium works without a browser driver"</div>
+        <div class="err-body">
+          <h4>Why people believe this</h4>
+          <p>Beginners copy code and run it without setting up ChromeDriver, then are confused when they get a <span style="font-family:var(--font-mono);font-size:.85em">WebDriverException</span>.</p>
+          <div class="myth-row">
+            <div class="myth-box"><div class="box-label">❌ Myth</div><div class="box-content">Add Selenium to your project and it automatically connects to Chrome or Firefox without any additional setup.</div></div>
+            <div class="reality-box"><div class="box-label">✅ Reality</div><div class="box-content">You must install a matching <strong>ChromeDriver</strong> (for Chrome) or <strong>GeckoDriver</strong> (for Firefox) that matches your exact browser version. Selenium 4+ supports auto-management via <strong>WebDriverManager</strong>.</div></div>
+          </div>
+          <div class="code-wrap" style="margin-top:12px">
+            <div class="code-header">
+              <div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+              <div class="code-lang">☕ Java — Auto Driver Management (Selenium 4+)</div>
+            </div>
+            <pre><code><span class="cm">// Option 1: Manual (old way — set chromedriver path)</span>
+<span class="cls">System</span>.<span class="fn">setProperty</span>(<span class="str">"webdriver.chrome.driver"</span>, <span class="str">"/path/to/chromedriver"</span>);
+<span class="cls">WebDriver</span> driver = <span class="kw">new</span> <span class="cls">ChromeDriver</span>();
+
+<span class="cm">// Option 2: Auto management (Selenium 4.6+ built-in)</span>
+<span class="cls">WebDriver</span> driver = <span class="kw">new</span> <span class="cls">ChromeDriver</span>(); <span class="cm">// auto-downloads matching driver</span></code></pre>
+          </div>
+          <div class="fix-tag">✅ Rule: Selenium 4.6+ auto-manages drivers. Older versions need manual ChromeDriver setup.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════ TAB 7: QUIZ ══════════════ -->
+    <div id="tab-quiz" class="tab-content">
+      <div class="section-title"><span class="dot"></span> Quick Check — Automation &amp; Selenium</div>
+      <p class="section-sub">5 questions. Click an option for instant feedback. No pressure.</p>
+
+      <div class="quiz-container">
+
+        <div class="quiz-block">
+          <div class="quiz-num">Question 1 of 5</div>
+          <div class="quiz-q">What is the <strong>primary role</strong> of ChromeDriver in the Selenium architecture?</div>
+          <div class="quiz-opts">
+            <div class="quiz-opt" onclick="answerQ(1,this,false)"><span style="font-size:.75rem;font-weight:800;color:var(--text2)">A.</span> It writes your test scripts automatically</div>
+            <div class="quiz-opt" onclick="answerQ(1,this,false)"><span style="font-size:.75rem;font-weight:800;color:var(--text2)">B.</span> It generates HTML test reports after execution</div>
+            <div class="quiz-opt" onclick="answerQ(1,this,true)"><span style="font-size:.75rem;font-weight:800;color:var(--text2)">C.</span> It receives W3C protocol requests from Selenium and translates them into native Chrome commands</div>
+            <div class="quiz-opt" onclick="answerQ(1,this,false)"><span style="font-size:.75rem;font-weight:800;color:var(--text2)">D.</span> It replaces the need for a real Chrome browser installation</div>
+          </div>
+          <div class="quiz-feedback" id="qf1"></div>
+        </div>
+
+        <div class="quiz-block">
+          <div class="quiz-num">Question 2 of 5</div>
+          <div class="quiz-q">Which component of Selenium is used for <strong>parallel cross-browser testing</strong> across multiple machines?</div>
+          <div class="quiz-opts">
+            <div class="quiz-opt" onclick="answerQ(2,this,false)"><span style="font-size:.75rem;font-weight:800;color:var(--text2)">A.</span> Selenium WebDriver</div>
+            <div class="quiz-opt" onclick="answerQ(2,this,false)"><span style="font-size:.75rem;font-weight:800;color:var(--text2)">B.</span> Selenium IDE</div>
+            <div class="quiz-opt" onclick="answerQ(2,this,true)"><span style="font-size:.75rem;font-weight:800;color:var(--text2)">C.</span> Selenium Grid</div>
+            <div class="quiz-opt" onclick="answerQ(2,this,false)"><span style="font-size:.75rem;font-weight:800;color:var(--text2)">D.</span> ChromeDriver</div>
+          </div>
+          <div class="quiz-feedback" id="qf2"></div>
+        </div>
+
+        <div class="quiz-block">
+          <div class="quiz-num">Question 3 of 5</div>
+          <div class="quiz-q">What protocol does Selenium use to communicate between the client library and the browser driver?</div>
+          <div class="quiz-opts">
+            <div class="quiz-opt" onclick="answerQ(3,this,false)"><span style="font-size:.75rem;font-weight:800;color:var(--text2)">A.</span> SOAP/XML over TCP</div>
+            <div class="quiz-opt" onclick="answerQ(3,this,false)"><span style="font-size:.75rem;font-weight:800;color:var(--text2)">B.</span> WebSocket binary protocol</div>
+            <div class="quiz-opt" onclick="answerQ(3,this,true)"><span style="font-size:.75rem;font-weight:800;color:var(--text2)">C.</span> W3C WebDriver Protocol — HTTP requests with JSON payloads</div>
+            <div class="quiz-opt" onclick="answerQ(3,this,false)"><span style="font-size:.75rem;font-weight:800;color:var(--text2)">D.</span> FTP file transfer</div>
+          </div>
+          <div class="quiz-feedback" id="qf3"></div>
+        </div>
+
+        <div class="quiz-block">
+          <div class="quiz-num">Question 4 of 5</div>
+          <div class="quiz-q">Selenium automation is <strong>most suitable</strong> for which type of testing?</div>
+          <div class="quiz-opts">
+            <div class="quiz-opt" onclick="answerQ(4,this,false)"><span style="font-size:.75rem;font-weight:800;color:var(--text2)">A.</span> Exploratory testing for brand new features</div>
+            <div class="quiz-opt" onclick="answerQ(4,this,true)"><span style="font-size:.75rem;font-weight:800;color:var(--text2)">B.</span> Regression testing — repeated tests that verify existing functionality after every release</div>
+            <div class="quiz-opt" onclick="answerQ(4,this,false)"><span style="font-size:.75rem;font-weight:800;color:var(--text2)">C.</span> One-time ad-hoc manual checks</div>
+            <div class="quiz-opt" onclick="answerQ(4,this,false)"><span style="font-size:.75rem;font-weight:800;color:var(--text2)">D.</span> Automated desktop application testing</div>
+          </div>
+          <div class="quiz-feedback" id="qf4"></div>
+        </div>
+
+        <div class="quiz-block">
+          <div class="quiz-num">Question 5 of 5</div>
+          <div class="quiz-q">Which statement about Selenium is <strong>correct</strong>?</div>
+          <div class="quiz-opts">
+            <div class="quiz-opt" onclick="answerQ(5,this,false)"><span style="font-size:.75rem;font-weight:800;color:var(--text2)">A.</span> Selenium generates test execution reports automatically</div>
+            <div class="quiz-opt" onclick="answerQ(5,this,false)"><span style="font-size:.75rem;font-weight:800;color:var(--text2)">B.</span> Selenium can automate native Windows and mobile desktop applications</div>
+            <div class="quiz-opt" onclick="answerQ(5,this,false)"><span style="font-size:.75rem;font-weight:800;color:var(--text2)">C.</span> Selenium requires no browser driver when using Selenium 4.6+</div>
+            <div class="quiz-opt" onclick="answerQ(5,this,true)"><span style="font-size:.75rem;font-weight:800;color:var(--text2)">D.</span> Selenium is a browser automation tool; for assertions and reports, TestNG/JUnit and Extent Reports are required</div>
+          </div>
+          <div class="quiz-feedback" id="qf5"></div>
+        </div>
+
+      </div>
+
+      <div class="score-box" id="scoreBox">
+        <div class="score-num" id="scoreNum">0/5</div>
+        <div class="score-label" id="scoreLbl">Complete all questions to see your score</div>
+        <button class="btn-retake" onclick="retakeQuiz()">↺ Retake Quiz</button>
+      </div>
+    </div>
+
+  </div><!-- /tabs-wrapper -->
+</div><!-- /container -->
+
+<script>
+/* ── THEME ───────────────────────────────────────────────── */
+function toggleTheme() {
+  const html = document.documentElement;
+  const btn  = document.getElementById('themeToggle');
+  const dark = html.dataset.theme === 'dark';
+  html.dataset.theme = dark ? 'light' : 'dark';
+  btn.textContent    = dark ? '🌙 Dark' : '☀ Light';
+}
+
+/* ── TABS ────────────────────────────────────────────────── */
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ── ARCH LAYER TOGGLE ───────────────────────────────────── */
+function toggleLayer(id) {
+  const el = document.getElementById(id);
+  const isShown = el.classList.contains('show');
+  document.querySelectorAll('.layer-detail').forEach(d => d.classList.remove('show'));
+  if (!isShown) el.classList.add('show');
+}
+
+/* ── MYTH PANELS ─────────────────────────────────────────── */
+function showMyth(id, btn) {
+  document.querySelectorAll('.err-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.err-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('err-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ── SIMULATOR ───────────────────────────────────────────── */
+const SIM_DATA = {
+  get: {
+    cmd:  'driver.get("https://google.com");',
+    logs: [
+      { cls:'log-step',   txt:'[1] Test script calls driver.get("https://google.com")' },
+      { cls:'log-send',   txt:'[2] Selenium Client Library → builds HTTP POST request' },
+      { cls:'log-send',   txt:'    POST /session/{id}/url  body: {"url":"https://google.com"}' },
+      { cls:'log-step',   txt:'[3] W3C Protocol → HTTP request sent to ChromeDriver on port 9515' },
+      { cls:'log-exec',   txt:'[4] ChromeDriver received request → translating to Chrome DevTools command' },
+      { cls:'log-exec',   txt:'[5] Chrome Browser → navigating to https://google.com...' },
+      { cls:'log-return', txt:'[6] Browser loaded page → HTTP 200 response sent back' },
+      { cls:'log-return', txt:'    ChromeDriver → Selenium Client → test script' },
+      { cls:'log-done',   txt:'[✓] driver.get() complete — browser is now at google.com' },
+    ],
+    pills: [
+      { cls:'rpill-success', txt:'✅ Status: 200 OK' },
+      { cls:'rpill-info',    txt:'🌐 URL: https://google.com' },
+      { cls:'rpill-warn',    txt:'⚡ Command: navigate.to' }
+    ]
+  },
+  click: {
+    cmd:  'driver.findElement(By.id("btn")).click();',
+    logs: [
+      { cls:'log-step',   txt:'[1] Test script: driver.findElement(By.id("btn")).click()' },
+      { cls:'log-send',   txt:'[2] Selenium → POST /session/{id}/element  body: {"using":"id","value":"btn"}' },
+      { cls:'log-exec',   txt:'[3] ChromeDriver → querying Chrome DOM for element id="btn"' },
+      { cls:'log-exec',   txt:'[4] Element found → element reference returned: {element-6066...}' },
+      { cls:'log-send',   txt:'[5] Selenium → POST /session/{id}/element/{ref}/click' },
+      { cls:'log-exec',   txt:'[6] ChromeDriver → sending native click event to element' },
+      { cls:'log-exec',   txt:'[7] Chrome Browser → dispatching mousedown, mouseup, click events on element' },
+      { cls:'log-return', txt:'[8] Response: {} (empty = success)' },
+      { cls:'log-done',   txt:'[✓] click() complete — browser performed the click action' },
+    ],
+    pills: [
+      { cls:'rpill-success', txt:'✅ Element Found & Clicked' },
+      { cls:'rpill-info',    txt:'🎯 Strategy: By.id("btn")' },
+      { cls:'rpill-warn',    txt:'⚡ Events: mousedown → mouseup → click' }
+    ]
+  },
+  sendkeys: {
+    cmd:  'driver.findElement(By.name("q")).sendKeys("Selenium");',
+    logs: [
+      { cls:'log-step',   txt:'[1] Test script: findElement(By.name("q")).sendKeys("Selenium")' },
+      { cls:'log-send',   txt:'[2] Selenium → POST /element  body: {"using":"name","value":"q"}' },
+      { cls:'log-exec',   txt:'[3] ChromeDriver → locating element with name="q" in DOM' },
+      { cls:'log-exec',   txt:'[4] Input element found → focusing element' },
+      { cls:'log-send',   txt:'[5] Selenium → POST /element/{ref}/value  body: {"text":"Selenium"}' },
+      { cls:'log-exec',   txt:'[6] ChromeDriver → simulating keyboard input: S-e-l-e-n-i-u-m' },
+      { cls:'log-exec',   txt:'[7] Chrome Browser → input field now contains "Selenium"' },
+      { cls:'log-return', txt:'[8] Response: {} (success)' },
+      { cls:'log-done',   txt:'[✓] sendKeys() complete — "Selenium" typed into field' },
+    ],
+    pills: [
+      { cls:'rpill-success', txt:'✅ Text Entered: "Selenium"' },
+      { cls:'rpill-info',    txt:'⌨ Keys simulated: 8 characters' },
+      { cls:'rpill-warn',    txt:'🎯 Element: name="q"' }
+    ]
+  },
+  gettext: {
+    cmd:  'String text = element.getText();',
+    logs: [
+      { cls:'log-step',   txt:'[1] Test script: String text = element.getText()' },
+      { cls:'log-send',   txt:'[2] Selenium → GET /session/{id}/element/{ref}/text' },
+      { cls:'log-exec',   txt:'[3] ChromeDriver → requesting visible text content of element' },
+      { cls:'log-exec',   txt:'[4] Chrome Browser → reading innerText from DOM element' },
+      { cls:'log-return', txt:'[5] Browser returns: {"value": "Welcome, User!"}' },
+      { cls:'log-return', txt:'[6] ChromeDriver → Selenium Client → test script receives string' },
+      { cls:'log-done',   txt:'[✓] getText() returned: "Welcome, User!" — ready for assertion' },
+    ],
+    pills: [
+      { cls:'rpill-success', txt:'✅ Text Retrieved' },
+      { cls:'rpill-info',    txt:'📄 Value: "Welcome, User!"' },
+      { cls:'rpill-green',   txt:'⚡ Method: GET /text' }
+    ]
+  },
+  assert: {
+    cmd:  'Assert.assertEquals(driver.getTitle(), "Google");',
+    logs: [
+      { cls:'log-step',   txt:'[1] Test script: Assert.assertEquals(driver.getTitle(), "Google")' },
+      { cls:'log-send',   txt:'[2] driver.getTitle() → Selenium GET /session/{id}/title' },
+      { cls:'log-exec',   txt:'[3] ChromeDriver → reading document.title from Chrome' },
+      { cls:'log-return', txt:'[4] Browser returns: {"value": "Google"}' },
+      { cls:'log-return', txt:'[5] getTitle() returns "Google" to test script' },
+      { cls:'log-step',   txt:'[6] TestNG Assert.assertEquals("Google", "Google") — comparing...' },
+      { cls:'log-done',   txt:'[✓] ASSERTION PASSED ✅ — "Google" equals "Google"' },
+    ],
+    pills: [
+      { cls:'rpill-success', txt:'✅ Assertion PASSED' },
+      { cls:'rpill-info',    txt:'📋 Expected: "Google"' },
+      { cls:'rpill-info',    txt:'📋 Actual: "Google"' }
+    ]
+  }
+};
+
+let simRunning = false;
+
+function resetSimulator() {
+  simRunning = false;
+  const btn = document.getElementById('simRunBtn');
+  btn.disabled = false;
+  btn.textContent = '▶ Run Test';
+
+  document.getElementById('simCommandBox').className = 'sim-command-box';
+  document.getElementById('simCommandBox').innerHTML = '<span style="color:var(--text2)">// Select a command above and click Run Test</span>';
+  document.getElementById('simLog').className = 'sim-log';
+  document.getElementById('simLog').innerHTML = '<span class="log-dim">// Execution log will appear here...</span>';
+  document.getElementById('simPills').innerHTML = '';
+
+  for (let i = 1; i <= 6; i++) {
+    document.getElementById('sl-' + i).className = 'sim-layer-row';
+    const ss = document.getElementById('ss-' + i);
+    ss.className = 'slr-status idle';
+    ss.textContent = 'Idle';
+  }
+}
+
+function runSimulator() {
+  if (simRunning) return;
+  simRunning = true;
+  const btn = document.getElementById('simRunBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Running…';
+
+  const key  = document.getElementById('simCommand').value;
+  const data = SIM_DATA[key];
+  const STEP = 800;
+  const LOG_STEP = 450;
+
+  // Show command
+  const cmdBox = document.getElementById('simCommandBox');
+  cmdBox.className = 'sim-command-box active';
+  cmdBox.innerHTML = `<span style="color:#c678dd">driver</span><span style="color:#abb2bf">.</span><span style="color:#61afef">${data.cmd.replace('driver.','')}</span>`;
+
+  const logEl = document.getElementById('simLog');
+  logEl.className = 'sim-log running';
+  logEl.innerHTML = '';
+
+  // Layer activation sequence
+  const layerSeq = [
+    { layer: 1, delay: 0 },
+    { layer: 2, delay: STEP },
+    { layer: 3, delay: STEP * 2 },
+    { layer: 4, delay: STEP * 3 },
+    { layer: 5, delay: STEP * 4 },
+    { layer: 6, delay: STEP * 5 }
+  ];
+
+  layerSeq.forEach(({ layer, delay }) => {
+    // Activate
+    setTimeout(() => {
+      if (layer > 1) {
+        const prev = document.getElementById('sl-' + (layer-1));
+        prev.className = 'sim-layer-row layer-done';
+        document.getElementById('ss-' + (layer-1)).className = 'slr-status done';
+        document.getElementById('ss-' + (layer-1)).textContent = '✓ Done';
+      }
+      const el = document.getElementById('sl-' + layer);
+      el.className = 'sim-layer-row layer-active';
+      document.getElementById('ss-' + layer).className = 'slr-status active';
+      document.getElementById('ss-' + layer).textContent = 'Active';
+    }, delay);
+  });
+
+  // Logs
+  data.logs.forEach((log, i) => {
+    setTimeout(() => {
+      const span = document.createElement('span');
+      span.className = `log-line ${log.cls}`;
+      span.textContent = log.txt;
+      logEl.appendChild(span);
+      logEl.scrollTop = logEl.scrollHeight;
+    }, i * LOG_STEP + 200);
+  });
+
+  const totalTime = Math.max(layerSeq[layerSeq.length - 1].delay + STEP, data.logs.length * LOG_STEP) + 800;
+
+  setTimeout(() => {
+    // Mark last layer done
+    const lastL = document.getElementById('sl-6');
+    lastL.className = 'sim-layer-row layer-done';
+    document.getElementById('ss-6').className = 'slr-status done';
+    document.getElementById('ss-6').textContent = '✓ Done';
+
+    // Pills
+    const pillsEl = document.getElementById('simPills');
+    data.pills.forEach(p => {
+      const el = document.createElement('span');
+      el.className = `rpill ${p.cls}`;
+      el.textContent = p.txt;
+      pillsEl.appendChild(el);
+    });
+
+    logEl.className = 'sim-log';
+    simRunning = false;
+    btn.disabled = false;
+    btn.textContent = '↺ Run Again';
+  }, totalTime);
+}
+
+/* ── QUIZ ────────────────────────────────────────────────── */
+const EXPL = {
+  1: {
+    ok:    '✅ Correct! ChromeDriver is the middleman — it runs a local HTTP server, receives W3C WebDriver Protocol requests from Selenium, and translates them into native Chrome browser commands.',
+    wrong: '❌ Not quite. ChromeDriver is a separate executable that acts as a translator between Selenium\'s HTTP requests and Chrome\'s native automation interface.'
+  },
+  2: {
+    ok:    '✅ Correct! Selenium Grid distributes tests across multiple machines and browsers in parallel. A Hub coordinates the test runs while Nodes (each with different browser/OS) execute them.',
+    wrong: '❌ Not quite. Selenium Grid is the component built for parallel cross-browser execution across multiple machines. WebDriver runs locally; IDE is for record-and-playback.'
+  },
+  3: {
+    ok:    '✅ Correct! Selenium uses the W3C WebDriver Protocol — HTTP requests with JSON bodies sent to the browser driver\'s local server. This replaced the older JSON Wire Protocol in Selenium 4.',
+    wrong: '❌ Not quite. Selenium uses HTTP/JSON (W3C WebDriver Protocol) to communicate between the Java/Python client library and the browser driver executable.'
+  },
+  4: {
+    ok:    '✅ Correct! Automation\'s greatest value is for regression testing — running the same tests after every change to make sure nothing is broken. Exploratory and UX testing are still better done manually.',
+    wrong: '❌ Not quite. Automation shines for regression, smoke, and sanity tests — repeated, predictable test cases. Exploratory and ad-hoc testing remain manual.'
+  },
+  5: {
+    ok:    '✅ Correct! Selenium is purely a browser automation API. For assertions you need TestNG/JUnit, for reports you need Extent Reports or Allure, and for desktop/mobile apps you need Appium.',
+    wrong: '❌ Not quite. Selenium does not generate reports or handle desktop apps. It only drives web browsers. Reports, assertions, and test management come from separate frameworks integrated alongside Selenium.'
+  }
+};
+
+let qAns = {}; let qRight = 0;
+
+function answerQ(n, el, correct) {
+  if (qAns[n] !== undefined) return;
+  qAns[n] = correct;
+  if (correct) qRight++;
+
+  el.closest('.quiz-opts').querySelectorAll('.quiz-opt').forEach(o => o.classList.add('disabled'));
+  el.classList.remove('disabled');
+  el.classList.add(correct ? 'correct' : 'wrong');
+
+  const fb = document.getElementById('qf' + n);
+  fb.innerHTML   = correct ? EXPL[n].ok : EXPL[n].wrong;
+  fb.className   = 'quiz-feedback show ' + (correct ? 'correct' : 'wrong');
+
+  if (Object.keys(qAns).length === 5) {
+    setTimeout(() => {
+      const box = document.getElementById('scoreBox');
+      const num = document.getElementById('scoreNum');
+      const lbl = document.getElementById('scoreLbl');
+      num.textContent = `${qRight}/5`;
+      num.style.color = qRight >= 4 ? 'var(--accent3)' : qRight >= 3 ? 'var(--accent)' : 'var(--accent4)';
+      lbl.textContent = qRight === 5 ? '🎉 Perfect! Solid understanding of Selenium fundamentals.'
+        : qRight >= 3 ? '👍 Good job! Review the tabs for any you missed.'
+        : '📖 Revisit the Architecture and Selenium Overview tabs.';
+      box.classList.add('show');
+    }, 500);
+  }
+}
+
+function retakeQuiz() {
+  qAns = {}; qRight = 0;
+  document.getElementById('scoreBox').classList.remove('show');
+  document.querySelectorAll('.quiz-opt').forEach(o => o.className = 'quiz-opt');
+  document.querySelectorAll('.quiz-feedback').forEach(f => { f.className = 'quiz-feedback'; f.innerHTML = ''; });
+}
+</script>
+</body>
+</html>

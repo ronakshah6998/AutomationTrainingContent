@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+
+<html data-theme="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Maven Setup + WebDriver Basics + Selenium Actions</title>
+<style>
+/* ── TOKENS ─────────────────────────────────────────────── */
+:root {
+  --bg:#0d1117; --surface:#161b22; --surface2:#1f2937; --border:#30363d;
+  --accent:#f89820; --accent2:#4fa3e0; --accent3:#58d68d; --accent4:#e74c3c; --accent5:#c678dd;
+  --text:#e6edf3; --text2:#8b949e; --text3:#c9d1d9;
+  --tab-bg:#161b22; --tab-active:#1f2937; --code-bg:#0d1117;
+  --radius:10px; --font-mono:'Courier New',Courier,monospace;
+  --sel:#43b02a;
+}
+[data-theme="light"]{
+  --bg:#f0f4f8; --surface:#ffffff; --surface2:#e8eef5; --border:#d1d9e0;
+  --text:#1a202c; --text2:#4a5568; --text3:#2d3748;
+  --tab-bg:#e8eef5; --tab-active:#ffffff; --code-bg:#e2e8f0;
+}
+[data-theme="light"] pre,[data-theme="light"] .code-pre{color:#1a202c;background:#e2e8f0;}
+[data-theme="light"] .quiz-code,[data-theme="light"] .card code,
+[data-theme="light"] .info-box code,[data-theme="light"] code{background:#dde4ee;color:var(--text);border:1px solid var(--border);}
+[data-theme="light"] .kw{color:#7c3aed;}[data-theme="light"] .cls{color:#b45309;}
+[data-theme="light"] .fn{color:#1d4ed8;}[data-theme="light"] .str{color:#15803d;}
+[data-theme="light"] .cmt{color:#6b7280;}[data-theme="light"] .num{color:#c2410c;}
+[data-theme="light"] .xml-tag{color:#be185d;}[data-theme="light"] .xml-val{color:#15803d;}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);
+  min-height:100vh;transition:background .3s,color .3s;line-height:1.65;
+  user-select:none;-webkit-user-select:none;}
+
+/* ── WATERMARK ─────────────────────────────────────────── */
+#watermark{position:fixed;bottom:14px;right:18px;font-size:.7rem;color:var(--text2);
+  opacity:.44;pointer-events:none;z-index:800;letter-spacing:.2px;white-space:nowrap;}
+
+/* ── HEADER ─────────────────────────────────────────────── */
+header{background:var(--surface);border-bottom:1px solid var(--border);
+  padding:0 32px;display:flex;align-items:center;justify-content:space-between;
+  height:62px;position:sticky;top:0;z-index:100;box-shadow:0 1px 0 var(--border);}
+.logo{display:flex;align-items:center;gap:10px;font-size:1.05rem;font-weight:700;}
+.logo-icon{width:32px;height:32px;border-radius:8px;
+  background:linear-gradient(135deg,#43b02a,#26890c);
+  display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:#fff;}
+.badge{font-size:.68rem;font-weight:600;padding:2px 8px;border-radius:20px;
+  background:var(--accent2);color:#000;text-transform:uppercase;letter-spacing:.5px;}
+#themeToggle{background:var(--surface2);border:1px solid var(--border);color:var(--text);
+  border-radius:8px;padding:6px 14px;cursor:pointer;font-size:.85rem;transition:all .2s;}
+#themeToggle:hover{border-color:var(--accent);color:var(--accent);}
+
+/* ── LAYOUT ─────────────────────────────────────────────── */
+.container{max-width:1100px;margin:0 auto;padding:32px 20px 80px;}
+
+/* ── HERO ───────────────────────────────────────────────── */
+.hero{background:linear-gradient(135deg,var(--surface),var(--surface2));
+  border:1px solid var(--border);border-radius:14px;padding:36px 40px;
+  margin-bottom:28px;display:flex;align-items:center;gap:28px;
+  position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:240px;height:240px;
+  border-radius:50%;background:radial-gradient(circle,rgba(79,163,224,.14) 0%,transparent 70%);
+  pointer-events:none;}
+.hero-icon{font-size:64px;flex-shrink:0;filter:drop-shadow(0 4px 16px rgba(79,163,224,.4));}
+.hero-text h1{font-size:1.75rem;font-weight:800;line-height:1.2;}
+.hero-text h1 span{color:var(--accent2);}
+.hero-text p{color:var(--text2);margin-top:8px;font-size:.95rem;}
+.hero-pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;}
+.pill{padding:4px 12px;border-radius:20px;font-size:.78rem;font-weight:600;
+  border:1px solid;display:flex;align-items:center;gap:5px;}
+.pill-orange{color:var(--accent);border-color:rgba(248,152,32,.35);background:rgba(248,152,32,.08);}
+.pill-blue{color:var(--accent2);border-color:rgba(79,163,224,.35);background:rgba(79,163,224,.08);}
+.pill-green{color:var(--accent3);border-color:rgba(88,214,141,.35);background:rgba(88,214,141,.08);}
+.pill-purple{color:var(--accent5);border-color:rgba(198,120,221,.35);background:rgba(198,120,221,.08);}
+.pill-sel{color:var(--sel);border-color:rgba(67,176,42,.35);background:rgba(67,176,42,.08);}
+
+/* ── BREADCRUMB ROW ─────────────────────────────────────── */
+.breadcrumb-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.breadcrumb{display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--text2);}
+.breadcrumb span{color:var(--accent2);font-weight:600;}
+.watermark{font-size:.7rem;color:var(--text2);opacity:.52;letter-spacing:.3px;
+  white-space:nowrap;font-weight:500;}
+
+/* ── TABS ───────────────────────────────────────────────── */
+.tabs-wrapper{background:var(--tab-bg);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.tab-nav{display:flex;overflow-x:auto;border-bottom:1px solid var(--border);scrollbar-width:none;}
+.tab-nav::-webkit-scrollbar{display:none;}
+.tab-btn{flex-shrink:0;padding:13px 18px;background:none;border:none;color:var(--text2);
+  font-size:.83rem;font-weight:600;cursor:pointer;position:relative;transition:color .2s;
+  display:flex;align-items:center;gap:6px;}
+.tab-btn:hover{color:var(--text);}
+.tab-btn.active{color:var(--accent2);background:var(--tab-active);}
+.tab-btn.active::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+  background:var(--accent2);border-radius:2px 2px 0 0;}
+.tab-content{display:none;padding:32px;}
+.tab-content.active{display:block;animation:fadeIn .25s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ── SECTION HEADINGS ───────────────────────────────────── */
+.section-title{font-size:1.2rem;font-weight:800;margin-bottom:6px;display:flex;align-items:center;gap:9px;}
+.section-title .dot{width:10px;height:10px;border-radius:50%;background:var(--accent2);}
+.section-sub{color:var(--text2);font-size:.9rem;margin-bottom:22px;}
+
+/* ── CARDS ──────────────────────────────────────────────── */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px;margin-bottom:28px;}
+.card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);
+  padding:20px;transition:border-color .2s,transform .2s;}
+.card:hover{border-color:var(--accent2);transform:translateY(-2px);}
+.card-icon{font-size:1.6rem;margin-bottom:10px;}
+.card h3{font-size:.95rem;font-weight:700;margin-bottom:6px;}
+.card p{font-size:.83rem;color:var(--text2);line-height:1.55;}
+.card code{font-family:var(--font-mono);font-size:.78rem;background:var(--code-bg);
+  padding:1px 6px;border-radius:4px;color:var(--accent3);border:1px solid var(--border);}
+
+/* ── INFO BOX ───────────────────────────────────────────── */
+.info-box{border-radius:var(--radius);padding:16px 20px;font-size:.875rem;
+  margin-bottom:20px;border-left:4px solid;display:flex;gap:12px;align-items:flex-start;}
+.info-box .ib-icon{font-size:1.2rem;flex-shrink:0;margin-top:1px;}
+.info-box.blue{background:rgba(79,163,224,.1);border-color:var(--accent2);}
+.info-box.orange{background:rgba(248,152,32,.1);border-color:var(--accent);}
+.info-box.green{background:rgba(88,214,141,.1);border-color:var(--accent3);}
+.info-box.red{background:rgba(231,76,60,.1);border-color:var(--accent4);}
+.info-box.sel{background:rgba(67,176,42,.1);border-color:var(--sel);}
+.info-box code{font-family:var(--font-mono);font-size:.82rem;background:var(--code-bg);
+  padding:1px 6px;border-radius:4px;color:var(--accent3);border:1px solid var(--border);}
+
+/* ── CODE BLOCK ─────────────────────────────────────────── */
+.code-wrap{background:var(--code-bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin:16px 0;}
+.code-header{display:flex;align-items:center;justify-content:space-between;
+  padding:10px 16px;border-bottom:1px solid var(--border);background:rgba(255,255,255,.03);}
+.code-lang{font-size:.75rem;color:var(--text2);font-weight:600;}
+.code-dots{display:flex;gap:5px;}
+.code-dots span{width:11px;height:11px;border-radius:50%;}
+.code-dots .r{background:#ff5f57;}.code-dots .y{background:#ffbd2e;}.code-dots .g{background:#28c840;}
+.code-pre{padding:20px;overflow-x:auto;font-family:var(--font-mono);font-size:.85rem;line-height:1.75;color:#abb2bf;white-space:pre;}
+.kw{color:#c678dd;font-weight:600;}.cls{color:#e5c07b;}.fn{color:#61afef;}
+.str{color:#98c379;}.cmt{color:#5c6370;font-style:italic;}.num{color:#d19a66;}.op{color:#56b6c2;}
+.xml-tag{color:#e06c75;}.xml-attr{color:#d19a66;}.xml-val{color:#98c379;}
+
+/* ── FLOW PIPELINE ──────────────────────────────────────── */
+.flow-pipe{display:flex;flex-direction:column;gap:6px;margin:20px 0;}
+.fp-row{display:flex;align-items:center;gap:12px;}
+.fp-box{flex:1;background:var(--surface2);border:2px solid var(--border);border-radius:var(--radius);
+  padding:13px 18px;display:flex;align-items:center;gap:12px;transition:all .3s;}
+.fp-box.active{border-color:var(--accent2);background:rgba(79,163,224,.08);box-shadow:0 0 0 3px rgba(79,163,224,.15);}
+.fp-box.done{border-color:var(--accent3);background:rgba(88,214,141,.07);}
+.fp-icon{font-size:1.4rem;flex-shrink:0;}
+.fp-info .fp-label{font-size:.7rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.4px;}
+.fp-info .fp-title{font-size:.9rem;font-weight:700;margin-top:1px;}
+.fp-arrow{text-align:center;font-size:.8rem;color:var(--text2);padding:4px 0;}
+.fp-arrow.lit{color:var(--accent3);}
+
+/* ── ITER STEPS ─────────────────────────────────────────── */
+.iter-steps{display:flex;flex-direction:column;gap:10px;margin:16px 0;}
+.iter-row{display:flex;gap:14px;align-items:flex-start;background:var(--surface2);
+  border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;transition:border-color .2s;}
+.iter-row:hover{border-color:var(--accent2);}
+.iter-num{flex-shrink:0;width:28px;height:28px;border-radius:50%;background:var(--accent2);
+  color:#000;font-weight:800;font-size:.8rem;display:flex;align-items:center;justify-content:center;margin-top:1px;}
+.iter-body h4{font-size:.88rem;font-weight:700;margin-bottom:3px;}
+.iter-body p{font-size:.82rem;color:var(--text2);}
+.iter-body code{font-family:var(--font-mono);font-size:.8rem;background:var(--code-bg);
+  padding:1px 6px;border-radius:4px;color:var(--accent3);border:1px solid var(--border);}
+
+/* ── COMPARE TABLE ──────────────────────────────────────── */
+.compare-table{width:100%;border-collapse:collapse;font-size:.875rem;margin:16px 0;}
+.compare-table th{text-align:left;padding:10px 16px;background:var(--surface2);color:var(--text2);
+  font-weight:700;font-size:.78rem;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);}
+.compare-table td{padding:11px 16px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.compare-table tr:last-child td{border-bottom:none;}
+.compare-table tr:hover td{background:rgba(255,255,255,.02);}
+.mono{font-family:var(--font-mono);font-size:.82rem;color:var(--accent3);}
+
+/* ── FOLDER TREE ────────────────────────────────────────── */
+.folder-tree{background:var(--code-bg);border:1px solid var(--border);border-radius:var(--radius);
+  padding:20px 24px;font-family:var(--font-mono);font-size:.85rem;line-height:2;color:#abb2bf;}
+.ft-folder{color:#e5c07b;font-weight:600;}
+.ft-file{color:#98c379;}
+.ft-xml{color:#e06c75;}
+.ft-gray{color:var(--text2);}
+.ft-indent1{padding-left:20px;}
+.ft-indent2{padding-left:40px;}
+.ft-indent3{padding-left:60px;}
+.ft-indent4{padding-left:80px;}
+
+/* ── NAV PILL ROW ───────────────────────────────────────── */
+.nav-pills{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0;}
+.nav-pill{padding:7px 16px;border-radius:8px;background:var(--surface2);
+  border:1px solid var(--border);font-size:.83rem;font-weight:600;color:var(--text2);}
+.nav-pill.active{background:rgba(79,163,224,.12);border-color:var(--accent2);color:var(--accent2);}
+
+/* ── ACTION CARDS ───────────────────────────────────────── */
+.action-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin:18px 0 26px;}
+.action-card{background:var(--surface2);border:2px solid var(--border);border-radius:var(--radius);
+  padding:18px;transition:all .2s;}
+.action-card:hover{transform:translateY(-2px);}
+.action-card.click-card{border-color:rgba(231,76,60,.4);}
+.action-card.send-card{border-color:rgba(79,163,224,.4);}
+.action-card.get-card{border-color:rgba(88,214,141,.4);}
+.action-card.hover-card{border-color:rgba(248,152,32,.4);}
+.ac-tag{font-size:.68rem;font-weight:700;padding:2px 8px;border-radius:5px;
+  text-transform:uppercase;letter-spacing:.4px;display:inline-block;margin-bottom:10px;}
+.ac-tag.click{background:rgba(231,76,60,.15);color:var(--accent4);}
+.ac-tag.send{background:rgba(79,163,224,.15);color:var(--accent2);}
+.ac-tag.get{background:rgba(88,214,141,.15);color:var(--accent3);}
+.ac-tag.hover{background:rgba(248,152,32,.15);color:var(--accent);}
+.action-card h4{font-family:var(--font-mono);font-size:.9rem;font-weight:800;margin-bottom:6px;}
+.action-card p{font-size:.8rem;color:var(--text2);line-height:1.5;margin-bottom:8px;}
+.action-card .ac-ex{font-family:var(--font-mono);font-size:.76rem;background:var(--code-bg);
+  padding:6px 10px;border-radius:6px;border:1px solid var(--border);color:#abb2bf;white-space:pre;}
+
+/* ── BROWSER SIM ────────────────────────────────────────── */
+.browser-sim-wrap{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+.browser-sim-header{display:flex;align-items:center;justify-content:space-between;
+  padding:13px 20px;background:rgba(255,255,255,.03);border-bottom:1px solid var(--border);
+  font-weight:700;font-size:.88rem;}
+.browser-sim-body{padding:24px;}
+
+/* Fake browser window */
+.fake-browser{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:18px;}
+.fb-titlebar{background:#1a1d23;padding:10px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);}
+.fb-dots{display:flex;gap:5px;}
+.fb-dot{width:12px;height:12px;border-radius:50%;}
+.fb-dot.red{background:#ff5f57;}.fb-dot.yel{background:#ffbd2e;}.fb-dot.grn{background:#28c840;}
+.fb-url{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:6px;
+  padding:5px 12px;font-size:.78rem;color:var(--text2);font-family:var(--font-mono);}
+.fb-content{padding:28px 32px;min-height:220px;}
+.fb-page-title{font-size:1.1rem;font-weight:800;margin-bottom:24px;color:var(--text);}
+.fb-form-group{margin-bottom:16px;}
+.fb-label{font-size:.78rem;font-weight:600;color:var(--text2);margin-bottom:6px;display:block;}
+.fb-input{width:100%;max-width:320px;padding:10px 14px;border-radius:8px;
+  border:2px solid var(--border);background:var(--surface);color:var(--text);
+  font-size:.9rem;font-family:var(--font-mono);outline:none;transition:border-color .2s;}
+.fb-input:focus{border-color:var(--accent2);}
+.fb-input.success{border-color:var(--accent3);}
+.fb-btn{padding:10px 28px;border-radius:8px;background:var(--accent2);color:#fff;
+  border:none;font-weight:800;font-size:.9rem;cursor:pointer;transition:all .2s;
+  margin-top:4px;}
+.fb-btn:hover{opacity:.88;transform:translateY(-1px);}
+.fb-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.fb-msg{padding:12px 16px;border-radius:8px;font-size:.875rem;font-weight:600;
+  margin-top:14px;display:none;animation:fadeIn .3s;}
+.fb-msg.success{background:rgba(88,214,141,.12);border:1px solid rgba(88,214,141,.35);color:var(--accent3);}
+.fb-msg.error{background:rgba(231,76,60,.1);border:1px solid rgba(231,76,60,.3);color:var(--accent4);}
+
+/* Command log */
+.cmd-log{background:var(--code-bg);border:1px solid var(--border);border-radius:var(--radius);
+  overflow:hidden;margin-bottom:18px;}
+.cmd-log-bar{padding:9px 16px;background:rgba(255,255,255,.03);border-bottom:1px solid var(--border);
+  font-size:.78rem;color:var(--text2);font-weight:600;display:flex;align-items:center;gap:8px;}
+.cmd-log-body{padding:14px 18px;font-family:var(--font-mono);font-size:.84rem;
+  min-height:80px;line-height:1.9;white-space:pre-wrap;color:#abb2bf;}
+.c-sel{color:#43b02a;}.c-dim{color:#555;}.c-info{color:#7ec8e3;}.c-ok{color:#a8ff78;}
+
+/* Sim controls */
+.sim-controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;}
+.btn-sim{background:linear-gradient(135deg,var(--accent2),#2980b9);color:#fff;border:none;
+  border-radius:8px;padding:10px 24px;font-weight:800;font-size:.875rem;cursor:pointer;
+  transition:opacity .2s,transform .2s;}
+.btn-sim:hover{opacity:.88;transform:translateY(-1px);}
+.btn-sim:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.btn-reset-sim{background:none;border:1px solid var(--border);color:var(--text2);
+  border-radius:8px;padding:10px 18px;font-size:.875rem;cursor:pointer;transition:all .2s;}
+.btn-reset-sim:hover{border-color:var(--text2);color:var(--text);}
+.btn-run-all{background:linear-gradient(135deg,var(--sel),#1e6b0e);color:#fff;border:none;
+  border-radius:8px;padding:10px 24px;font-weight:800;font-size:.875rem;cursor:pointer;
+  transition:opacity .2s,transform .2s;}
+.btn-run-all:hover{opacity:.88;transform:translateY(-1px);}
+.btn-run-all:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+
+/* Result pills */
+.result-pills{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px;min-height:34px;}
+.rpill{display:flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;
+  font-size:.82rem;font-weight:600;border:1px solid;animation:fadeIn .2s;}
+.rpill-success{background:rgba(88,214,141,.12);border-color:rgba(88,214,141,.4);color:var(--accent3);}
+.rpill-error{background:rgba(231,76,60,.12);border-color:rgba(231,76,60,.4);color:var(--accent4);}
+.rpill-info{background:rgba(79,163,224,.12);border-color:rgba(79,163,224,.4);color:var(--accent2);}
+.rpill-warn{background:rgba(248,152,32,.12);border-color:rgba(248,152,32,.4);color:var(--accent);}
+
+/* ── ERROR PANEL ─────────────────────────────────────────── */
+.err-sim-btns{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px;}
+.err-btn{padding:8px 18px;border-radius:8px;border:1px solid var(--border);
+  background:var(--surface2);color:var(--text);font-size:.84rem;font-weight:600;
+  cursor:pointer;transition:all .2s;}
+.err-btn:hover{border-color:var(--accent4);color:var(--accent4);}
+.err-btn.active{background:rgba(231,76,60,.15);border-color:var(--accent4);color:var(--accent4);}
+.err-panel{display:none;background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--radius);overflow:hidden;}
+.err-panel.active{display:block;animation:fadeIn .2s ease;}
+.err-hdr{display:flex;align-items:center;gap:10px;padding:12px 18px;
+  background:rgba(231,76,60,.12);border-bottom:1px solid var(--border);
+  font-size:.875rem;font-weight:700;color:var(--accent4);}
+.err-body{padding:20px;}
+.err-body h4{font-size:.9rem;font-weight:700;margin-bottom:8px;}
+.err-body p{font-size:.85rem;color:var(--text2);margin-bottom:12px;}
+.err-msg{font-family:var(--font-mono);font-size:.8rem;background:var(--code-bg);
+  border:1px solid rgba(231,76,60,.3);border-radius:7px;padding:12px 16px;
+  color:#ff6b6b;margin-bottom:14px;white-space:pre;overflow-x:auto;}
+.code-diff{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0;}
+.diff-wrong,.diff-right{border-radius:8px;overflow:hidden;border:1px solid var(--border);}
+.diff-lbl{padding:7px 12px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
+.diff-wrong .diff-lbl{background:rgba(231,76,60,.15);color:var(--accent4);}
+.diff-right .diff-lbl{background:rgba(88,214,141,.15);color:var(--accent3);}
+.diff-code{padding:12px 14px;font-family:var(--font-mono);font-size:.8rem;background:var(--code-bg);line-height:1.7;color:#abb2bf;white-space:pre;}
+.fix-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(88,214,141,.1);
+  border:1px solid rgba(88,214,141,.3);color:var(--accent3);border-radius:6px;
+  padding:5px 12px;font-size:.82rem;font-weight:600;margin-top:4px;}
+
+/* ── QUIZ ───────────────────────────────────────────────── */
+.quiz-container{display:flex;flex-direction:column;gap:24px;}
+.quiz-block{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:22px 24px;}
+.quiz-num{font-size:.72rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;}
+.quiz-q{font-weight:700;font-size:.92rem;margin-bottom:14px;line-height:1.5;}
+.quiz-opts{display:flex;flex-direction:column;gap:9px;}
+.quiz-opt{padding:10px 16px;border-radius:8px;border:1px solid var(--border);
+  background:var(--bg);font-size:.875rem;cursor:pointer;transition:all .2s;
+  display:flex;align-items:flex-start;gap:10px;text-align:left;}
+.quiz-opt:hover:not(.correct):not(.wrong){border-color:var(--accent2);background:rgba(79,163,224,.04);}
+.quiz-opt.correct{border-color:var(--accent3);background:rgba(88,214,141,.1);color:var(--accent3);pointer-events:none;}
+.quiz-opt.wrong{border-color:var(--accent4);background:rgba(231,76,60,.08);color:var(--accent4);pointer-events:none;}
+.quiz-opt.disabled{pointer-events:none;opacity:.5;}
+.quiz-feedback{margin-top:12px;font-size:.845rem;padding:10px 14px;border-radius:7px;display:none;}
+.quiz-feedback.show{display:block;animation:fadeIn .2s;}
+.quiz-feedback.correct{background:rgba(88,214,141,.1);color:var(--accent3);border:1px solid rgba(88,214,141,.25);}
+.quiz-feedback.wrong{background:rgba(231,76,60,.08);color:var(--accent4);border:1px solid rgba(231,76,60,.2);}
+.quiz-code{font-family:var(--font-mono);background:var(--code-bg);padding:1px 7px;
+  border-radius:4px;font-size:.85em;color:var(--text);border:1px solid var(--border);}
+.score-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);
+  padding:28px;text-align:center;display:none;margin-top:24px;}
+.score-box.show{display:block;animation:fadeIn .3s;}
+.score-num{font-size:3rem;font-weight:900;line-height:1;}
+.score-label{color:var(--text2);font-size:.9rem;margin-top:6px;margin-bottom:16px;}
+.btn-retake{background:var(--surface2);border:1px solid var(--border);color:var(--text);
+  border-radius:8px;padding:9px 24px;font-size:.875rem;font-weight:700;cursor:pointer;transition:all .2s;}
+.btn-retake:hover{border-color:var(--accent2);color:var(--accent2);}
+
+/* ── RESPONSIVE ─────────────────────────────────────────── */
+@media(max-width:700px){
+  .hero{flex-direction:column;padding:24px 20px;}
+  .tab-btn{padding:12px 11px;font-size:.77rem;}
+  .tab-content{padding:20px 16px;}
+  .hero-text h1{font-size:1.35rem;}
+  .code-diff{grid-template-columns:1fr;}
+  .action-grid{grid-template-columns:1fr;}
+}
+
+.course-nav{
+    position:sticky;
+    bottom:0;
+    background:var(--surface, var(--bg-primary));
+    z-index:999;
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:12px;
+
+    margin-top:18px;
+    padding:14px 20px 12px;
+
+    border-top:.5px solid var(--border);
+}
+
+.course-nav-left,
+.course-nav-right{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.course-nav a{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+
+    text-decoration:none;
+
+    padding:7px 15px;          /* Increased slightly */
+
+    border:.5px solid var(--border);
+    border-radius:8px;
+
+    color:var(--text);
+    background:var(--surface2);
+
+    font-size:.86rem;          /* Slightly larger than 12px */
+    font-weight:600;
+    line-height:1.25;
+
+    transition:all .2s ease;
+}
+
+.course-nav a:hover{
+    border-color:var(--accent2);
+}
+
+.course-topic{
+    font-size:.8rem;
+    color:var(--text2);
+}
+</style>
+</head>
+<body>
+<header>
+<div class="logo">
+<div class="logo-icon">Se</div>
+    Selenium Training
+</div>
+<button id="themeToggle" onclick="toggleTheme()">🌙 Dark</button>
+</header>
+
+<div class="container">
+  <div class="breadcrumb-row">
+    <div class="breadcrumb">
+      Automation Series <span style="color:var(--border)">›</span> Week 2 <span style="color:var(--border)">›</span> <span>Maven Setup + <span>WebDriver Basics</span> + Selenium Actions</span>
+    </div>
+    <span class="watermark">Ronak Shah — Automation Training Content</span>
+  </div>
+
+<div class="hero">
+<div class="hero-icon">⚙️</div>
+<div class="hero-text">
+<h1>Maven Setup + <span>WebDriver Basics</span> + Selenium Actions</h1>
+<p>Set up your first Selenium project, understand WebDriver, navigate browsers, and interact with web elements — all from scratch.</p>
+<div class="hero-pills">
+<span class="pill pill-orange">📦 Maven Setup</span>
+<span class="pill pill-blue">🌐 WebDriver</span>
+<span class="pill pill-green">▶ Live Simulator</span>
+<span class="pill pill-purple">🖱 Element Actions</span>
+</div>
+</div>
+</div>
+<div class="tabs-wrapper">
+<div class="tab-nav">
+<button class="tab-btn active" onclick="switchTab('setup',this)"><span>📦</span> Project Setup</button>
+<button class="tab-btn" onclick="switchTab('webdriver',this)"><span>🌐</span> WebDriver Basics</button>
+<button class="tab-btn" onclick="switchTab('navigation',this)"><span>🚀</span> Navigation</button>
+<button class="tab-btn" onclick="switchTab('actions',this)"><span>🖱</span> Element Actions</button>
+<button class="tab-btn" onclick="switchTab('simulator',this)"><span>▶</span> Live Simulator</button>
+<button class="tab-btn" onclick="switchTab('errors',this)"><span>❌</span> Common Errors</button>
+<button class="tab-btn" onclick="switchTab('quiz',this)"><span>🧠</span> Quick Check</button>
+</div>
+<!-- ══════════════ TAB 1: PROJECT SETUP ══════════════ -->
+<div class="tab-content active" id="tab-setup">
+<div class="section-title"><span class="dot"></span> Setting Up a Maven Project in IntelliJ</div>
+<p class="section-sub">Maven is a build tool that manages your project dependencies — no more manually downloading JAR files.</p>
+<div class="info-box blue">
+<span class="ib-icon">💡</span>
+<div><strong>Why Maven?</strong> Without Maven, you'd manually download every library (Selenium JAR, TestNG JAR, etc.) and add them to your project one by one. Maven reads your <code>pom.xml</code> and downloads everything automatically from the internet — and keeps versions in sync.</div>
+</div>
+<!-- Setup flow -->
+<div class="section-title" style="font-size:1rem;margin-top:4px"><span class="dot"></span> Setup Flow</div>
+<div class="flow-pipe" id="setup-flow" style="margin-top:14px">
+<div class="fp-row"><div class="fp-box" id="fp1"><div class="fp-icon">🆕</div><div class="fp-info"><div class="fp-label">Step 1</div><div class="fp-title">Create Maven Project in IntelliJ</div></div></div></div>
+<div class="fp-arrow" id="fa1">↓</div>
+<div class="fp-row"><div class="fp-box" id="fp2"><div class="fp-icon">📄</div><div class="fp-info"><div class="fp-label">Step 2</div><div class="fp-title">Add Selenium dependency to pom.xml</div></div></div></div>
+<div class="fp-arrow" id="fa2">↓</div>
+<div class="fp-row"><div class="fp-box" id="fp3"><div class="fp-icon">⬇</div><div class="fp-info"><div class="fp-label">Step 3</div><div class="fp-title">Maven downloads libraries automatically</div></div></div></div>
+<div class="fp-arrow" id="fa3">↓</div>
+<div class="fp-row"><div class="fp-box" id="fp4"><div class="fp-icon">✅</div><div class="fp-info"><div class="fp-label">Step 4</div><div class="fp-title">Project ready — write your first test</div></div></div></div>
+</div>
+<div style="display:flex;gap:10px;margin-top:4px;margin-bottom:24px">
+<button class="btn-sim" id="btn-flow" onclick="animateSetupFlow()">▶ Animate Flow</button>
+<button class="btn-reset-sim" onclick="resetSetupFlow()">↺ Reset</button>
+</div>
+<!-- Step-by-step IntelliJ -->
+<div class="section-title" style="font-size:1rem"><span class="dot"></span> IntelliJ — Step by Step</div>
+<div class="iter-steps" style="margin-top:14px">
+<div class="iter-row"><div class="iter-num">1</div><div class="iter-body"><h4>File → New → Project</h4><p>Choose <strong>Maven Archetype</strong>. Select JDK 17+. Use archetype <code>maven-archetype-quickstart</code> for a basic structure.</p></div></div>
+<div class="iter-row"><div class="iter-num">2</div><div class="iter-body"><h4>Set GroupId &amp; ArtifactId</h4><p>GroupId: <code>com.yourcompany</code> (like a package name). ArtifactId: <code>selenium-project</code> (your project name). Click Finish.</p></div></div>
+<div class="iter-row"><div class="iter-num">3</div><div class="iter-body"><h4>Open pom.xml — Add Selenium dependency</h4><p>Inside the <code>&lt;dependencies&gt;</code> block, add the Selenium Java dependency. IntelliJ will show a small icon to download it.</p></div></div>
+<div class="iter-row"><div class="iter-num">4</div><div class="iter-body"><h4>Reload Maven (Ctrl+Shift+O)</h4><p>IntelliJ downloads all dependencies from the internet. You'll see them appear under <em>External Libraries</em> in the project panel.</p></div></div>
+<div class="iter-row"><div class="iter-num">5</div><div class="iter-body"><h4>Create your first test class in src/test/java</h4><p>Right-click <code>src/test/java</code> → New → Java Class. Name it <code>FirstTest</code>. You're ready to write Selenium code.</p></div></div>
+</div>
+<!-- pom.xml -->
+<div class="section-title" style="font-size:1rem;margin-top:20px"><span class="dot"></span> pom.xml — The Dependency File</div>
+<div class="code-wrap">
+<div class="code-header"><div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><span class="code-lang">📄 pom.xml — Maven Dependency</span></div>
+<pre class="code-pre"><span class="xml-tag">&lt;project&gt;</span>
+    <span class="xml-tag">&lt;modelVersion&gt;</span>4.0.0<span class="xml-tag">&lt;/modelVersion&gt;</span>
+    <span class="xml-tag">&lt;groupId&gt;</span>com.yourcompany<span class="xml-tag">&lt;/groupId&gt;</span>
+    <span class="xml-tag">&lt;artifactId&gt;</span>selenium-project<span class="xml-tag">&lt;/artifactId&gt;</span>
+    <span class="xml-tag">&lt;version&gt;</span>1.0-SNAPSHOT<span class="xml-tag">&lt;/version&gt;</span>
+
+    <span class="xml-tag">&lt;dependencies&gt;</span>
+
+        <span class="cmt">&lt;!-- Selenium WebDriver --&gt;</span>
+        <span class="xml-tag">&lt;dependency&gt;</span>
+            <span class="xml-tag">&lt;groupId&gt;</span>org.seleniumhq.selenium<span class="xml-tag">&lt;/groupId&gt;</span>
+            <span class="xml-tag">&lt;artifactId&gt;</span>selenium-java<span class="xml-tag">&lt;/artifactId&gt;</span>
+            <span class="xml-tag">&lt;version&gt;</span>4.18.1<span class="xml-tag">&lt;/version&gt;</span>
+        <span class="xml-tag">&lt;/dependency&gt;</span>
+
+        <span class="cmt">&lt;!-- TestNG for test management --&gt;</span>
+        <span class="xml-tag">&lt;dependency&gt;</span>
+            <span class="xml-tag">&lt;groupId&gt;</span>org.testng<span class="xml-tag">&lt;/groupId&gt;</span>
+            <span class="xml-tag">&lt;artifactId&gt;</span>testng<span class="xml-tag">&lt;/artifactId&gt;</span>
+            <span class="xml-tag">&lt;version&gt;</span>7.8.0<span class="xml-tag">&lt;/version&gt;</span>
+            <span class="xml-tag">&lt;scope&gt;</span>test<span class="xml-tag">&lt;/scope&gt;</span>
+        <span class="xml-tag">&lt;/dependency&gt;</span>
+
+    <span class="xml-tag">&lt;/dependencies&gt;</span>
+<span class="xml-tag">&lt;/project&gt;</span></pre>
+</div>
+<!-- Folder structure -->
+<div class="section-title" style="font-size:1rem;margin-top:8px"><span class="dot"></span> Project Folder Structure</div>
+<div class="folder-tree" style="margin-top:14px">
+<div><span class="ft-folder">📁 selenium-project</span></div>
+<div class="ft-indent1"><span class="ft-xml">📄 pom.xml</span> <span class="ft-gray">← Maven config + dependencies</span></div>
+<div class="ft-indent1"><span class="ft-folder">📁 src</span></div>
+<div class="ft-indent2"><span class="ft-folder">📁 main</span></div>
+<div class="ft-indent3"><span class="ft-folder">📁 java</span></div>
+<div class="ft-indent4"><span class="ft-gray">📁 com.yourcompany</span> <span class="ft-gray">← Page objects, utilities</span></div>
+<div class="ft-indent2"><span class="ft-folder">📁 test</span> <span class="ft-gray">← Your test files go here</span></div>
+<div class="ft-indent3"><span class="ft-folder">📁 java</span></div>
+<div class="ft-indent4"><span class="ft-file">📄 FirstTest.java</span> <span class="ft-gray">← Test classes</span></div>
+<div class="ft-indent1"><span class="ft-folder">📁 target</span> <span class="ft-gray">← Auto-generated by Maven (compiled output)</span></div>
+</div>
+<div class="info-box green" style="margin-top:20px">
+<span class="ib-icon">✅</span>
+<div><strong>Key rule:</strong> Always put test classes in <code>src/test/java</code>, not in <code>src/main/java</code>. The <code>test</code> scope ensures test libraries are only available when running tests — not in the production build.</div>
+</div>
+</div>
+<!-- ══════════════ TAB 2: WEBDRIVER BASICS ══════════════ -->
+<div class="tab-content" id="tab-webdriver">
+<div class="section-title"><span class="dot"></span> What is WebDriver?</div>
+<p class="section-sub">WebDriver is the interface (contract) that Selenium uses to control browsers. You write code against the interface — the browser driver implements it.</p>
+<div class="info-box blue">
+<span class="ib-icon">🔌</span>
+<div><strong>Key concept:</strong> <code>WebDriver</code> is a Java <em>interface</em> — not a class. <code>ChromeDriver</code>, <code>FirefoxDriver</code>, <code>EdgeDriver</code> are the actual classes that implement it. By writing <code>WebDriver driver = new ChromeDriver()</code> you can switch browsers by changing only <code>ChromeDriver</code> to another driver — the rest of your code stays identical.</div>
+</div>
+<div class="code-wrap">
+<div class="code-header"><div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><span class="code-lang">☕ WebDriver — Initialisation</span></div>
+<pre class="code-pre"><span class="cmt">// WebDriver is an INTERFACE — ChromeDriver implements it</span>
+<span class="cls">WebDriver</span> driver <span class="op">=</span> <span class="kw">new</span> <span class="cls">ChromeDriver</span>();
+
+<span class="cmt">// Same interface — switch to Firefox with one change</span>
+<span class="cls">WebDriver</span> driver <span class="op">=</span> <span class="kw">new</span> <span class="cls">FirefoxDriver</span>();
+
+<span class="cmt">// Same interface — switch to Edge</span>
+<span class="cls">WebDriver</span> driver <span class="op">=</span> <span class="kw">new</span> <span class="cls">EdgeDriver</span>();
+
+<span class="cmt">// All three have identical method signatures:</span>
+driver.<span class="fn">get</span>(<span class="str">"https://example.com"</span>);
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"username"</span>));
+driver.<span class="fn">quit</span>();</pre>
+</div>
+<div class="section-title" style="font-size:1rem;margin-top:8px"><span class="dot"></span> Interface vs Class — Why It Matters</div>
+<div class="code-wrap">
+<div class="code-header"><div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><span class="code-lang">☕ Interface polymorphism explained</span></div>
+<pre class="code-pre"><span class="cmt">// ❌ BAD — tightly coupled to Chrome only</span>
+<span class="cls">ChromeDriver</span> driver <span class="op">=</span> <span class="kw">new</span> <span class="cls">ChromeDriver</span>();
+
+<span class="cmt">// ✅ GOOD — uses interface reference (flexible)</span>
+<span class="cls">WebDriver</span> driver <span class="op">=</span> <span class="kw">new</span> <span class="cls">ChromeDriver</span>();
+
+<span class="cmt">// Now you can pass 'driver' to any method that</span>
+<span class="cmt">// accepts WebDriver — completely browser-agnostic</span>
+<span class="kw">public</span> <span class="kw">void</span> <span class="fn">loginTest</span>(<span class="cls">WebDriver</span> driver) {
+    driver.<span class="fn">get</span>(<span class="str">"https://app.com/login"</span>);
+    <span class="cmt">// works with Chrome, Firefox, Edge — anything</span>
+}</pre>
+</div>
+<div class="section-title" style="font-size:1rem;margin-top:8px"><span class="dot"></span> Important WebDriver Methods</div>
+<table class="compare-table">
+<thead><tr><th>Method</th><th>What It Does</th><th>Example</th></tr></thead>
+<tbody>
+<tr><td class="mono">driver.get(url)</td><td>Opens a URL in the browser</td><td class="mono">driver.get("https://google.com")</td></tr>
+<tr><td class="mono">driver.findElement()</td><td>Locates a single element on the page</td><td class="mono">driver.findElement(By.id("btn"))</td></tr>
+<tr><td class="mono">driver.getTitle()</td><td>Returns the page title as a String</td><td class="mono">String t = driver.getTitle()</td></tr>
+<tr><td class="mono">driver.getCurrentUrl()</td><td>Returns the current URL</td><td class="mono">String url = driver.getCurrentUrl()</td></tr>
+<tr><td class="mono">driver.quit()</td><td>Closes ALL browser windows and ends session</td><td class="mono">driver.quit()</td></tr>
+<tr><td class="mono">driver.close()</td><td>Closes only the CURRENT window</td><td class="mono">driver.close()</td></tr>
+</tbody>
+</table>
+<div class="info-box orange">
+<span class="ib-icon">⚠</span>
+<div><strong>quit() vs close():</strong> Always use <code>driver.quit()</code> at the end of your test. <code>close()</code> only closes the active tab — if there are multiple windows, the WebDriver session stays open and ChromeDriver keeps running in the background.</div>
+</div>
+<div class="code-wrap">
+<div class="code-header"><div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><span class="code-lang">☕ Complete First Test</span></div>
+<pre class="code-pre"><span class="kw">import</span> org.openqa.selenium.<span class="cls">WebDriver</span>;
+<span class="kw">import</span> org.openqa.selenium.chrome.<span class="cls">ChromeDriver</span>;
+
+<span class="kw">public class</span> <span class="cls">FirstTest</span> {
+    <span class="kw">public static void</span> <span class="fn">main</span>(<span class="cls">String</span>[] args) {
+
+        <span class="cmt">// 1. Create driver — Selenium 4 manages ChromeDriver automatically</span>
+        <span class="cls">WebDriver</span> driver <span class="op">=</span> <span class="kw">new</span> <span class="cls">ChromeDriver</span>();
+
+        <span class="cmt">// 2. Open a URL</span>
+        driver.<span class="fn">get</span>(<span class="str">"https://google.com"</span>);
+
+        <span class="cmt">// 3. Get page title</span>
+        <span class="cls">String</span> title <span class="op">=</span> driver.<span class="fn">getTitle</span>();
+        <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Page title: "</span> <span class="op">+</span> title);
+
+        <span class="cmt">// 4. Always quit at the end</span>
+        driver.<span class="fn">quit</span>();
+    }
+}</pre>
+</div>
+</div>
+<!-- ══════════════ TAB 3: BROWSER NAVIGATION ══════════════ -->
+<div class="tab-content" id="tab-navigation">
+<div class="section-title"><span class="dot"></span> Browser Navigation Commands</div>
+<p class="section-sub">Selenium gives you full control over browser navigation — open pages, go back, go forward, and refresh, just like a real user would.</p>
+<div class="section-title" style="font-size:1rem"><span class="dot"></span> get() vs navigate().to()</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0 24px">
+<div class="code-wrap" style="margin:0">
+<div class="code-header"><div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><span class="code-lang">driver.get()</span></div>
+<pre class="code-pre"><span class="cmt">// Simple — just open a URL</span>
+<span class="cmt">// Waits for page to fully load</span>
+driver.<span class="fn">get</span>(<span class="str">"https://google.com"</span>);
+
+<span class="cmt">// Use this for most navigation</span></pre>
+</div>
+<div class="code-wrap" style="margin:0">
+<div class="code-header"><div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><span class="code-lang">driver.navigate().to()</span></div>
+<pre class="code-pre"><span class="cmt">// Part of the Navigate interface</span>
+<span class="cmt">// Enables back/forward/refresh</span>
+driver.<span class="fn">navigate</span>().<span class="fn">to</span>(<span class="str">"https://google.com"</span>);
+
+<span class="cmt">// Same result — different style</span></pre>
+</div>
+</div>
+<div class="section-title" style="font-size:1rem"><span class="dot"></span> All Navigation Commands</div>
+<div class="code-wrap">
+<div class="code-header"><div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><span class="code-lang">☕ Complete Navigation Example</span></div>
+<pre class="code-pre"><span class="cls">WebDriver</span> driver <span class="op">=</span> <span class="kw">new</span> <span class="cls">ChromeDriver</span>();
+
+<span class="cmt">// 1. Open a page</span>
+driver.<span class="fn">get</span>(<span class="str">"https://google.com"</span>);
+<span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Page 1: "</span> <span class="op">+</span> driver.<span class="fn">getTitle</span>());
+
+<span class="cmt">// 2. Navigate to another page</span>
+driver.<span class="fn">navigate</span>().<span class="fn">to</span>(<span class="str">"https://selenium.dev"</span>);
+<span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Page 2: "</span> <span class="op">+</span> driver.<span class="fn">getTitle</span>());
+
+<span class="cmt">// 3. Go back to Google</span>
+driver.<span class="fn">navigate</span>().<span class="fn">back</span>();
+<span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"After back: "</span> <span class="op">+</span> driver.<span class="fn">getTitle</span>());
+
+<span class="cmt">// 4. Go forward again</span>
+driver.<span class="fn">navigate</span>().<span class="fn">forward</span>();
+
+<span class="cmt">// 5. Refresh current page</span>
+driver.<span class="fn">navigate</span>().<span class="fn">refresh</span>();
+
+driver.<span class="fn">quit</span>();</pre>
+</div>
+<!-- Visual nav flow -->
+<div class="section-title" style="font-size:1rem;margin-top:8px"><span class="dot"></span> Navigation Flow — Interactive</div>
+<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin:16px 0">
+<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px">
+<button class="btn-sim" onclick="navStep('open')" style="font-size:.8rem;padding:7px 14px">① Open Google</button>
+<span style="color:var(--text2)">→</span>
+<button class="btn-sim" onclick="navStep('navigate')" style="font-size:.8rem;padding:7px 14px">② Navigate to Selenium</button>
+<span style="color:var(--text2)">→</span>
+<button class="btn-sim" onclick="navStep('back')" style="font-size:.8rem;padding:7px 14px">③ Back</button>
+<span style="color:var(--text2)">→</span>
+<button class="btn-sim" onclick="navStep('forward')" style="font-size:.8rem;padding:7px 14px">④ Forward</button>
+<span style="color:var(--text2)">→</span>
+<button class="btn-sim" onclick="navStep('refresh')" style="font-size:.8rem;padding:7px 14px">⑤ Refresh</button>
+<button class="btn-reset-sim" onclick="navReset()" style="margin-left:8px">↺</button>
+</div>
+<div style="background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:14px 18px">
+<div style="font-size:.72rem;font-weight:700;color:var(--text2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px">Simulated Browser</div>
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+<div style="width:8px;height:8px;border-radius:50%;background:#ff5f57"></div>
+<div style="width:8px;height:8px;border-radius:50%;background:#ffbd2e"></div>
+<div style="width:8px;height:8px;border-radius:50%;background:#28c840"></div>
+<div id="nav-url" style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:4px 10px;font-size:.78rem;font-family:var(--font-mono);color:var(--text2)">about:blank</div>
+</div>
+<div id="nav-msg" style="font-family:var(--font-mono);font-size:.85rem;color:var(--accent3)">// Click a button above to simulate navigation</div>
+</div>
+</div>
+<div class="section-title" style="font-size:1rem"><span class="dot"></span> Navigation Method Reference</div>
+<table class="compare-table">
+<thead><tr><th>Method</th><th>What It Does</th><th>Browser Equivalent</th></tr></thead>
+<tbody>
+<tr><td class="mono">driver.get(url)</td><td>Load URL — waits for page load</td><td>Type URL in address bar + Enter</td></tr>
+<tr><td class="mono">navigate().to(url)</td><td>Same as get() — part of navigate API</td><td>Type URL in address bar + Enter</td></tr>
+<tr><td class="mono">navigate().back()</td><td>Go to previous page in history</td><td>Click ← Back button</td></tr>
+<tr><td class="mono">navigate().forward()</td><td>Go to next page in history</td><td>Click → Forward button</td></tr>
+<tr><td class="mono">navigate().refresh()</td><td>Reload the current page</td><td>Press F5 / Ctrl+R</td></tr>
+</tbody>
+</table>
+</div>
+<!-- ══════════════ TAB 4: ELEMENT ACTIONS ══════════════ -->
+<div class="tab-content" id="tab-actions">
+<div class="section-title"><span class="dot"></span> Interacting with Web Elements</div>
+<p class="section-sub">After finding an element with <code>findElement()</code>, you call actions on it. These three cover 80% of all automation scenarios.</p>
+<div class="action-grid">
+<div class="action-card click-card">
+<span class="ac-tag click">.click()</span>
+<h4>click()</h4>
+<p>Simulates a mouse click. Use for buttons, links, checkboxes, radio buttons — anything you'd click.</p>
+<div class="ac-ex"><span class="cls">WebElement</span> btn <span class="op">=</span>
+  driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"loginBtn"</span>));
+btn.<span class="fn">click</span>();</div>
+</div>
+<div class="action-card send-card">
+<span class="ac-tag send">.sendKeys()</span>
+<h4>sendKeys(text)</h4>
+<p>Types text into an input field, textarea, or any editable element. Simulates real keyboard input.</p>
+<div class="ac-ex"><span class="cls">WebElement</span> field <span class="op">=</span>
+  driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"username"</span>));
+field.<span class="fn">sendKeys</span>(<span class="str">"admin"</span>);</div>
+</div>
+<div class="action-card get-card">
+<span class="ac-tag get">.getText()</span>
+<h4>getText()</h4>
+<p>Reads the visible text content of an element. Use for labels, messages, headings — to assert expected output.</p>
+<div class="ac-ex"><span class="cls">String</span> msg <span class="op">=</span>
+  driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"status"</span>))
+        .<span class="fn">getText</span>();
+<span class="cls">System</span>.out.<span class="fn">println</span>(msg);</div>
+</div>
+<div class="action-card hover-card">
+<span class="ac-tag hover">.clear()</span>
+<h4>clear()</h4>
+<p>Clears the existing content of an input field before typing. Use before <code>sendKeys()</code> when a field might already have a value.</p>
+<div class="ac-ex"><span class="cls">WebElement</span> field <span class="op">=</span>
+  driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"search"</span>));
+field.<span class="fn">clear</span>();         <span class="cmt">// wipe first</span>
+field.<span class="fn">sendKeys</span>(<span class="str">"new text"</span>);</div>
+</div>
+</div>
+<div class="section-title" style="font-size:1rem"><span class="dot"></span> Element → Action Visual Map</div>
+<table class="compare-table">
+<thead><tr><th>HTML Element</th><th>Selenium Action</th><th>Example</th></tr></thead>
+<tbody>
+<tr><td>🔲 Button</td><td class="mono">.click()</td><td class="mono">By.id("submitBtn")).click()</td></tr>
+<tr><td>🔗 Link</td><td class="mono">.click()</td><td class="mono">By.linkText("Login")).click()</td></tr>
+<tr><td>📝 Input field</td><td class="mono">.sendKeys() / .clear()</td><td class="mono">By.name("email")).sendKeys("a@b.com")</td></tr>
+<tr><td>☑ Checkbox</td><td class="mono">.click()</td><td class="mono">By.id("agree")).click()</td></tr>
+<tr><td>📄 Label / Heading</td><td class="mono">.getText()</td><td class="mono">By.className("error")).getText()</td></tr>
+<tr><td>🖼 Image</td><td class="mono">.getAttribute("src")</td><td class="mono">By.tagName("img")).getAttribute("src")</td></tr>
+</tbody>
+</table>
+<div class="section-title" style="font-size:1rem;margin-top:8px"><span class="dot"></span> Real Login Test — All Actions Together</div>
+<div class="code-wrap">
+<div class="code-header"><div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><span class="code-lang">☕ Complete Login Test with All Actions</span></div>
+<pre class="code-pre"><span class="cls">WebDriver</span> driver <span class="op">=</span> <span class="kw">new</span> <span class="cls">ChromeDriver</span>();
+driver.<span class="fn">get</span>(<span class="str">"https://app.example.com/login"</span>);
+
+<span class="cmt">// sendKeys — type into username field</span>
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"username"</span>)).<span class="fn">sendKeys</span>(<span class="str">"admin"</span>);
+
+<span class="cmt">// sendKeys — type password</span>
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"password"</span>)).<span class="fn">sendKeys</span>(<span class="str">"secret123"</span>);
+
+<span class="cmt">// click — submit the login form</span>
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"loginBtn"</span>)).<span class="fn">click</span>();
+
+<span class="cmt">// getText — read the welcome message shown after login</span>
+<span class="cls">String</span> message <span class="op">=</span> driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"welcomeMsg"</span>)).<span class="fn">getText</span>();
+<span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Welcome text: "</span> <span class="op">+</span> message);
+
+<span class="cmt">// Assert it contains expected value</span>
+<span class="cls">Assert</span>.<span class="fn">assertTrue</span>(message.<span class="fn">contains</span>(<span class="str">"Welcome, admin"</span>));
+
+driver.<span class="fn">quit</span>();</pre>
+</div>
+<div class="info-box blue">
+<span class="ib-icon">🔑</span>
+<div><strong>By Locators:</strong> <code>findElement()</code> always needs a locator strategy. The most common: <code>By.id()</code> (fastest), <code>By.name()</code>, <code>By.className()</code>, <code>By.xpath()</code>, <code>By.cssSelector()</code>, <code>By.linkText()</code>. Prefer <code>By.id()</code> whenever possible — it's the fastest and most stable.</div>
+</div>
+</div>
+<!-- ══════════════ TAB 5: LIVE BROWSER SIMULATOR ══════════════ -->
+<div class="tab-content" id="tab-simulator">
+<div class="section-title"><span class="dot"></span> Live Browser Simulator</div>
+<p class="section-sub">Experience how Selenium commands interact with a page. Type, click, and see the commands execute — step by step.</p>
+<div class="browser-sim-wrap">
+<div class="browser-sim-header">
+<span>🖥️ Selenium WebDriver — Interactive Demo</span>
+<span style="font-size:.78rem;font-weight:400;color:var(--text2)">Simulate real Selenium commands</span>
+</div>
+<div class="browser-sim-body">
+<div class="sim-controls">
+<button class="btn-run-all" id="btn-run-all" onclick="runAll()">▶ Run Full Test</button>
+<button class="btn-sim" disabled="" id="btn-type" onclick="simSendKeys()">① sendKeys(username)</button>
+<button class="btn-sim" disabled="" id="btn-click" onclick="simClick()">② click(loginBtn)</button>
+<button class="btn-sim" disabled="" id="btn-gettext" onclick="simGetText()">③ getText()</button>
+<button class="btn-reset-sim" onclick="resetSim()">↺ Reset</button>
+</div>
+<div class="result-pills" id="sim-pills"></div>
+<!-- Fake browser -->
+<div class="fake-browser">
+<div class="fb-titlebar">
+<div class="fb-dots"><div class="fb-dot red"></div><div class="fb-dot yel"></div><div class="fb-dot grn"></div></div>
+<div class="fb-url" id="fb-url">about:blank</div>
+</div>
+<div class="fb-content">
+<div class="fb-page-title" id="fb-page-title" style="display:none">🔐 Login Page — Demo App</div>
+<div id="fb-form" style="display:none">
+<div class="fb-form-group">
+<label class="fb-label">Username <span style="font-size:.68rem;color:var(--text2)">(By.id("username"))</span></label>
+<input class="fb-input" id="fb-username" placeholder="Enter username..." readonly="" type="text"/>
+</div>
+<div class="fb-form-group">
+<label class="fb-label">Password <span style="font-size:.68rem;color:var(--text2)">(By.id("password"))</span></label>
+<input class="fb-input" id="fb-password" readonly="" type="password" value="secret123"/>
+</div>
+<button class="fb-btn" disabled="" id="fb-login-btn">Login</button>
+<div class="fb-msg" id="fb-msg"></div>
+</div>
+<div id="fb-empty" style="text-align:center;padding:30px 0;color:var(--text2);font-size:.9rem">
+                🌐 Click "Run Full Test" or use step buttons to start simulation
+              </div>
+</div>
+</div>
+<!-- Command log -->
+<div class="cmd-log">
+<div class="cmd-log-bar">
+<span>📋 Selenium Command Log</span>
+<div style="display:flex;align-items:center;gap:6px">
+<div id="log-dot" style="width:8px;height:8px;border-radius:50%;background:#555"></div>
+<span id="log-status" style="font-size:.75rem">Idle</span>
+</div>
+</div>
+<div class="cmd-log-body" id="cmd-log">
+<span class="c-dim">// Commands appear here as they execute</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- ══════════════ TAB 6: COMMON ERRORS ══════════════ -->
+<div class="tab-content" id="tab-errors">
+<div class="section-title"><span class="dot"></span> Common Selenium Errors &amp; Fixes</div>
+<p class="section-sub">These four errors are what every beginner hits in their first week. Know them now — save hours of debugging later.</p>
+<div class="err-sim-btns">
+<button class="err-btn active" onclick="showErr('init',this)">⚠ Driver Not Initialized</button>
+<button class="err-btn" onclick="showErr('locator',this)">⚠ Wrong Locator</button>
+<button class="err-btn" onclick="showErr('nosuch',this)">⚠ NoSuchElementException</button>
+<button class="err-btn" onclick="showErr('interact',this)">⚠ Element Not Interactable</button>
+</div>
+<div class="err-panel active" id="err-init">
+<div class="err-hdr">🔴 Error: WebDriver Not Initialized (NullPointerException)</div>
+<div class="err-body">
+<h4>What happened?</h4>
+<p>You declared a <code>WebDriver</code> variable but never assigned it a value. Calling any method on a null reference throws a <code>NullPointerException</code>.</p>
+<div class="err-msg">java.lang.NullPointerException: Cannot invoke "WebDriver.get(String)" because "driver" is null
+    at FirstTest.main(FirstTest.java:8)</div>
+<div class="code-diff">
+<div class="diff-wrong"><div class="diff-lbl">❌ Wrong</div><div class="diff-code"><span class="cls">WebDriver</span> driver;  <span class="cmt">// declared, not assigned!</span>
+driver.<span class="fn">get</span>(<span class="str">"https://google.com"</span>);
+<span class="cmt">// NullPointerException here</span></div></div>
+<div class="diff-right"><div class="diff-lbl">✅ Correct</div><div class="diff-code"><span class="cls">WebDriver</span> driver <span class="op">=</span> <span class="kw">new</span> <span class="cls">ChromeDriver</span>();
+driver.<span class="fn">get</span>(<span class="str">"https://google.com"</span>);
+<span class="cmt">// works perfectly ✓</span></div></div>
+</div>
+<div class="fix-tag">✅ Fix: Always initialize WebDriver before calling any method on it.</div>
+</div>
+</div>
+<div class="err-panel" id="err-locator">
+<div class="err-hdr">🔴 Error: Wrong Locator — Element Not Found</div>
+<div class="err-body">
+<h4>What happened?</h4>
+<p>You used <code>By.id("wrongId")</code> but the actual element's id is different. Selenium can't find it, so it throws <code>NoSuchElementException</code>. Always inspect the element in DevTools first.</p>
+<div class="err-msg">org.openqa.selenium.NoSuchElementException: no such element: Unable to locate element: {"method":"id","selector":"usrname"}
+(Session info: chrome=121.0.0)</div>
+<div class="code-diff">
+<div class="diff-wrong"><div class="diff-lbl">❌ Wrong (typo in id)</div><div class="diff-code">driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"usrname"</span>))
+      .<span class="fn">sendKeys</span>(<span class="str">"admin"</span>);
+<span class="cmt">// actual id is "username"</span></div></div>
+<div class="diff-right"><div class="diff-lbl">✅ Correct (exact match)</div><div class="diff-code">driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"username"</span>))
+      .<span class="fn">sendKeys</span>(<span class="str">"admin"</span>);
+<span class="cmt">// matches HTML id="username" ✓</span></div></div>
+</div>
+<div class="fix-tag">✅ Fix: Open DevTools (F12), right-click the element → Inspect. Copy the exact id/name/class attribute.</div>
+</div>
+</div>
+<div class="err-panel" id="err-nosuch">
+<div class="err-hdr">🔴 Error: NoSuchElementException — Element Timing Issue</div>
+<div class="err-body">
+<h4>What happened?</h4>
+<p>Selenium tries to find an element before it appears on the page. This happens frequently with dynamic content, modals, or elements that load after an API call. The locator itself might be correct — timing is the problem.</p>
+<div class="err-msg">org.openqa.selenium.NoSuchElementException: no such element: Unable to locate element: {"method":"id","selector":"welcomeMsg"}
+The element might not be in the DOM yet — try adding an explicit wait.</div>
+<div class="code-diff">
+<div class="diff-wrong"><div class="diff-lbl">❌ Wrong (no wait)</div><div class="diff-code">driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"loginBtn"</span>)).<span class="fn">click</span>();
+<span class="cmt">// instantly tries to find welcome msg</span>
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"welcomeMsg"</span>)).<span class="fn">getText</span>();</div></div>
+<div class="diff-right"><div class="diff-lbl">✅ Correct (with wait)</div><div class="diff-code"><span class="cls">WebDriverWait</span> wait <span class="op">=</span> <span class="kw">new</span> <span class="cls">WebDriverWait</span>(driver, <span class="cls">Duration</span>.<span class="fn">ofSeconds</span>(<span class="num">10</span>));
+wait.<span class="fn">until</span>(<span class="cls">ExpectedConditions</span>.<span class="fn">visibilityOfElementLocated</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"welcomeMsg"</span>)));
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"welcomeMsg"</span>)).<span class="fn">getText</span>();</div></div>
+</div>
+<div class="fix-tag">✅ Fix: Use ExplicitWait (WebDriverWait) to wait for the element to be visible before acting on it.</div>
+</div>
+</div>
+<div class="err-panel" id="err-interact">
+<div class="err-hdr">🔴 Error: ElementNotInteractableException</div>
+<div class="err-body">
+<h4>What happened?</h4>
+<p>Selenium found the element in the DOM but it's hidden, overlapped by another element, or disabled. You can't click or type into it yet. Often caused by overlays, animations, or conditional visibility.</p>
+<div class="err-msg">org.openqa.selenium.ElementNotInteractableException: element not interactable
+    (Session info: chrome=121.0.0)
+  Element is found but not visible/enabled — it may be hidden by CSS or covered by another element.</div>
+<div class="code-diff">
+<div class="diff-wrong"><div class="diff-lbl">❌ Wrong (element hidden)</div><div class="diff-code"><span class="cmt">// Element exists in DOM but is display:none</span>
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"hiddenInput"</span>))
+      .<span class="fn">sendKeys</span>(<span class="str">"text"</span>); <span class="cmt">// Exception!</span></div></div>
+<div class="diff-right"><div class="diff-lbl">✅ Correct (wait for visible)</div><div class="diff-code"><span class="cls">WebDriverWait</span> wait <span class="op">=</span> <span class="kw">new</span> <span class="cls">WebDriverWait</span>(driver, <span class="cls">Duration</span>.<span class="fn">ofSeconds</span>(<span class="num">5</span>));
+wait.<span class="fn">until</span>(<span class="cls">ExpectedConditions</span>
+  .<span class="fn">elementToBeClickable</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"hiddenInput"</span>)));
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"hiddenInput"</span>)).<span class="fn">sendKeys</span>(<span class="str">"text"</span>);</div></div>
+</div>
+<div class="fix-tag">✅ Fix: Use ExpectedConditions.elementToBeClickable() — it waits until the element is both visible and enabled.</div>
+</div>
+</div>
+</div>
+<!-- ══════════════ TAB 7: QUIZ ══════════════ -->
+<div class="tab-content" id="tab-quiz">
+<div class="section-title"><span class="dot"></span> Quick Check</div>
+<p class="section-sub">5 questions — click to answer, get instant feedback.</p>
+<div class="quiz-container">
+<div class="quiz-block">
+<div class="quiz-num">Question 1 of 5</div>
+<div class="quiz-q">What is the purpose of <span class="quiz-code">pom.xml</span> in a Maven project?</div>
+<div class="quiz-opts">
+<div class="quiz-opt" onclick="answerQ(1,this,false)">⬜ It contains your test scripts and Java classes</div>
+<div class="quiz-opt" onclick="answerQ(1,this,true)">⬜ It defines project dependencies and build configuration — Maven reads it to download libraries</div>
+<div class="quiz-opt" onclick="answerQ(1,this,false)">⬜ It stores test results and reports</div>
+<div class="quiz-opt" onclick="answerQ(1,this,false)">⬜ It configures IntelliJ IDE settings</div>
+</div>
+<div class="quiz-feedback" id="qf1"></div>
+</div>
+<div class="quiz-block">
+<div class="quiz-num">Question 2 of 5</div>
+<div class="quiz-q">Why is <span class="quiz-code">WebDriver driver = new ChromeDriver()</span> preferred over <span class="quiz-code">ChromeDriver driver = new ChromeDriver()</span>?</div>
+<div class="quiz-opts">
+<div class="quiz-opt" onclick="answerQ(2,this,false)">⬜ WebDriver is faster than ChromeDriver</div>
+<div class="quiz-opt" onclick="answerQ(2,this,true)">⬜ Using the WebDriver interface makes your code flexible — you can switch browsers by changing only one word</div>
+<div class="quiz-opt" onclick="answerQ(2,this,false)">⬜ ChromeDriver reference doesn't compile</div>
+<div class="quiz-opt" onclick="answerQ(2,this,false)">⬜ There is no difference between the two</div>
+</div>
+<div class="quiz-feedback" id="qf2"></div>
+</div>
+<div class="quiz-block">
+<div class="quiz-num">Question 3 of 5</div>
+<div class="quiz-q">What does <span class="quiz-code">driver.findElement(By.id("username")).sendKeys("admin")</span> do?</div>
+<div class="quiz-opts">
+<div class="quiz-opt" onclick="answerQ(3,this,false)">⬜ Clicks the element with id "username"</div>
+<div class="quiz-opt" onclick="answerQ(3,this,false)">⬜ Reads text from the element with id "username"</div>
+<div class="quiz-opt" onclick="answerQ(3,this,true)">⬜ Finds the input field with id "username" and types the text "admin" into it</div>
+<div class="quiz-opt" onclick="answerQ(3,this,false)">⬜ Opens a URL containing "username"</div>
+</div>
+<div class="quiz-feedback" id="qf3"></div>
+</div>
+<div class="quiz-block">
+<div class="quiz-num">Question 4 of 5</div>
+<div class="quiz-q">What is the difference between <span class="quiz-code">driver.quit()</span> and <span class="quiz-code">driver.close()</span>?</div>
+<div class="quiz-opts">
+<div class="quiz-opt" onclick="answerQ(4,this,false)">⬜ They do exactly the same thing</div>
+<div class="quiz-opt" onclick="answerQ(4,this,false)">⬜ close() ends the entire session; quit() only closes the current tab</div>
+<div class="quiz-opt" onclick="answerQ(4,this,true)">⬜ quit() closes all windows and ends the WebDriver session; close() only closes the current active window</div>
+<div class="quiz-opt" onclick="answerQ(4,this,false)">⬜ quit() is for Chrome only; close() works for all browsers</div>
+</div>
+<div class="quiz-feedback" id="qf4"></div>
+</div>
+<div class="quiz-block">
+<div class="quiz-num">Question 5 of 5</div>
+<div class="quiz-q">A <span class="quiz-code">NoSuchElementException</span> is thrown when you call <code>driver.findElement()</code>. What is the most likely cause?</div>
+<div class="quiz-opts">
+<div class="quiz-opt" onclick="answerQ(5,this,false)">⬜ ChromeDriver is not installed</div>
+<div class="quiz-opt" onclick="answerQ(5,this,false)">⬜ The browser is closed</div>
+<div class="quiz-opt" onclick="answerQ(5,this,true)">⬜ The locator is wrong, or the element hasn't loaded in the DOM yet — a timing issue</div>
+<div class="quiz-opt" onclick="answerQ(5,this,false)">⬜ Maven dependency is missing</div>
+</div>
+<div class="quiz-feedback" id="qf5"></div>
+</div>
+</div>
+<div class="score-box" id="score-box">
+<div class="score-num" id="score-num">0/5</div>
+<div class="score-label" id="score-lbl"></div>
+<button class="btn-retake" onclick="retakeQuiz()">↺ Retake Quiz</button>
+</div>
+</div>
+</div><!-- /tabs-wrapper -->
+<div class="course-nav"><div class="course-nav-left"><a href="w2_t0_selenium-intro.html">← Previous</a><a href="../index.html">🏠 Home</a></div><div class="course-nav-right"><a href="w2_t2_selenium_waits.html">Next →</a></div></div></div><!-- /container -->
+<script>
+/* ══ THEME ══════════════════════════════════════════════════ */
+function toggleTheme(){
+  var h=document.documentElement,b=document.getElementById('themeToggle');
+  h.dataset.theme=h.dataset.theme==='dark'?'light':'dark';
+  b.textContent=h.dataset.theme==='dark'?'☀ Light':'🌙 Dark';
+}
+
+/* ══ TABS ════════════════════════════════════════════════════ */
+function switchTab(id,btn){
+  document.querySelectorAll('.tab-content').forEach(function(t){t.classList.remove('active');});
+  document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
+  document.getElementById('tab-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ══ SETUP FLOW ANIMATION ═══════════════════════════════════ */
+var _flowTimer=null,_flowRunning=false;
+function animateSetupFlow(){
+  if(_flowRunning)return;
+  resetSetupFlow();
+  _flowRunning=true;
+  var btn=document.getElementById('btn-flow');
+  btn.disabled=true;btn.textContent='⏸ Animating...';
+  var boxes=['fp1','fp2','fp3','fp4'],arrows=['fa1','fa2','fa3'];
+  var d=0;
+  boxes.forEach(function(id,i){
+    setTimeout(function(){
+      document.getElementById(id).classList.add('active');
+      if(i<arrows.length)document.getElementById(arrows[i]).classList.add('lit');
+    },d);
+    d+=600;
+    setTimeout(function(){
+      if(i>0)document.getElementById(boxes[i-1]).classList.replace('active','done');
+    },d-200);
+  });
+  setTimeout(function(){
+    document.getElementById('fp4').classList.replace('active','done');
+    btn.disabled=false;btn.textContent='▶ Animate Flow';_flowRunning=false;
+  },d+200);
+}
+function resetSetupFlow(){
+  if(_flowTimer)clearTimeout(_flowTimer);
+  ['fp1','fp2','fp3','fp4'].forEach(function(id){
+    document.getElementById(id).classList.remove('active','done');
+  });
+  ['fa1','fa2','fa3'].forEach(function(id){
+    document.getElementById(id).classList.remove('lit');
+  });
+  var btn=document.getElementById('btn-flow');
+  btn.disabled=false;btn.innerHTML='▶ Animate Flow';_flowRunning=false;
+}
+
+/* ══ NAVIGATION SIMULATOR ═══════════════════════════════════ */
+var navHistory=['about:blank'],navIdx=0;
+function navStep(action){
+  var url=document.getElementById('nav-url'),msg=document.getElementById('nav-msg');
+  var msgs={
+    open:{u:'https://google.com',m:'driver.get("https://google.com");\n// → Chrome opened Google'},
+    navigate:{u:'https://selenium.dev',m:'driver.navigate().to("https://selenium.dev");\n// → Navigated to Selenium'},
+    back:{u:'https://google.com',m:'driver.navigate().back();\n// → Went back to Google'},
+    forward:{u:'https://selenium.dev',m:'driver.navigate().forward();\n// → Went forward to Selenium'},
+    refresh:{u:'https://selenium.dev',m:'driver.navigate().refresh();\n// → Page refreshed'}
+  };
+  var s=msgs[action];
+  if(s){url.textContent=s.u;msg.innerHTML='<span style="color:var(--accent3)">'+s.m+'</span>';}
+}
+function navReset(){
+  document.getElementById('nav-url').textContent='about:blank';
+  document.getElementById('nav-msg').innerHTML='<span style="color:#555">// Click a button above to simulate navigation</span>';
+}
+
+/* ══ BROWSER SIMULATOR ══════════════════════════════════════ */
+var _simState={initialized:false,typed:false,clicked:false,textRead:false};
+var _simQueue=null;
+
+function addPill(html,type){
+  var el=document.createElement('div');el.className='rpill rpill-'+type;el.innerHTML=html;
+  document.getElementById('sim-pills').appendChild(el);
+}
+function log(html){
+  var b=document.getElementById('cmd-log');
+  b.innerHTML+=html+'\n';b.scrollTop=b.scrollHeight;
+}
+function setLogStatus(state){
+  var d=document.getElementById('log-dot'),s=document.getElementById('log-status');
+  d.className='';s.textContent=state;
+  if(state==='Running'){d.style.background='var(--accent3)';}
+  else if(state==='Done'){d.style.background='var(--accent3)';}
+  else{d.style.background='#555';}
+}
+function initPage(){
+  if(_simState.initialized)return;
+  _simState.initialized=true;
+  document.getElementById('fb-empty').style.display='none';
+  document.getElementById('fb-page-title').style.display='block';
+  document.getElementById('fb-form').style.display='block';
+  document.getElementById('fb-url').textContent='https://demo-app.example.com/login';
+  log('<span class="c-info">$ Starting WebDriver session...</span>');
+  log('<span class="c-sel">WebDriver driver = new ChromeDriver();</span>');
+  log('<span class="c-sel">driver.get("https://demo-app.example.com/login");</span>');
+  log('<span class="c-ok">→ Browser opened. Login page loaded.</span>');
+  setLogStatus('Running');
+  enableStepBtns(true);
+}
+
+function simSendKeys(){
+  if(!_simState.initialized){initPage();setTimeout(simSendKeys,600);return;}
+  if(_simState.typed)return;
+  _simState.typed=true;
+  disableStepBtns();
+  log('<span class="c-sel">driver.findElement(By.id("username")).sendKeys("admin");</span>');
+  var inp=document.getElementById('fb-username');
+  var text='admin';var i=0;
+  var t=setInterval(function(){
+    if(i<=text.length){inp.value=text.slice(0,i);i++;}
+    else{
+      clearInterval(t);inp.classList.add('success');
+      log('<span class="c-ok">→ Typed "admin" into username field</span>');
+      addPill('✓ sendKeys("admin") executed','success');
+      enableStepBtns(true);
+    }
+  },80);
+}
+
+function simClick(){
+  if(!_simState.initialized){initPage();setTimeout(simClick,600);return;}
+  if(!_simState.typed){simSendKeys();setTimeout(simClick,1200);return;}
+  if(_simState.clicked)return;
+  _simState.clicked=true;
+  disableStepBtns();
+  log('<span class="c-sel">driver.findElement(By.id("loginBtn")).click();</span>');
+  var btn=document.getElementById('fb-login-btn');
+  btn.style.transform='scale(.95)';btn.style.background='#2980b9';
+  setTimeout(function(){
+    btn.style.transform='';btn.style.background='';
+    var msg=document.getElementById('fb-msg');
+    msg.className='fb-msg success';msg.style.display='block';
+    msg.textContent='✅ Welcome, admin! Login successful.';
+    log('<span class="c-ok">→ Button clicked. Page responded with welcome message.</span>');
+    addPill('✓ click() executed on loginBtn','success');
+    enableStepBtns(true);
+  },350);
+}
+
+function simGetText(){
+  if(!_simState.initialized){initPage();setTimeout(simGetText,600);return;}
+  if(!_simState.clicked){simClick();setTimeout(simGetText,1200);return;}
+  if(_simState.textRead)return;
+  _simState.textRead=true;
+  disableStepBtns();
+  log('<span class="c-sel">String text = driver.findElement(By.id("welcomeMsg")).getText();</span>');
+  var msgEl=document.getElementById('fb-msg');
+  msgEl.style.outline='2px solid var(--accent3)';
+  setTimeout(function(){
+    var captured=msgEl.textContent;
+    msgEl.style.outline='';
+    log('<span class="c-ok">→ getText() returned: "'+captured+'"</span>');
+    log('<span class="c-info">System.out.println(text); // '+captured+'</span>');
+    addPill('✓ getText() = "'+captured+'"','success');
+    log('<span class="c-ok">✓ Full test passed — driver.quit();</span>');
+    setLogStatus('Done');
+    document.getElementById('btn-run-all').disabled=false;
+  },500);
+}
+
+function runAll(){
+  resetSim();
+  document.getElementById('btn-run-all').disabled=true;
+  setTimeout(initPage,300);
+  setTimeout(simSendKeys,900);
+  setTimeout(simClick,2200);
+  setTimeout(simGetText,3400);
+}
+
+function enableStepBtns(en){
+  ['btn-type','btn-click','btn-gettext'].forEach(function(id){
+    document.getElementById(id).disabled=!en;
+  });
+}
+function disableStepBtns(){enableStepBtns(false);}
+
+function resetSim(){
+  _simState={initialized:false,typed:false,clicked:false,textRead:false};
+  document.getElementById('fb-empty').style.display='block';
+  document.getElementById('fb-page-title').style.display='none';
+  document.getElementById('fb-form').style.display='none';
+  document.getElementById('fb-url').textContent='about:blank';
+  document.getElementById('fb-username').value='';
+  document.getElementById('fb-username').classList.remove('success');
+  var m=document.getElementById('fb-msg');m.style.display='none';m.className='fb-msg';
+  document.getElementById('sim-pills').innerHTML='';
+  document.getElementById('cmd-log').innerHTML='<span class="c-dim">// Commands appear here as they execute</span>';
+  setLogStatus('Idle');
+  document.getElementById('btn-run-all').disabled=false;
+  enableStepBtns(false);
+}
+
+/* ══ ERROR TAB ══════════════════════════════════════════════ */
+function showErr(id,btn){
+  document.querySelectorAll('.err-panel').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.err-btn').forEach(function(b){b.classList.remove('active');});
+  document.getElementById('err-'+id).classList.add('active');btn.classList.add('active');
+}
+
+/* ══ QUIZ ════════════════════════════════════════════════════ */
+var quizExp={
+  1:{c:'✅ Correct! pom.xml is Maven\'s project descriptor. It lists all dependencies (Selenium, TestNG, etc.) and Maven automatically downloads them from Maven Central — no manual JAR downloads needed.',
+     w:'❌ Not quite. pom.xml is not for test scripts or test results. It defines project dependencies and build settings. Maven reads it to know which libraries to download.'},
+  2:{c:'✅ Correct! Using the WebDriver interface reference makes your tests browser-agnostic. To switch from Chrome to Firefox, you only change one word — the entire test logic works unchanged.',
+     w:'❌ Not quite. The key advantage is flexibility. Using the WebDriver interface means you can switch browsers by changing only "ChromeDriver()" to "FirefoxDriver()". The rest of your code stays identical.'},
+  3:{c:'✅ Correct! findElement(By.id("username")) locates the input field, then .sendKeys("admin") types "admin" into it — exactly as a user would type on a keyboard.',
+     w:'❌ Not quite. sendKeys() types text into an element. It does not click or read text. getText() reads text; click() performs a mouse click.'},
+  4:{c:'✅ Correct! quit() closes ALL browser windows and terminates the entire WebDriver session — including ChromeDriver process. close() only closes the current active tab/window.',
+     w:'❌ Not quite. quit() ends everything (all windows + driver session). close() only closes the current tab. Always use quit() at the end of a test to prevent orphaned ChromeDriver processes.'},
+  5:{c:'✅ Correct! NoSuchElementException usually means either the locator value is wrong (typo in id/name), or the element hasn\'t appeared in the DOM yet — a timing issue. ExplicitWait is the fix for timing.',
+     w:'❌ Not quite. NoSuchElementException is thrown by findElement() when the element can\'t be found — either wrong locator, or element not yet loaded. ChromeDriver installation issues throw different exceptions.'}
+};
+var qAns={},qCorrect=0;
+function answerQ(n,el,correct){
+  if(qAns[n]!==undefined)return;
+  qAns[n]=correct;if(correct)qCorrect++;
+  el.closest('.quiz-opts').querySelectorAll('.quiz-opt').forEach(function(o){o.classList.add('disabled');});
+  el.classList.add(correct?'correct':'wrong');
+  var fb=document.getElementById('qf'+n);
+  fb.innerHTML=correct?quizExp[n].c:quizExp[n].w;
+  fb.className='quiz-feedback show '+(correct?'correct':'wrong');
+  if(Object.keys(qAns).length===5)setTimeout(showScore,500);
+}
+function showScore(){
+  var box=document.getElementById('score-box'),num=document.getElementById('score-num'),lbl=document.getElementById('score-lbl');
+  num.textContent=qCorrect+'/5';
+  num.style.color=qCorrect===5?'var(--accent3)':qCorrect>=3?'var(--accent)':'var(--accent4)';
+  lbl.textContent=qCorrect===5?'🎉 Perfect! You understand WebDriver and Selenium actions fully.':
+    qCorrect>=3?'👍 Good progress! Review the ones you missed.':'📖 Revisit the WebDriver Basics and Element Actions tabs.';
+  box.classList.add('show');
+}
+function retakeQuiz(){
+  qAns={};qCorrect=0;
+  document.getElementById('score-box').classList.remove('show');
+  document.querySelectorAll('.quiz-opt').forEach(function(o){o.className='quiz-opt';});
+  document.querySelectorAll('.quiz-feedback').forEach(function(f){f.className='quiz-feedback';f.innerHTML='';});
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Manual vs Automation Testing</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root {
+    --bg-primary:#ffffff; --bg-secondary:#f5f5f2; --bg-tertiary:#eeede8;
+    --bg-info:#e6f1fb; --bg-success:#eaf3de; --bg-warning:#faeeda; --bg-danger:#fcebeb;
+    --text-primary:#1a1a18; --text-secondary:#5f5e5a; --text-tertiary:#888780;
+    --text-info:#0c447c; --text-success:#27500a; --text-warning:#633806; --text-danger:#791f1f;
+    --border-light:rgba(0,0,0,0.08); --border-mid:rgba(0,0,0,0.15);
+    --border-info:#85b7eb; --border-success:#97c459; --border-warning:#ef9f27; --border-danger:#f09595;
+    --font:system-ui,-apple-system,sans-serif; --radius:10px; --radius-sm:6px;
+	--surface: var(--bg-primary);
+    --surface2: var(--bg-secondary);
+
+    --text: var(--text-primary);
+    --text2: var(--text-secondary);
+
+    --border: var(--border-light);
+    --accent2: var(--border-mid);
+  }
+  @media(prefers-color-scheme:dark){
+    :root{
+      --bg-primary:#1e1e1c; --bg-secondary:#2a2a27; --bg-tertiary:#232320;
+      --bg-info:#042c53; --bg-success:#173404; --bg-warning:#412402; --bg-danger:#501313;
+      --text-primary:#e8e6de; --text-secondary:#a8a69e; --text-tertiary:#6e6c66;
+      --text-info:#85b7eb; --text-success:#97c459; --text-warning:#ef9f27; --text-danger:#f09595;
+      --border-light:rgba(255,255,255,0.07); --border-mid:rgba(255,255,255,0.14);
+      --border-info:#185fa5; --border-success:#3b6d11; --border-warning:#854f0b; --border-danger:#a32d2d;
+	  --surface: var(--bg-primary);
+	  --surface2: var(--bg-secondary);
+	  --text: var(--text-primary);
+	  --text2: var(--text-secondary);
+      --border: var(--border-light);
+	  --accent2: var(--border-mid);
+    }
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg-tertiary);font-family:var(--font);min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:2rem 1rem}
+  .outer{width:100%;max-width:740px}
+  .hdr{background:var(--bg-primary);border:0.5px solid var(--border-light);border-radius:var(--radius);padding:1.5rem 1.5rem 1.25rem;margin-bottom:12px}
+  .week-tag{display:inline-flex;align-items:center;gap:6px;background:var(--bg-success);color:var(--text-success);border:0.5px solid var(--border-success);border-radius:20px;font-size:11px;font-weight:500;padding:3px 10px;margin-bottom:10px}
+  .hdr h1{font-size:20px;font-weight:600;color:var(--text-primary);margin-bottom:6px;line-height:1.3}
+  .hdr p{font-size:13px;color:var(--text-secondary);line-height:1.65}
+  .section{background:var(--bg-primary);border:0.5px solid var(--border-light);border-radius:var(--radius);margin-bottom:12px;overflow:hidden}
+  .sec-head{padding:12px 16px;border-bottom:0.5px solid var(--border-light);display:flex;align-items:center;gap:8px}
+  .sec-icon{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+  .sec-icon.blue{background:var(--bg-info)} .sec-icon.green{background:var(--bg-success)}
+  .sec-icon.amber{background:var(--bg-warning)} .sec-icon.purple{background:#ede9fe}
+  @media(prefers-color-scheme:dark){.sec-icon.purple{background:#2e1b5e}}
+  .sec-title{font-size:13px;font-weight:500;color:var(--text-primary)}
+  .sec-body{padding:16px}
+  .note{font-size:13px;color:var(--text-secondary);line-height:1.7;margin-bottom:12px}
+  .note strong{color:var(--text-primary);font-weight:500}
+  .vs-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+  @media(max-width:480px){.vs-grid{grid-template-columns:1fr}}
+  .vs-card{border-radius:var(--radius-sm);overflow:hidden;border:0.5px solid var(--border-light)}
+  .vs-head{padding:12px 14px;display:flex;align-items:center;gap:8px}
+  .vs-head-manual{background:var(--bg-info);border-bottom:0.5px solid var(--border-info)}
+  .vs-head-auto{background:var(--bg-success);border-bottom:0.5px solid var(--border-success)}
+  .vs-head-title{font-size:13px;font-weight:600}
+  .vs-head-title.m{color:var(--text-info)} .vs-head-title.a{color:var(--text-success)}
+  .vs-body{padding:12px 14px;background:var(--bg-secondary)}
+  .vs-trait{display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:0.5px solid var(--border-light)}
+  .vs-trait:last-child{border-bottom:none}
+  .vs-trait-label{font-size:11px;color:var(--text-tertiary);width:72px;flex-shrink:0;padding-top:1px}
+  .vs-trait-val{font-size:12.5px;color:var(--text-primary);line-height:1.5}
+  .scenario-intro{font-size:13px;color:var(--text-secondary);margin-bottom:12px;line-height:1.6}
+  .scenario-card{background:var(--bg-secondary);border:0.5px solid var(--border-light);border-radius:var(--radius-sm);padding:14px;margin-bottom:10px}
+  .sc-q{font-size:13.5px;font-weight:500;color:var(--text-primary);margin-bottom:10px;line-height:1.5}
+  .sc-tag{display:inline-block;font-size:10px;background:var(--bg-warning);color:var(--text-warning);border:0.5px solid var(--border-warning);border-radius:10px;padding:2px 8px;margin-bottom:8px}
+  .sc-options{display:flex;gap:8px;flex-wrap:wrap}
+  .sc-btn{padding:7px 16px;border-radius:var(--radius-sm);border:0.5px solid var(--border-mid);background:var(--bg-primary);color:var(--text-primary);font-size:12.5px;cursor:pointer;transition:all .15s;font-family:var(--font)}
+  .sc-btn:hover{background:var(--bg-secondary)}
+  .sc-btn.correct{background:var(--bg-success);border-color:var(--border-success);color:var(--text-success);font-weight:500}
+  .sc-btn.wrong{background:var(--bg-danger);border-color:var(--border-danger);color:var(--text-danger)}
+  .sc-feedback{margin-top:10px;padding:10px 12px;border-radius:var(--radius-sm);font-size:12.5px;line-height:1.6;display:none}
+  .sc-feedback.show{display:block}
+  .sc-feedback.ok{background:var(--bg-success);border:0.5px solid var(--border-success);color:var(--text-success)}
+  .sc-feedback.no{background:var(--bg-danger);border:0.5px solid var(--border-danger);color:var(--text-danger)}
+  .score-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .score-pill{background:var(--bg-info);color:var(--text-info);border:0.5px solid var(--border-info);border-radius:20px;padding:4px 14px;font-size:12px;font-weight:500}
+  .reset-btn{padding:5px 12px;border-radius:var(--radius-sm);border:0.5px solid var(--border-mid);background:transparent;color:var(--text-secondary);font-size:12px;cursor:pointer;font-family:var(--font)}
+  .reset-btn:hover{background:var(--bg-secondary)}
+  .pc-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media(max-width:480px){.pc-grid{grid-template-columns:1fr}}
+  .pc-col{background:var(--bg-secondary);border-radius:var(--radius-sm);border:0.5px solid var(--border-light);overflow:hidden}
+  .pc-head{padding:9px 13px;font-size:12px;font-weight:600;border-bottom:0.5px solid var(--border-light)}
+  .pc-head.pro{background:var(--bg-success);color:var(--text-success)}
+  .pc-head.con{background:var(--bg-danger);color:var(--text-danger)}
+  .pc-item{padding:8px 13px;font-size:12.5px;color:var(--text-primary);border-bottom:0.5px solid var(--border-light);line-height:1.5}
+  .pc-item:last-child{border-bottom:none}
+  .pc-item span{font-size:11px;color:var(--text-secondary);display:block;margin-top:1px}
+  .toggle-wrap{display:flex;background:var(--bg-secondary);border:0.5px solid var(--border-light);border-radius:var(--radius-sm);padding:4px;margin-bottom:12px;gap:4px}
+  .toggle-btn{flex:1;padding:7px;border:none;background:transparent;border-radius:5px;font-size:12.5px;font-weight:500;cursor:pointer;color:var(--text-secondary);transition:all .15s;font-family:var(--font)}
+  .toggle-btn.on{background:var(--bg-primary);color:var(--text-primary);border:0.5px solid var(--border-mid)}
+  .wtu-panel{display:none} .wtu-panel.show{display:block}
+  .wtu-list{display:flex;flex-direction:column;gap:7px}
+  .wtu-item{display:flex;align-items:flex-start;gap:10px;padding:9px 12px;border-radius:var(--radius-sm);border:0.5px solid var(--border-light);background:var(--bg-secondary)}
+  .wtu-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+  .wtu-text{font-size:12.5px;color:var(--text-primary);line-height:1.55}
+  .wtu-text span{color:var(--text-secondary);font-size:11.5px;display:block;margin-top:2px}
+  .slider-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .slider-label{font-size:12px;color:var(--text-secondary);width:160px;flex-shrink:0}
+  .slider-row input[type=range]{flex:1;accent-color:#3b82f6}
+  .slider-val{font-size:13px;font-weight:500;color:var(--text-primary);min-width:48px;text-align:right}
+  .roi-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px}
+  .roi-stat{background:var(--bg-secondary);border:0.5px solid var(--border-light);border-radius:var(--radius-sm);padding:12px;text-align:center}
+  .roi-stat.highlight{background:var(--bg-info);border-color:var(--border-info)}
+  .roi-stat-label{font-size:10px;color:var(--text-tertiary);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em}
+  .roi-stat-val{font-size:20px;font-weight:600}
+  .roi-stat-val.red{color:#ef4444} .roi-stat-val.green{color:#22c55e} .roi-stat-val.blue{color:var(--text-info)}
+  .roi-result{background:var(--bg-success);border:0.5px solid var(--border-success);border-radius:var(--radius-sm);padding:11px 14px;margin-bottom:14px}
+  .roi-result-text{font-size:12.5px;color:var(--text-success);line-height:1.65}
+  .summary{background:var(--bg-success);border:0.5px solid var(--border-success);border-radius:var(--radius-sm);padding:14px 16px;display:flex;gap:12px;align-items:flex-start}
+  .summary-text{font-size:13px;color:var(--text-success);line-height:1.7}
+  .summary-text strong{font-weight:600}
+  .footer{display:flex;justify-content:space-between;align-items:center;padding:12px 0 0;font-size:12px;color:var(--text-tertiary)}
+  .topic-counter{background:var(--bg-secondary);border:0.5px solid var(--border-mid);border-radius:20px;padding:4px 12px}
+
+  /* ── BREADCRUMB ROW */
+.breadcrumb-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.breadcrumb{display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--text2);}
+.breadcrumb span{color:var(--accent2);font-weight:600;}
+.watermark{font-size:.7rem;color:var(--text2);opacity:.52;letter-spacing:.3px;
+  white-space:nowrap;font-weight:500;}
+
+.course-nav{
+    position:sticky;
+    bottom:0;
+    background:var(--surface, var(--bg-primary));
+    z-index:999;
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:12px;
+
+    margin-top:18px;
+    padding:14px 20px 12px;
+
+    border-top:.5px solid var(--border);
+}
+
+.course-nav-left,
+.course-nav-right{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.course-nav a{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+
+    text-decoration:none;
+
+    padding:7px 15px;          /* Increased slightly */
+
+    border:.5px solid var(--border);
+    border-radius:8px;
+
+    color:var(--text);
+    background:var(--surface2);
+
+    font-size:.86rem;          /* Slightly larger than 12px */
+    font-weight:600;
+    line-height:1.25;
+
+    transition:all .2s ease;
+}
+
+.course-nav a:hover{
+    border-color:var(--accent2);
+}
+
+.course-topic{
+    font-size:.8rem;
+    color:var(--text2);
+}
+</style>
+</head>
+<body>
+<div class="outer">
+<div class="hdr">
+<!-- BREADCRUMB -->
+  <div class="breadcrumb-row">
+    <div class="breadcrumb">
+      Manual Testing Fundamentals <span style="color:var(--border)">›</span> Week 0 <span style="color:var(--border)">›</span> <span>Topic 2 of 8</span>
+    </div>
+    <span class="watermark">Ronak Shah — Automation Training Content</span>
+  </div>
+<h1>Manual vs Automation Testing</h1>
+<p>Two ways to test software — knowing which to use, and when, is one of the most important decisions a tester makes.</p>
+</div>
+<div class="section">
+<div class="sec-head"><div class="sec-icon blue">⚖️</div><span class="sec-title">What's the difference?</span></div>
+<div class="sec-body">
+<p class="note">Both approaches have the same goal — <strong>find bugs before users do</strong>. The difference is how they get there.</p>
+<div class="vs-grid">
+<div class="vs-card">
+<div class="vs-head vs-head-manual"><span style="font-size:18px">🙋</span><span class="vs-head-title m">Manual Testing</span></div>
+<div class="vs-body">
+<div class="vs-trait"><div class="vs-trait-label">How</div><div class="vs-trait-val">A human tester clicks through the app step by step</div></div>
+<div class="vs-trait"><div class="vs-trait-label">Speed</div><div class="vs-trait-val">Slower — limited by human pace</div></div>
+<div class="vs-trait"><div class="vs-trait-label">Best for</div><div class="vs-trait-val">Exploratory, UI/UX, one-time checks</div></div>
+<div class="vs-trait"><div class="vs-trait-label">Cost</div><div class="vs-trait-val">Low upfront, high over time</div></div>
+<div class="vs-trait"><div class="vs-trait-label">Repetition</div><div class="vs-trait-val">Tedious — humans make mistakes when repeating</div></div>
+</div>
+</div>
+<div class="vs-card">
+<div class="vs-head vs-head-auto"><span style="font-size:18px">🤖</span><span class="vs-head-title a">Automation Testing</span></div>
+<div class="vs-body">
+<div class="vs-trait"><div class="vs-trait-label">How</div><div class="vs-trait-val">A script simulates user actions automatically</div></div>
+<div class="vs-trait"><div class="vs-trait-label">Speed</div><div class="vs-trait-val">Fast — runs hundreds of tests in minutes</div></div>
+<div class="vs-trait"><div class="vs-trait-label">Best for</div><div class="vs-trait-val">Regression, repetitive, data-driven tests</div></div>
+<div class="vs-trait"><div class="vs-trait-label">Cost</div><div class="vs-trait-val">High upfront, low over time</div></div>
+<div class="vs-trait"><div class="vs-trait-label">Repetition</div><div class="vs-trait-val">Perfect — runs exactly the same every time</div></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="section">
+<div class="sec-head"><div class="sec-icon amber">🎯</div><span class="sec-title">Pick the right approach — real scenarios</span></div>
+<div class="sec-body">
+<p class="scenario-intro">For each scenario below, decide whether Manual or Automation testing is the better choice. Click your answer.</p>
+<div class="score-row">
+<div class="score-pill">Score: <span id="score">0</span> / <span id="total">0</span></div>
+<button class="reset-btn" onclick="resetQuiz()">Reset</button>
+</div>
+<div id="scenarios"></div>
+</div>
+</div>
+<div class="section">
+<div class="sec-head"><div class="sec-icon blue">📊</div><span class="sec-title">Pros and cons of each</span></div>
+<div class="sec-body">
+<p class="note" style="margin-bottom:14px"><strong>Manual Testing</strong></p>
+<div class="pc-grid" style="margin-bottom:16px">
+<div class="pc-col">
+<div class="pc-head pro">✓ Pros</div>
+<div class="pc-item">No coding needed<span>Anyone can start testing right away</span></div>
+<div class="pc-item">Great for UI/UX<span>Humans notice design issues machines can't</span></div>
+<div class="pc-item">Flexible<span>Easy to adapt when requirements change</span></div>
+<div class="pc-item">Low setup cost<span>Just a browser and a test case document</span></div>
+</div>
+<div class="pc-col">
+<div class="pc-head con">✗ Cons</div>
+<div class="pc-item">Slow at scale<span>1,000 test cases = days of manual work</span></div>
+<div class="pc-item">Human error<span>Testers miss things when tired or rushing</span></div>
+<div class="pc-item">Not repeatable<span>Two testers may test the same thing differently</span></div>
+<div class="pc-item">Expensive over time<span>Costs grow with every release cycle</span></div>
+</div>
+</div>
+<p class="note" style="margin-bottom:14px"><strong>Automation Testing</strong></p>
+<div class="pc-grid">
+<div class="pc-col">
+<div class="pc-head pro">✓ Pros</div>
+<div class="pc-item">Fast and consistent<span>Same steps, same result, every single time</span></div>
+<div class="pc-item">Runs overnight<span>1,000 tests while you sleep</span></div>
+<div class="pc-item">Great for regression<span>Catch old features breaking after new changes</span></div>
+<div class="pc-item">Saves cost long-term<span>Write once, run forever</span></div>
+</div>
+<div class="pc-col">
+<div class="pc-head con">✗ Cons</div>
+<div class="pc-item">Needs coding skills<span>Java, Python, or similar required</span></div>
+<div class="pc-item">High setup time<span>Building a framework takes weeks</span></div>
+<div class="pc-item">Brittle to UI changes<span>Scripts break when the UI changes</span></div>
+<div class="pc-item">Can't judge design<span>Machines don't know if something looks bad</span></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section">
+<div class="sec-head"><div class="sec-icon green">🧭</div><span class="sec-title">When should you use which?</span></div>
+<div class="sec-body">
+<div class="toggle-wrap">
+<button class="toggle-btn on" onclick="showWtu('manual')">🙋 Use Manual when…</button>
+<button class="toggle-btn" onclick="showWtu('auto')">🤖 Use Automation when…</button>
+</div>
+<div class="wtu-panel show" id="wtu-manual">
+<div class="wtu-list">
+<div class="wtu-item"><div class="wtu-icon">🆕</div><div class="wtu-text">Testing a brand-new feature for the first time<span>Requirements might change — no point automating yet</span></div></div>
+<div class="wtu-item"><div class="wtu-icon">🎨</div><div class="wtu-text">Checking look and feel / user experience<span>Is the button in the right place? Does the flow feel natural?</span></div></div>
+<div class="wtu-item"><div class="wtu-icon">🔍</div><div class="wtu-text">Exploratory testing — going off-script<span>Try unusual inputs, edge cases, unexpected user behaviour</span></div></div>
+<div class="wtu-item"><div class="wtu-icon">⏱️</div><div class="wtu-text">Quick one-off checks<span>If you'll only run this test once, automation isn't worth the effort</span></div></div>
+<div class="wtu-item"><div class="wtu-icon">🤝</div><div class="wtu-text">UAT — User Acceptance Testing<span>Real users or business stakeholders validating the product</span></div></div>
+</div>
+</div>
+<div class="wtu-panel" id="wtu-auto">
+<div class="wtu-list">
+<div class="wtu-item"><div class="wtu-icon">🔁</div><div class="wtu-text">Regression testing every release<span>Re-testing 500 old features after every new deployment</span></div></div>
+<div class="wtu-item"><div class="wtu-icon">💨</div><div class="wtu-text">Smoke testing on every build<span>Quick sanity check — does the app even open and log in?</span></div></div>
+<div class="wtu-item"><div class="wtu-icon">📊</div><div class="wtu-text">Data-driven testing<span>Same test with 100 different usernames, passwords, or inputs</span></div></div>
+<div class="wtu-item"><div class="wtu-icon">🌐</div><div class="wtu-text">Cross-browser / cross-device testing<span>Run the same test on Chrome, Firefox, Edge simultaneously</span></div></div>
+<div class="wtu-item"><div class="wtu-icon">⚡</div><div class="wtu-text">CI/CD pipelines<span>Automation runs the moment a developer pushes new code</span></div></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section">
+<div class="sec-head"><div class="sec-icon purple">📈</div><span class="sec-title">When does automation pay off? — Simple ROI calculator</span></div>
+<div class="sec-body">
+<p class="note">Automation has an upfront cost — writing scripts takes time. But once built, it saves time on every run. Drag the sliders to see when it becomes worth it.</p>
+<div class="slider-row">
+<label class="slider-label">Number of test cases</label>
+<input id="tc-count" max="500" min="10" oninput="calcROI()" step="10" type="range" value="100"/>
+<span class="slider-val" id="tc-count-val">100</span>
+</div>
+<div class="slider-row">
+<label class="slider-label">Mins per test (manual)</label>
+<input id="tc-time" max="10" min="1" oninput="calcROI()" step="1" type="range" value="3"/>
+<span class="slider-val" id="tc-time-val">3 min</span>
+</div>
+<div class="slider-row">
+<label class="slider-label">Runs per month</label>
+<input id="tc-runs" max="30" min="1" oninput="calcROI()" step="1" type="range" value="8"/>
+<span class="slider-val" id="tc-runs-val">8×</span>
+</div>
+<div class="roi-stats">
+<div class="roi-stat"><div class="roi-stat-label">Manual / month</div><div class="roi-stat-val red" id="val-manual">—</div></div>
+<div class="roi-stat"><div class="roi-stat-label">Auto / month</div><div class="roi-stat-val green" id="val-auto">—</div></div>
+<div class="roi-stat highlight"><div class="roi-stat-label">Breaks even at</div><div class="roi-stat-val blue" id="val-breakeven">—</div></div>
+</div>
+<div class="roi-result" id="roi-result">
+<div class="roi-result-text" id="roi-text"></div>
+</div>
+<div style="position:relative;width:100%;height:200px">
+<canvas id="roi-chart"></canvas>
+</div>
+<div style="display:flex;gap:16px;margin-top:8px;font-size:11px;color:var(--text-secondary)">
+<span style="display:flex;align-items:center;gap:5px"><span style="width:12px;height:3px;background:#ef4444;display:inline-block;border-radius:2px"></span>Manual (cumulative hrs)</span>
+<span style="display:flex;align-items:center;gap:5px"><span style="width:12px;height:3px;background:#22c55e;display:inline-block;border-radius:2px"></span>Automation (cumulative hrs)</span>
+</div>
+</div>
+</div>
+<div class="section">
+<div class="sec-body" style="padding:16px">
+<div class="summary">
+<div style="font-size:20px">💡</div>
+<div class="summary-text"><strong>Key takeaway:</strong> Manual and Automation are not competitors — they work together. In most real projects, <strong>30–40% is manual</strong> (exploratory, UAT, new features) and <strong>60–70% is automated</strong> (regression, smoke, data-driven). As an SDET, you'll do both.</div>
+</div>
+</div>
+</div>
+<div class="footer">
+<span>Week 0 · Manual Testing Fundamentals</span>
+<span class="topic-counter">Topic 2 of 8</span>
+</div>
+	<div class="course-nav">
+		<div class="course-nav-left">
+			<a href="w0_t1_what_is_testing.html">← Previous</a>
+			<a href="../index.html">🏠 Home</a></div>
+		<div class="course-nav-right">
+			<a href="w0_t3.html">Next →</a>
+		</div>
+	</div>
+</div>
+<script>
+const scenarios = [
+  { tag:'E-commerce app', answer:'manual',
+    q:'Your team just built a brand-new checkout flow. It has never been tested before. The product manager wants a first look.',
+    reason:'New features should always be manually tested first. Requirements may still change, and a human eye will catch UI/UX issues a script would miss.' },
+  { tag:'Banking app', answer:'auto',
+    q:'Every time developers push new code, you need to verify that login, dashboard, and transfer screens still work correctly.',
+    reason:'This is regression testing — the same steps repeated every release. Automation is perfect here. Running this manually every day would take hours.' },
+  { tag:'Healthcare portal', answer:'auto',
+    q:'You need to test a patient form with 200 different combinations of name, age, and medical ID to check all validations.',
+    reason:'Data-driven testing with 200 input sets is exactly what automation excels at. Doing this manually would take an entire day and introduce human error.' },
+  { tag:'Social media app', answer:'manual',
+    q:'The design team updated the homepage layout. You need to check if it looks right and feels intuitive to use.',
+    reason:'UI and UX checks require a human. Does the spacing feel right? Is the layout intuitive? A script can only check if an element exists — not if it looks good.' },
+  { tag:'Travel booking site', answer:'auto',
+    q:'Before every release, you want a quick check — can the app open, load the homepage, and search for flights?',
+    reason:'This is a smoke test — a fast sanity check run before every release. Automating it means it runs in seconds on every build without any manual effort.' },
+  { tag:'Fintech startup', answer:'manual',
+    q:'A business stakeholder wants to validate the loan approval workflow before it goes live to customers.',
+    reason:'This is UAT — User Acceptance Testing. Business stakeholders walk through the process themselves to confirm it matches what they asked for. Always manual.' }
+];
+
+let answers = {}, score = 0, attempted = 0;
+
+function renderScenarios() {
+  const c = document.getElementById('scenarios');
+  c.innerHTML = '';
+  scenarios.forEach((s, i) => {
+    const d = document.createElement('div');
+    d.className = 'scenario-card'; d.id = 'sc-' + i;
+    d.innerHTML = `<div class="sc-tag">${s.tag}</div><div class="sc-q">${s.q}</div>
+      <div class="sc-options">
+        <button class="sc-btn" onclick="answer(${i},'manual')">🙋 Manual Testing</button>
+        <button class="sc-btn" onclick="answer(${i},'auto')">🤖 Automation Testing</button>
+      </div><div class="sc-feedback" id="fb-${i}"></div>`;
+    c.appendChild(d);
+  });
+  document.getElementById('score').textContent = score;
+  document.getElementById('total').textContent = attempted;
+}
+
+function answer(i, choice) {
+  if (answers[i] !== undefined) return;
+  answers[i] = choice; attempted++;
+  const correct = choice === scenarios[i].answer;
+  if (correct) score++;
+  document.querySelectorAll('#sc-' + i + ' .sc-btn').forEach(b => {
+    b.disabled = true;
+    const bc = b.textContent.includes('Manual') ? 'manual' : 'auto';
+    if (bc === scenarios[i].answer) b.classList.add('correct');
+    else if (bc === choice && !correct) b.classList.add('wrong');
+  });
+  const fb = document.getElementById('fb-' + i);
+  fb.className = 'sc-feedback show ' + (correct ? 'ok' : 'no');
+  fb.textContent = (correct ? '✓ ' : '✗ ') + scenarios[i].reason;
+  document.getElementById('score').textContent = score;
+  document.getElementById('total').textContent = attempted;
+}
+
+function resetQuiz() { answers = {}; score = 0; attempted = 0; renderScenarios(); }
+
+function showWtu(type) {
+  document.getElementById('wtu-manual').classList.toggle('show', type === 'manual');
+  document.getElementById('wtu-auto').classList.toggle('show', type === 'auto');
+  document.querySelectorAll('.toggle-btn').forEach((b, i) => {
+    b.classList.toggle('on', (i===0&&type==='manual')||(i===1&&type==='auto'));
+  });
+}
+
+let roiChart = null;
+function calcROI() {
+  const tc   = parseInt(document.getElementById('tc-count').value);
+  const mins = parseInt(document.getElementById('tc-time').value);
+  const runs = parseInt(document.getElementById('tc-runs').value);
+  document.getElementById('tc-count-val').textContent = tc;
+  document.getElementById('tc-time-val').textContent  = mins + ' min';
+  document.getElementById('tc-runs-val').textContent  = runs + '×';
+  const manualHrsMo = +(tc * mins * runs / 60).toFixed(1);
+  const buildHrs    = +(tc * 0.25).toFixed(1);
+  const autoHrsMo   = +(tc * 0.05 * runs / 60).toFixed(1);
+  document.getElementById('val-manual').textContent    = manualHrsMo + ' hrs';
+  document.getElementById('val-auto').textContent      = autoHrsMo + ' hrs';
+  const manualCum = [], autoCum = [];
+  let breakEven = null;
+  for (let m = 1; m <= 12; m++) {
+    manualCum.push(+(manualHrsMo * m).toFixed(1));
+    autoCum.push(+(buildHrs + autoHrsMo * m).toFixed(1));
+    if (!breakEven && autoCum[m-1] <= manualCum[m-1]) breakEven = m;
+  }
+  document.getElementById('val-breakeven').textContent = breakEven ? 'Month ' + breakEven : '> 12 mo';
+  const saving = Math.round(manualCum[11] - autoCum[11]);
+  const txt = document.getElementById('roi-text');
+  if (breakEven) {
+    txt.innerHTML = `With <strong>${tc} test cases</strong> run <strong>${runs}× per month</strong> — manual costs <strong>${manualHrsMo} hrs/month</strong>. Automation breaks even at <strong>Month ${breakEven}</strong> and saves <strong>${saving} hours</strong> by Month 12. That's ${Math.round(saving/8)} full working days back.`;
+  } else {
+    txt.innerHTML = `With ${tc} test cases run ${runs}× per month, automation doesn't break even within 12 months. Keep using manual testing for now — automate when the suite grows.`;
+  }
+  const ctx = document.getElementById('roi-chart').getContext('2d');
+  if (roiChart) { roiChart.destroy(); roiChart = null; }
+  roiChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: ['M1','M2','M3','M4','M5','M6','M7','M8','M9','M10','M11','M12'],
+      datasets: [
+        { label:'Manual',     data:manualCum, borderColor:'#ef4444', backgroundColor:'rgba(239,68,68,0.07)',  borderWidth:2.5, pointRadius:3, pointBackgroundColor:'#ef4444', tension:0.3, fill:false },
+        { label:'Automation', data:autoCum,   borderColor:'#22c55e', backgroundColor:'rgba(34,197,94,0.07)', borderWidth:2.5, pointRadius:3, pointBackgroundColor:'#22c55e', tension:0.3, fill:false }
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:c=>c.dataset.label+': '+c.parsed.y+' hrs' } } },
+      scales:{
+        x:{ grid:{color:'rgba(128,128,128,0.1)'}, ticks:{font:{size:11},color:'#888'} },
+        y:{ grid:{color:'rgba(128,128,128,0.1)'}, ticks:{font:{size:11},color:'#888',callback:v=>v+'h'}, beginAtZero:true }
+      }
+    }
+  });
+}
+
+renderScenarios();
+calcROI();
+</script>
+</body>
+</html>

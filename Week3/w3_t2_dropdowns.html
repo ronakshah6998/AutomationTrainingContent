@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html data-theme="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Dropdowns in Selenium WebDriver</title>
+<style>
+/* ── TOKENS ─────────────────────────────────────────────── */
+:root {
+  --bg:#0d1117; --surface:#161b22; --surface2:#1f2937; --border:#30363d;
+  --accent:#f89820; --accent2:#4fa3e0; --accent3:#58d68d; --accent4:#e74c3c; --accent5:#c678dd;
+  --text:#e6edf3; --text2:#8b949e; --text3:#c9d1d9;
+  --tab-bg:#161b22; --tab-active:#1f2937; --code-bg:#0d1117;
+  --radius:10px; --font-mono:'Courier New',Courier,monospace;
+  --sel:#43b02a;
+}
+[data-theme="light"]{
+  --bg:#f0f4f8; --surface:#ffffff; --surface2:#e8eef5; --border:#d1d9e0;
+  --text:#1a202c; --text2:#4a5568; --text3:#2d3748;
+  --tab-bg:#e8eef5; --tab-active:#ffffff; --code-bg:#e2e8f0;
+}
+[data-theme="light"] pre,[data-theme="light"] .code-pre{color:#1a202c;background:#e2e8f0;}
+[data-theme="light"] .quiz-code,[data-theme="light"] .card code,
+[data-theme="light"] .info-box code,[data-theme="light"] code{background:#dde4ee;color:var(--text);border:1px solid var(--border);}
+[data-theme="light"] .kw{color:#7c3aed;}[data-theme="light"] .cls{color:#b45309;}
+[data-theme="light"] .fn{color:#1d4ed8;}[data-theme="light"] .str{color:#15803d;}
+[data-theme="light"] .cmt{color:#6b7280;}[data-theme="light"] .num{color:#c2410c;}
+[data-theme="light"] .xml-tag{color:#be185d;}[data-theme="light"] .xml-val{color:#15803d;}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);
+  min-height:100vh;transition:background .3s,color .3s;line-height:1.65;
+  user-select:none;-webkit-user-select:none;}
+
+/* ── WATERMARK ─────────────────────────────────────────── */
+#watermark{position:fixed;bottom:14px;right:18px;font-size:.7rem;color:var(--text2);
+  opacity:.44;pointer-events:none;z-index:800;letter-spacing:.2px;white-space:nowrap;}
+
+/* ── HEADER ─────────────────────────────────────────────── */
+header{background:var(--surface);border-bottom:1px solid var(--border);
+  padding:0 32px;display:flex;align-items:center;justify-content:space-between;
+  height:62px;position:sticky;top:0;z-index:100;box-shadow:0 1px 0 var(--border);}
+.logo{display:flex;align-items:center;gap:10px;font-size:1.05rem;font-weight:700;}
+.logo-icon{width:32px;height:32px;border-radius:8px;
+  background:linear-gradient(135deg,#43b02a,#26890c);
+  display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:#fff;}
+.badge{font-size:.68rem;font-weight:600;padding:2px 8px;border-radius:20px;
+  background:var(--accent2);color:#000;text-transform:uppercase;letter-spacing:.5px;}
+#themeToggle{background:var(--surface2);border:1px solid var(--border);color:var(--text);
+  border-radius:8px;padding:6px 14px;cursor:pointer;font-size:.85rem;transition:all .2s;}
+#themeToggle:hover{border-color:var(--accent);color:var(--accent);}
+
+/* ── LAYOUT ─────────────────────────────────────────────── */
+.container{max-width:1100px;margin:0 auto;padding:32px 20px 80px;}
+
+/* ── HERO ───────────────────────────────────────────────── */
+.hero{background:linear-gradient(135deg,var(--surface),var(--surface2));
+  border:1px solid var(--border);border-radius:14px;padding:36px 40px;
+  margin-bottom:28px;display:flex;align-items:center;gap:28px;
+  position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:240px;height:240px;
+  border-radius:50%;background:radial-gradient(circle,rgba(79,163,224,.14) 0%,transparent 70%);
+  pointer-events:none;}
+.hero-icon{font-size:64px;flex-shrink:0;filter:drop-shadow(0 4px 16px rgba(79,163,224,.4));}
+.hero-text h1{font-size:1.75rem;font-weight:800;line-height:1.2;}
+.hero-text h1 span{color:var(--accent2);}
+.hero-text p{color:var(--text2);margin-top:8px;font-size:.95rem;}
+.hero-pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;}
+.pill{padding:4px 12px;border-radius:20px;font-size:.78rem;font-weight:600;
+  border:1px solid;display:flex;align-items:center;gap:5px;}
+.pill-orange{color:var(--accent);border-color:rgba(248,152,32,.35);background:rgba(248,152,32,.08);}
+.pill-blue{color:var(--accent2);border-color:rgba(79,163,224,.35);background:rgba(79,163,224,.08);}
+.pill-green{color:var(--accent3);border-color:rgba(88,214,141,.35);background:rgba(88,214,141,.08);}
+.pill-purple{color:var(--accent5);border-color:rgba(198,120,221,.35);background:rgba(198,120,221,.08);}
+.pill-sel{color:var(--sel);border-color:rgba(67,176,42,.35);background:rgba(67,176,42,.08);}
+
+/* ── BREADCRUMB ROW ─────────────────────────────────────── */
+.breadcrumb-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.breadcrumb{display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--text2);}
+.breadcrumb span{color:var(--accent2);font-weight:600;}
+.watermark{font-size:.7rem;color:var(--text2);opacity:.52;letter-spacing:.3px;
+  white-space:nowrap;font-weight:500;}
+
+/* ── TABS ───────────────────────────────────────────────── */
+.tabs-wrapper{background:var(--tab-bg);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.tab-nav{display:flex;overflow-x:auto;border-bottom:1px solid var(--border);scrollbar-width:none;}
+.tab-nav::-webkit-scrollbar{display:none;}
+.tab-btn{flex-shrink:0;padding:13px 18px;background:none;border:none;color:var(--text2);
+  font-size:.83rem;font-weight:600;cursor:pointer;position:relative;transition:color .2s;
+  display:flex;align-items:center;gap:6px;}
+.tab-btn:hover{color:var(--text);}
+.tab-btn.active{color:var(--accent2);background:var(--tab-active);}
+.tab-btn.active::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+  background:var(--accent2);border-radius:2px 2px 0 0;}
+.tab-content{display:none;padding:32px;}
+.tab-content.active{display:block;animation:fadeIn .25s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ── SECTION HEADINGS ───────────────────────────────────── */
+.section-title{font-size:1.2rem;font-weight:800;margin-bottom:6px;display:flex;align-items:center;gap:9px;}
+.section-title .dot{width:10px;height:10px;border-radius:50%;background:var(--accent2);}
+.section-sub{color:var(--text2);font-size:.9rem;margin-bottom:22px;}
+
+/* ── CARDS ──────────────────────────────────────────────── */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px;margin-bottom:28px;}
+.card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);
+  padding:20px;transition:border-color .2s,transform .2s;}
+.card:hover{border-color:var(--accent2);transform:translateY(-2px);}
+.card-icon{font-size:1.6rem;margin-bottom:10px;}
+.card h3{font-size:.95rem;font-weight:700;margin-bottom:6px;}
+.card p{font-size:.83rem;color:var(--text2);line-height:1.55;}
+.card code{font-family:var(--font-mono);font-size:.78rem;background:var(--code-bg);
+  padding:1px 6px;border-radius:4px;color:var(--accent3);border:1px solid var(--border);}
+
+/* ── INFO BOX ───────────────────────────────────────────── */
+.info-box{border-radius:var(--radius);padding:16px 20px;font-size:.875rem;
+  margin-bottom:20px;border-left:4px solid;display:flex;gap:12px;align-items:flex-start;}
+.info-box .ib-icon{font-size:1.2rem;flex-shrink:0;margin-top:1px;}
+.info-box.blue{background:rgba(79,163,224,.1);border-color:var(--accent2);}
+.info-box.orange{background:rgba(248,152,32,.1);border-color:var(--accent);}
+.info-box.green{background:rgba(88,214,141,.1);border-color:var(--accent3);}
+.info-box.red{background:rgba(231,76,60,.1);border-color:var(--accent4);}
+.info-box.sel{background:rgba(67,176,42,.1);border-color:var(--sel);}
+.info-box code{font-family:var(--font-mono);font-size:.82rem;background:var(--code-bg);
+  padding:1px 6px;border-radius:4px;color:var(--accent3);border:1px solid var(--border);}
+
+/* ── CODE BLOCK ─────────────────────────────────────────── */
+.code-wrap{background:var(--code-bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin:16px 0;}
+.code-header{display:flex;align-items:center;justify-content:space-between;
+  padding:10px 16px;border-bottom:1px solid var(--border);background:rgba(255,255,255,.03);}
+.code-lang{font-size:.75rem;color:var(--text2);font-weight:600;}
+.code-dots{display:flex;gap:5px;}
+.code-dots span{width:11px;height:11px;border-radius:50%;}
+.code-dots .r{background:#ff5f57;}.code-dots .y{background:#ffbd2e;}.code-dots .g{background:#28c840;}
+.code-pre{padding:20px;overflow-x:auto;font-family:var(--font-mono);font-size:.85rem;line-height:1.75;color:#abb2bf;white-space:pre;}
+.kw{color:#c678dd;font-weight:600;}.cls{color:#e5c07b;}.fn{color:#61afef;}
+.str{color:#98c379;}.cmt{color:#5c6370;font-style:italic;}.num{color:#d19a66;}.op{color:#56b6c2;}
+.xml-tag{color:#e06c75;}.xml-attr{color:#d19a66;}.xml-val{color:#98c379;}
+
+/* ── FLOW PIPELINE ──────────────────────────────────────── */
+.flow-pipe{display:flex;flex-direction:column;gap:6px;margin:20px 0;}
+.fp-row{display:flex;align-items:center;gap:12px;}
+.fp-box{flex:1;background:var(--surface2);border:2px solid var(--border);border-radius:var(--radius);
+  padding:13px 18px;display:flex;align-items:center;gap:12px;transition:all .3s;}
+.fp-box.active{border-color:var(--accent2);background:rgba(79,163,224,.08);box-shadow:0 0 0 3px rgba(79,163,224,.15);}
+.fp-box.done{border-color:var(--accent3);background:rgba(88,214,141,.07);}
+.fp-icon{font-size:1.4rem;flex-shrink:0;}
+.fp-info .fp-label{font-size:.7rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.4px;}
+.fp-info .fp-title{font-size:.9rem;font-weight:700;margin-top:1px;}
+.fp-arrow{text-align:center;font-size:.8rem;color:var(--text2);padding:4px 0;}
+.fp-arrow.lit{color:var(--accent3);}
+
+/* ── ITER STEPS ─────────────────────────────────────────── */
+.iter-steps{display:flex;flex-direction:column;gap:10px;margin:16px 0;}
+.iter-row{display:flex;gap:14px;align-items:flex-start;background:var(--surface2);
+  border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;transition:border-color .2s;}
+.iter-row:hover{border-color:var(--accent2);}
+.iter-num{flex-shrink:0;width:28px;height:28px;border-radius:50%;background:var(--accent2);
+  color:#000;font-weight:800;font-size:.8rem;display:flex;align-items:center;justify-content:center;margin-top:1px;}
+.iter-body h4{font-size:.88rem;font-weight:700;margin-bottom:3px;}
+.iter-body p{font-size:.82rem;color:var(--text2);}
+.iter-body code{font-family:var(--font-mono);font-size:.8rem;background:var(--code-bg);
+  padding:1px 6px;border-radius:4px;color:var(--accent3);border:1px solid var(--border);}
+
+/* ── COMPARE TABLE ──────────────────────────────────────── */
+.compare-table{width:100%;border-collapse:collapse;font-size:.875rem;margin:16px 0;}
+.compare-table th{text-align:left;padding:10px 16px;background:var(--surface2);color:var(--text2);
+  font-weight:700;font-size:.78rem;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);}
+.compare-table td{padding:11px 16px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.compare-table tr:last-child td{border-bottom:none;}
+.compare-table tr:hover td{background:rgba(255,255,255,.02);}
+.mono{font-family:var(--font-mono);font-size:.82rem;color:var(--accent3);}
+
+/* ── FOLDER TREE ────────────────────────────────────────── */
+.folder-tree{background:var(--code-bg);border:1px solid var(--border);border-radius:var(--radius);
+  padding:20px 24px;font-family:var(--font-mono);font-size:.85rem;line-height:2;color:#abb2bf;}
+.ft-folder{color:#e5c07b;font-weight:600;}
+.ft-file{color:#98c379;}
+.ft-xml{color:#e06c75;}
+.ft-gray{color:var(--text2);}
+.ft-indent1{padding-left:20px;}
+.ft-indent2{padding-left:40px;}
+.ft-indent3{padding-left:60px;}
+.ft-indent4{padding-left:80px;}
+
+/* ── NAV PILL ROW ───────────────────────────────────────── */
+.nav-pills{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0;}
+.nav-pill{padding:7px 16px;border-radius:8px;background:var(--surface2);
+  border:1px solid var(--border);font-size:.83rem;font-weight:600;color:var(--text2);}
+.nav-pill.active{background:rgba(79,163,224,.12);border-color:var(--accent2);color:var(--accent2);}
+
+/* ── ACTION CARDS ───────────────────────────────────────── */
+.action-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin:18px 0 26px;}
+.action-card{background:var(--surface2);border:2px solid var(--border);border-radius:var(--radius);
+  padding:18px;transition:all .2s;}
+.action-card:hover{transform:translateY(-2px);}
+.action-card.click-card{border-color:rgba(231,76,60,.4);}
+.action-card.send-card{border-color:rgba(79,163,224,.4);}
+.action-card.get-card{border-color:rgba(88,214,141,.4);}
+.action-card.hover-card{border-color:rgba(248,152,32,.4);}
+.ac-tag{font-size:.68rem;font-weight:700;padding:2px 8px;border-radius:5px;
+  text-transform:uppercase;letter-spacing:.4px;display:inline-block;margin-bottom:10px;}
+.ac-tag.click{background:rgba(231,76,60,.15);color:var(--accent4);}
+.ac-tag.send{background:rgba(79,163,224,.15);color:var(--accent2);}
+.ac-tag.get{background:rgba(88,214,141,.15);color:var(--accent3);}
+.ac-tag.hover{background:rgba(248,152,32,.15);color:var(--accent);}
+.action-card h4{font-family:var(--font-mono);font-size:.9rem;font-weight:800;margin-bottom:6px;}
+.action-card p{font-size:.8rem;color:var(--text2);line-height:1.5;margin-bottom:8px;}
+.action-card .ac-ex{font-family:var(--font-mono);font-size:.76rem;background:var(--code-bg);
+  padding:6px 10px;border-radius:6px;border:1px solid var(--border);color:#abb2bf;white-space:pre;}
+
+/* ── BROWSER SIM ────────────────────────────────────────── */
+.browser-sim-wrap{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+.browser-sim-header{display:flex;align-items:center;justify-content:space-between;
+  padding:13px 20px;background:rgba(255,255,255,.03);border-bottom:1px solid var(--border);
+  font-weight:700;font-size:.88rem;}
+.browser-sim-body{padding:24px;}
+
+/* Fake browser window */
+.fake-browser{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:18px;}
+.fb-titlebar{background:#1a1d23;padding:10px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);}
+.fb-dots{display:flex;gap:5px;}
+.fb-dot{width:12px;height:12px;border-radius:50%;}
+.fb-dot.red{background:#ff5f57;}.fb-dot.yel{background:#ffbd2e;}.fb-dot.grn{background:#28c840;}
+.fb-url{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:6px;
+  padding:5px 12px;font-size:.78rem;color:var(--text2);font-family:var(--font-mono);}
+.fb-content{padding:28px 32px;min-height:220px;}
+.fb-page-title{font-size:1.1rem;font-weight:800;margin-bottom:24px;color:var(--text);}
+.fb-form-group{margin-bottom:16px;}
+.fb-label{font-size:.78rem;font-weight:600;color:var(--text2);margin-bottom:6px;display:block;}
+.fb-input{width:100%;max-width:320px;padding:10px 14px;border-radius:8px;
+  border:2px solid var(--border);background:var(--surface);color:var(--text);
+  font-size:.9rem;font-family:var(--font-mono);outline:none;transition:border-color .2s;}
+.fb-input:focus{border-color:var(--accent2);}
+.fb-input.success{border-color:var(--accent3);}
+.fb-btn{padding:10px 28px;border-radius:8px;background:var(--accent2);color:#fff;
+  border:none;font-weight:800;font-size:.9rem;cursor:pointer;transition:all .2s;
+  margin-top:4px;}
+.fb-btn:hover{opacity:.88;transform:translateY(-1px);}
+.fb-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.fb-msg{padding:12px 16px;border-radius:8px;font-size:.875rem;font-weight:600;
+  margin-top:14px;display:none;animation:fadeIn .3s;}
+.fb-msg.success{background:rgba(88,214,141,.12);border:1px solid rgba(88,214,141,.35);color:var(--accent3);}
+.fb-msg.error{background:rgba(231,76,60,.1);border:1px solid rgba(231,76,60,.3);color:var(--accent4);}
+
+/* Command log */
+.cmd-log{background:var(--code-bg);border:1px solid var(--border);border-radius:var(--radius);
+  overflow:hidden;margin-bottom:18px;}
+.cmd-log-bar{padding:9px 16px;background:rgba(255,255,255,.03);border-bottom:1px solid var(--border);
+  font-size:.78rem;color:var(--text2);font-weight:600;display:flex;align-items:center;gap:8px;}
+.cmd-log-body{padding:14px 18px;font-family:var(--font-mono);font-size:.84rem;
+  min-height:80px;line-height:1.9;white-space:pre-wrap;color:#abb2bf;}
+.c-sel{color:#43b02a;}.c-dim{color:#555;}.c-info{color:#7ec8e3;}.c-ok{color:#a8ff78;}
+
+/* Sim controls */
+.sim-controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;}
+.btn-sim{background:linear-gradient(135deg,var(--accent2),#2980b9);color:#fff;border:none;
+  border-radius:8px;padding:10px 24px;font-weight:800;font-size:.875rem;cursor:pointer;
+  transition:opacity .2s,transform .2s;}
+.btn-sim:hover{opacity:.88;transform:translateY(-1px);}
+.btn-sim:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.btn-reset-sim{background:none;border:1px solid var(--border);color:var(--text2);
+  border-radius:8px;padding:10px 18px;font-size:.875rem;cursor:pointer;transition:all .2s;}
+.btn-reset-sim:hover{border-color:var(--text2);color:var(--text);}
+.btn-run-all{background:linear-gradient(135deg,var(--sel),#1e6b0e);color:#fff;border:none;
+  border-radius:8px;padding:10px 24px;font-weight:800;font-size:.875rem;cursor:pointer;
+  transition:opacity .2s,transform .2s;}
+.btn-run-all:hover{opacity:.88;transform:translateY(-1px);}
+.btn-run-all:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+
+/* Result pills */
+.result-pills{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px;min-height:34px;}
+.rpill{display:flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;
+  font-size:.82rem;font-weight:600;border:1px solid;animation:fadeIn .2s;}
+.rpill-success{background:rgba(88,214,141,.12);border-color:rgba(88,214,141,.4);color:var(--accent3);}
+.rpill-error{background:rgba(231,76,60,.12);border-color:rgba(231,76,60,.4);color:var(--accent4);}
+.rpill-info{background:rgba(79,163,224,.12);border-color:rgba(79,163,224,.4);color:var(--accent2);}
+.rpill-warn{background:rgba(248,152,32,.12);border-color:rgba(248,152,32,.4);color:var(--accent);}
+
+/* ── ERROR PANEL ─────────────────────────────────────────── */
+.err-sim-btns{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px;}
+.err-btn{padding:8px 18px;border-radius:8px;border:1px solid var(--border);
+  background:var(--surface2);color:var(--text);font-size:.84rem;font-weight:600;
+  cursor:pointer;transition:all .2s;}
+.err-btn:hover{border-color:var(--accent4);color:var(--accent4);}
+.err-btn.active{background:rgba(231,76,60,.15);border-color:var(--accent4);color:var(--accent4);}
+.err-panel{display:none;background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--radius);overflow:hidden;}
+.err-panel.active{display:block;animation:fadeIn .2s ease;}
+.err-hdr{display:flex;align-items:center;gap:10px;padding:12px 18px;
+  background:rgba(231,76,60,.12);border-bottom:1px solid var(--border);
+  font-size:.875rem;font-weight:700;color:var(--accent4);}
+.err-body{padding:20px;}
+.err-body h4{font-size:.9rem;font-weight:700;margin-bottom:8px;}
+.err-body p{font-size:.85rem;color:var(--text2);margin-bottom:12px;}
+.err-msg{font-family:var(--font-mono);font-size:.8rem;background:var(--code-bg);
+  border:1px solid rgba(231,76,60,.3);border-radius:7px;padding:12px 16px;
+  color:#ff6b6b;margin-bottom:14px;white-space:pre;overflow-x:auto;}
+.code-diff{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0;}
+.diff-wrong,.diff-right{border-radius:8px;overflow:hidden;border:1px solid var(--border);}
+.diff-lbl{padding:7px 12px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
+.diff-wrong .diff-lbl{background:rgba(231,76,60,.15);color:var(--accent4);}
+.diff-right .diff-lbl{background:rgba(88,214,141,.15);color:var(--accent3);}
+.diff-code{padding:12px 14px;font-family:var(--font-mono);font-size:.8rem;background:var(--code-bg);line-height:1.7;color:#abb2bf;white-space:pre;}
+.fix-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(88,214,141,.1);
+  border:1px solid rgba(88,214,141,.3);color:var(--accent3);border-radius:6px;
+  padding:5px 12px;font-size:.82rem;font-weight:600;margin-top:4px;}
+
+/* ── QUIZ ───────────────────────────────────────────────── */
+.quiz-container{display:flex;flex-direction:column;gap:24px;}
+.quiz-block{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:22px 24px;}
+.quiz-num{font-size:.72rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;}
+.quiz-q{font-weight:700;font-size:.92rem;margin-bottom:14px;line-height:1.5;}
+.quiz-opts{display:flex;flex-direction:column;gap:9px;}
+.quiz-opt{padding:10px 16px;border-radius:8px;border:1px solid var(--border);
+  background:var(--bg);font-size:.875rem;cursor:pointer;transition:all .2s;
+  display:flex;align-items:flex-start;gap:10px;text-align:left;}
+.quiz-opt:hover:not(.correct):not(.wrong){border-color:var(--accent2);background:rgba(79,163,224,.04);}
+.quiz-opt.correct{border-color:var(--accent3);background:rgba(88,214,141,.1);color:var(--accent3);pointer-events:none;}
+.quiz-opt.wrong{border-color:var(--accent4);background:rgba(231,76,60,.08);color:var(--accent4);pointer-events:none;}
+.quiz-opt.disabled{pointer-events:none;opacity:.5;}
+.quiz-feedback{margin-top:12px;font-size:.845rem;padding:10px 14px;border-radius:7px;display:none;}
+.quiz-feedback.show{display:block;animation:fadeIn .2s;}
+.quiz-feedback.correct{background:rgba(88,214,141,.1);color:var(--accent3);border:1px solid rgba(88,214,141,.25);}
+.quiz-feedback.wrong{background:rgba(231,76,60,.08);color:var(--accent4);border:1px solid rgba(231,76,60,.2);}
+.quiz-code{font-family:var(--font-mono);background:var(--code-bg);padding:1px 7px;
+  border-radius:4px;font-size:.85em;color:var(--text);border:1px solid var(--border);}
+.score-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);
+  padding:28px;text-align:center;display:none;margin-top:24px;}
+.score-box.show{display:block;animation:fadeIn .3s;}
+.score-num{font-size:3rem;font-weight:900;line-height:1;}
+.score-label{color:var(--text2);font-size:.9rem;margin-top:6px;margin-bottom:16px;}
+.btn-retake{background:var(--surface2);border:1px solid var(--border);color:var(--text);
+  border-radius:8px;padding:9px 24px;font-size:.875rem;font-weight:700;cursor:pointer;transition:all .2s;}
+.btn-retake:hover{border-color:var(--accent2);color:var(--accent2);}
+
+/* ── RESPONSIVE ─────────────────────────────────────────── */
+@media(max-width:700px){
+  .hero{flex-direction:column;padding:24px 20px;}
+  .tab-btn{padding:12px 11px;font-size:.77rem;}
+  .tab-content{padding:20px 16px;}
+  .hero-text h1{font-size:1.35rem;}
+  .code-diff{grid-template-columns:1fr;}
+  .action-grid{grid-template-columns:1fr;}
+}
+
+.course-nav{
+    position:sticky;
+    bottom:0;
+    background:var(--surface, var(--bg-primary));
+    z-index:999;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:12px;
+    margin-top:18px;
+    padding:14px 20px 12px;
+    border-top:.5px solid var(--border);
+}
+
+.course-nav-left,
+.course-nav-right{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.course-nav a{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    text-decoration:none;
+    padding:7px 15px;
+    border:.5px solid var(--border);
+    border-radius:8px;
+    color:var(--text);
+    background:var(--surface2);
+    font-size:.86rem;
+    font-weight:600;
+    line-height:1.25;
+    transition:all .2s ease;
+}
+
+.course-nav a:hover{
+    border-color:var(--accent2);
+}
+
+.course-topic{
+    font-size:.8rem;
+    color:var(--text2);
+}
+</style>
+</head>
+<body>
+<header>
+<div class="logo">
+<div class="logo-icon">Se</div>
+    Selenium Training
+</div>
+<button id="themeToggle" onclick="toggleTheme()">🌙 Dark</button>
+</header>
+
+<div class="container">
+  <div class="breadcrumb-row">
+    <div class="breadcrumb">
+      Automation Series <span style="color:var(--border)">›</span> Week 3 <span style="color:var(--border)">›</span> <span>Dropdowns (Static + Dynamic + Select Class)</span>
+    </div>
+    <span class="watermark">Ronak Shah — Automation Training Content</span>
+  </div>
+
+<div class="hero">
+<div class="hero-icon">📋</div>
+<div class="hero-text">
+<h1>Mastering <span>Dropdowns</span> &amp; Select Class</h1>
+<p>Understand the critical difference between static HTML Select components and modern dynamic elements, while mastering robust automation strategies for both.</p>
+<div class="hero-pills">
+<span class="pill pill-orange">🏷️ Select &amp; Option Tags</span>
+<span class="pill pill-blue">📦 Select Class API</span>
+<span class="pill pill-green">⚡ Dynamic Suggestion Flow</span>
+<span class="pill pill-purple">🧩 Bootstrap &amp; React Dropdowns</span>
+</div>
+</div>
+</div>
+
+<div class="tabs-wrapper">
+<div class="tab-nav">
+<button class="tab-btn active" onclick="switchTab('intro',this)"><span>ℹ️</span> Introduction</button>
+<button class="tab-btn" onclick="switchTab('static',this)"><span>📌</span> Static Dropdowns</button>
+<button class="tab-btn" onclick="switchTab('dynamic',this)"><span>⚡</span> Dynamic Dropdowns</button>
+<button class="tab-btn" onclick="switchTab('selectclass',this)"><span>🔧</span> Select Class</button>
+<button class="tab-btn" onclick="switchTab('playground',this)"><span>🎮</span> Playgrounds</button>
+<button class="tab-btn" onclick="switchTab('errors',this)"><span>❌</span> Common Errors</button>
+<button class="tab-btn" onclick="switchTab('quiz',this)"><span>🧠</span> Quick Check</button>
+</div>
+
+<!-- ══════════════ TAB 1: INTRODUCTION ══════════════ -->
+<div class="tab-content active" id="tab-intro">
+<div class="section-title"><span class="dot"></span> Demystifying Dropdowns in Web Applications</div>
+<p class="section-sub">Before writing a single line of automation code, let's understand why dropdowns exist, how they prevent bad data, and how they behave structurally.</p>
+
+<div class="info-box blue">
+<span class="ib-icon">💡</span>
+<div><strong>Why Dropdowns?</strong> Imagine asking users to type their country in a text field. You would get "USA", "U.S.A.", "United States", and "america". Normalizing this data on the server is incredibly difficult. Dropdowns restrict choice, guaranteeing data integrity.</div>
+</div>
+
+<div class="cards">
+<div class="card">
+<div class="card-icon">✅</div>
+<h3>Data Validation</h3>
+<p>Guarantees input consistency by forcing the user to choose only from a predefined set of records.</p>
+</div>
+<div class="card">
+<div class="card-icon">🖱️</div>
+<h3>Consistent Input</h3>
+<p>Prevents client-side typing errors, minimizing form validation failures and missing user details.</p>
+</div>
+<div class="card">
+<div class="card-icon">⚡</div>
+<h3>Easy Selection</h3>
+<p>Streamlines the mobile and web UX. Simple point-and-click operations replace tedious manual keyboard entries.</p>
+</div>
+<div class="card">
+<div class="card-icon">✨</div>
+<h3>Better UX</h3>
+<p>Hides vast options inside a compact visual control, keeping user interfaces clean and uncluttered.</p>
+</div>
+</div>
+
+<div class="section-title" style="font-size:1rem;margin-top:4px"><span class="dot"></span> Visual HTML Structure of a Dropdown</div>
+<p class="section-sub">Standard browser dropdowns rely on a parent-child relationship between <code>&lt;select&gt;</code> and <code>&lt;option&gt;</code> elements.</p>
+
+<div class="flow-pipe" style="margin-top:14px">
+<div class="fp-row"><div class="fp-box done"><div class="fp-icon">🏷️</div><div class="fp-info"><div class="fp-label">Parent Tag</div><div class="fp-title">&lt;select id="roles"&gt; (Defines the collection container)</div></div></div></div>
+<div class="fp-arrow lit">↓</div>
+<div class="fp-row"><div class="fp-box active"><div class="fp-icon">📄</div><div class="fp-info"><div class="fp-label">Child Option 1</div><div class="fp-title">&lt;option value="admin"&gt;Administrator&lt;/option&gt;</div></div></div></div>
+<div class="fp-arrow lit">↓</div>
+<div class="fp-row"><div class="fp-box active"><div class="fp-icon">📄</div><div class="fp-info"><div class="fp-label">Child Option 2</div><div class="fp-title">&lt;option value="user"&gt;Standard User&lt;/option&gt;</div></div></div></div>
+<div class="fp-arrow lit">↓</div>
+<div class="fp-row"><div class="fp-box done"><div class="fp-icon">🖥️</div><div class="fp-info"><div class="fp-label">Result</div><div class="fp-title">Displayed UI options ready for clicks</div></div></div></div>
+</div>
+
+<div class="section-title" style="font-size:1rem;margin-top:24px"><span class="dot"></span> Common Real-World Use Cases</div>
+<p class="section-sub">In enterprise suites, you will automate dropdown interactions constantly across multiple contexts:</p>
+<table class="compare-table">
+<thead><tr><th>Use Case</th><th>Standard (Static) Tag</th><th>Dynamic/Modern Component</th></tr></thead>
+<tbody>
+<tr><td class="mono">Country Selection</td><td>Yes, often standard <code>&lt;select&gt;</code></td><td>Yes, with search capabilities for faster access</td></tr>
+<tr><td class="mono">Payment Methods</td><td>Standard choice lists (Visa, MC)</td><td>Dynamic options showing fields based on selection</td></tr>
+<tr><td class="mono">Gender / Prefix</td><td>Standard <code>&lt;select&gt;</code> (Mr, Mrs, Ms)</td><td>Rarely, static is perfectly suitable</td></tr>
+<tr><td class="mono">Flight Booking (Cities)</td><td>No, too many options to load statically</td><td>Auto-suggestive dynamic menu (React/Bootstrap)</td></tr>
+</tbody>
+</table>
+
+<div class="info-box orange">
+<span class="ib-icon">⚠</span>
+<div><strong>Interview Tip:</strong> When asked how you select options in a dropdown, never answer with "I use the Select class" right away. Instead, clarify: <em>"Is it a standard HTML Select dropdown, or a modern dynamic Div/UL-LI based dropdown?"</em> This shows deep DOM awareness.</div>
+</div>
+</div>
+
+<!-- ══════════════ TAB 2: STATIC DROPDOWNS ══════════════ -->
+<div class="tab-content" id="tab-static">
+<div class="section-title"><span class="dot"></span> Automating Standard HTML Static Dropdowns</div>
+<p class="section-sub">A "Static" dropdown is built using the browser's native <code>&lt;select&gt;</code> node. All choice options are hardcoded in the source document.</p>
+
+<div class="info-box green">
+<span class="ib-icon">🛡️</span>
+<div><strong>The Rule of Static:</strong> If the element tag is <code>&lt;select&gt;</code>, you must use Selenium's dedicated <code>org.openqa.selenium.support.ui.Select</code> helper class. It wraps standard WebElement actions and translates them into native selection commands.</div>
+</div>
+
+<div class="code-wrap">
+<div class="code-header"><div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><span class="code-lang">HTML Structure</span></div>
+<pre class="code-pre"><span class="xml-tag">&lt;select</span> <span class="xml-attr">id</span>=<span class="xml-val">"country-select"</span> <span class="xml-attr">name</span>=<span class="xml-val">"country"</span><span class="xml-tag">&gt;</span>
+    <span class="xml-tag">&lt;option</span> <span class="xml-attr">value</span>=<span class="xml-val">""</span><span class="xml-tag">&gt;</span>Select a country...<span class="xml-tag">&lt;/option&gt;</span>
+    <span class="xml-tag">&lt;option</span> <span class="xml-attr">value</span>=<span class="xml-val">"US"</span><span class="xml-tag">&gt;</span>United States<span class="xml-tag">&lt;/option&gt;</span>
+    <span class="xml-tag">&lt;option</span> <span class="xml-attr">value</span>=<span class="xml-val">"IN"</span><span class="xml-tag">&gt;</span>India<span class="xml-tag">&lt;/option&gt;</span>
+    <span class="xml-tag">&lt;option</span> <span class="xml-attr">value</span>=<span class="xml-val">"CA"</span><span class="xml-tag">&gt;</span>Canada<span class="xml-tag">&lt;/option&gt;</span>
+<span class="xml-tag">&lt;/select&gt;</span></pre>
+</div>
+
+<div class="section-title" style="font-size:1rem;margin-top:20px"><span class="dot"></span> Selection Methods Side-by-Side</div>
+<table class="compare-table">
+<thead><tr><th>Method</th><th>Target Parameter</th><th>Typical Syntax</th><th>Enterprise Recommendation</th></tr></thead>
+<tbody>
+<tr><td class="mono">selectByVisibleText()</td><td>The exact label shown to the user</td><td><code style="font-size:.8rem">select.selectByVisibleText("India")</code></td><td><strong>High</strong> (Most intuitive, readable, matches user behavior)</td></tr>
+<tr><td class="mono">selectByValue()</td><td>The value attribute of the option tag</td><td><code style="font-size:.8rem">select.selectByValue("IN")</code></td><td><strong>High</strong> (Most robust for localized/translated websites)</td></tr>
+<tr><td class="mono">selectByIndex()</td><td>The zero-based position in the options list</td><td><code style="font-size:.8rem">select.selectByIndex(2)</code></td><td><strong>Low</strong> (Brittle — changes if menu order is updated)</td></tr>
+</tbody>
+</table>
+
+<div class="code-wrap">
+<div class="code-header"><div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><span class="code-lang">☕ Java Implementation</span></div>
+<pre class="code-pre"><span class="kw">import</span> org.openqa.selenium.By;
+<span class="kw">import</span> org.openqa.selenium.WebDriver;
+<span class="kw">import</span> org.openqa.selenium.WebElement;
+<span class="kw">import</span> org.openqa.selenium.chrome.ChromeDriver;
+<span class="kw">import</span> org.openqa.selenium.support.ui.Select;
+
+<span class="kw">public class</span> <span class="cls">StaticDropdownDemo</span> {
+    <span class="kw">public static void</span> <span class="fn">main</span>(<span class="cls">String</span>[] args) {
+        <span class="cls">WebDriver</span> driver <span class="op">=</span> <span class="kw">new</span> <span class="cls">ChromeDriver</span>();
+        driver.<span class="fn">get</span>(<span class="str">"https://example.com/signup"</span>);
+
+        <span class="cmt">// 1. Locate the parent &lt;select&gt; element</span>
+        <span class="cls">WebElement</span> dropdownElement <span class="op">=</span> driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"country-select"</span>));
+
+        <span class="cmt">// 2. Wrap the element inside the Selenium Select object</span>
+        <span class="cls">Select</span> select <span class="op">=</span> <span class="kw">new</span> <span class="cls">Select</span>(dropdownElement);
+
+        <span class="cmt">// 3. Interact using one of the primary strategies</span>
+        select.<span class="fn">selectByVisibleText</span>(<span class="str">"Canada"</span>); <span class="cmt">// Best practice for user-facing flows</span>
+        select.<span class="fn">selectByValue</span>(<span class="str">"US"</span>);          <span class="cmt">// Best practice for localized web apps</span>
+        select.<span class="fn">selectByIndex</span>(<span class="num">2</span>);             <span class="cmt">// Selects India (index 2 in list)</span>
+
+        driver.<span class="fn">quit</span>();
+    }
+}</pre>
+</div>
+
+<div class="info-box blue">
+<span class="ib-icon">🧠</span>
+<div><strong>Framework Tip:</strong> In enterprise framework designs, avoid hardcoding select calls inside scripts. Create utility wrappers that cleanly handle failures and fall back to values if visible text selection fails. This minimizes pipeline disruptions caused by minor wording updates.</div>
+</div>
+</div>
+
+<!-- ══════════════ TAB 3: DYNAMIC DROPDOWNS ══════════════ -->
+<div class="tab-content" id="tab-dynamic">
+<div class="section-title"><span class="dot"></span> Mastering Dynamic Dropdowns</div>
+<p class="section-sub">Modern React, Angular, and Bootstrap sites don't use standard select tags. They render dynamic dropdowns using custom elements like divs, inputs, and unordered lists.</p>
+
+<div class="info-box red">
+<span class="ib-icon">🚫</span>
+<div><strong>The Select Class Sandbox:</strong> Standard Select APIs will not work here! Attempting to pass a dynamic <code>&lt;div&gt;</code> or <code>&lt;ul&gt;</code> into <code>new Select(element)</code> will throw an <code>UnexpectedTagNameException</code>. You must interact with dynamic dropdowns using explicit waiting, coordinate clicks, and custom keyboard simulations.</div>
+</div>
+
+<div class="section-title" style="font-size:1rem;margin-top:20px"><span class="dot"></span> How Dynamic Auto-Suggest Suggestion Fields Work</div>
+<div class="flow-pipe" id="dynamic-flow">
+<div class="fp-row"><div class="fp-box" id="dfp1"><div class="fp-icon">⌨️</div><div class="fp-info"><div class="fp-label">Step 1</div><div class="fp-title">User types search term ("Ind") into search input</div></div></div></div>
+<div class="fp-arrow" id="dfa1">↓</div>
+<div class="fp-row"><div class="fp-box" id="dfp2"><div class="fp-icon">🛰️</div><div class="fp-info"><div class="fp-label">Step 2</div><div class="fp-title">AJAX request query reaches the backend API</div></div></div></div>
+<div class="fp-arrow" id="dfa2">↓</div>
+<div class="fp-row"><div class="fp-box" id="dfp3"><div class="fp-icon">🛠️</div><div class="fp-info"><div class="fp-label">Step 3</div><div class="fp-title">New option list items (divs/lis) are rendered in DOM</div></div></div></div>
+<div class="fp-arrow" id="dfa3">↓</div>
+<div class="fp-row"><div class="fp-box" id="dfp4"><div class="fp-icon">👆</div><div class="fp-info"><div class="fp-label">Step 4</div><div class="fp-title">Selenium waits for loading state, targets correct item and clicks</div></div></div></div>
+</div>
+
+<div style="display:flex;gap:10px;margin-top:4px;margin-bottom:24px">
+<button class="btn-sim" id="btn-flow-dyn" onclick="animateDynamicFlow()">▶ Animate Dynamic Flow</button>
+<button class="btn-reset-sim" onclick="resetDynamicFlow()">↺ Reset</button>
+</div>
+
+<div class="code-wrap">
+<div class="code-header"><div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><span class="code-lang">☕ Java Implementation (Dynamic Search Suggestion)</span></div>
+<pre class="code-pre"><span class="kw">import</span> org.openqa.selenium.By;
+<span class="kw">import</span> org.openqa.selenium.WebDriver;
+<span class="kw">import</span> org.openqa.selenium.WebElement;
+<span class="kw">import</span> org.openqa.selenium.chrome.ChromeDriver;
+<span class="kw">import</span> org.openqa.selenium.support.ui.WebDriverWait;
+<span class="kw">import</span> org.openqa.selenium.support.ui.ExpectedConditions;
+<span class="kw">import</span> java.time.Duration;
+<span class="kw">import</span> java.util.List;
+
+<span class="kw">public class</span> <span class="cls">DynamicDropdownDemo</span> {
+    <span class="kw">public static void</span> <span class="fn">main</span>(<span class="cls">String</span>[] args) {
+        <span class="cls">WebDriver</span> driver <span class="op">=</span> <span class="kw">new</span> <span class="cls">ChromeDriver</span>();
+        driver.<span class="fn">get</span>(<span class="str">"https://example.com/flights"</span>);
+
+        <span class="cmt">// 1. Click and send input to the auto-complete search field</span>
+        <span class="cls">WebElement</span> searchBox <span class="op">=</span> driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"airport-search"</span>));
+        searchBox.<span class="fn">sendKeys</span>(<span class="str">"Ind"</span>);
+
+        <span class="cmt">// 2. Wait explicitly for suggestions to render in the DOM</span>
+        <span class="cls">WebDriverWait</span> wait <span class="op">=</span> <span class="kw">new</span> <span class="cls">WebDriverWait</span>(driver, <span class="cls">Duration</span>.<span class="fn">ofSeconds</span>(<span class="num">10</span>));
+        <span class="cls">By</span> suggestionsLocator <span class="op">=</span> <span class="cls">By</span>.<span class="fn">xpath</span>(<span class="str">"//ul[@class='suggestions']/li"</span>);
+        wait.<span class="fn">until</span>(<span class="cls">ExpectedConditions</span>.<span class="fn">visibilityOfElementLocated</span>(suggestionsLocator));
+
+        <span class="cmt">// 3. Grab matches and select the desired element</span>
+        <span class="cls">List</span>&lt;<span class="cls">WebElement</span>&gt; matches <span class="op">=</span> driver.<span class="fn">findElements</span>(suggestionsLocator);
+        <span class="kw">for</span> (<span class="cls">WebElement</span> match : matches) {
+            <span class="kw">if</span> (match.<span class="fn">getText</span>().<span class="fn">contains</span>(<span class="str">"India"</span>)) {
+                match.<span class="fn">click</span>();
+                <span class="kw">break</span>;
+            }
+        }
+        driver.<span class="fn">quit</span>();
+    }
+}</pre>
+</div>
+
+<div class="info-box blue">
+<span class="ib-icon">🚀</span>
+<div><strong>Locator Tip:</strong> For modern React/Bootstrap dropdowns, you can often bypass loops and directly target items using explicit, clean XPaths like: <code>By.xpath("//li[contains(@class,'item') and text()='India']")</code>. Just make sure to wait until that item is clickable first.</div>
+</div>
+</div>
+
+<!-- ══════════════ TAB 4: SELECT CLASS ══════════════ -->
+<div class="tab-content" id="tab-selectclass">
+<div class="section-title"><span class="dot"></span> Deep Dive: Selenium Select Class API</div>
+<p class="section-sub">Here is a comprehensive API reference for the <code>org.openqa.selenium.support.ui.Select</code> helper class, detailing its capabilities and return values.</p>
+
+<table class="compare-table">
+<thead><tr><th>Select Method</th><th>Return Type</th><th>Primary Purpose</th><th>Interview Importance</th></tr></thead>
+<tbody>
+<tr><td class="mono">selectByVisibleText(String text)</td><td>void</td><td>Selects option matching the exact user-facing label text.</td><td>⚡ Critical (Standard Selection)</td></tr>
+<tr><td class="mono">selectByValue(String value)</td><td>void</td><td>Selects option matching structural <code>value="..."</code> attribute.</td><td>⚡ High (Localization)</td></tr>
+<tr><td class="mono">selectByIndex(int index)</td><td>void</td><td>Selects option matching exact zero-based physical index.</td><td>⚡ Medium (Use with caution)</td></tr>
+<tr><td class="mono">getOptions()</td><td>List&lt;WebElement&gt;</td><td>Fetches all active option choices belonging to the select.</td><td>⭐ Critical (Option loops)</td></tr>
+<tr><td class="mono">getFirstSelectedOption()</td><td>WebElement</td><td>Returns currently selected choice option.</td><td>⭐ Critical (Assertion)</td></tr>
+<tr><td class="mono">getAllSelectedOptions()</td><td>List&lt;WebElement&gt;</td><td>Returns all selected options in a multi-select element.</td><td>⚡ Medium (Multi-select)</td></tr>
+<tr><td class="mono">isMultiple()</td><td>boolean</td><td>Returns true if parent tag has <code>multiple</code> attribute.</td><td>⚡ Medium (State Check)</td></tr>
+<tr><td class="mono">deselectAll() / deselectBy...()</td><td>void</td><td>Deselects choices. Only works on multi-select dropdowns.</td><td>⚡ Low (Multi-select only)</td></tr>
+</tbody>
+</table>
+
+<div class="section-title" style="font-size:1rem;margin-top:24px"><span class="dot"></span> Multi-Select Code Sample</div>
+<p class="section-sub">Standard Select APIs also support complex tasks, like handling multi-select controls.</p>
+<div class="code-wrap">
+<div class="code-header"><div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><span class="code-lang">☕ Java Implementation</span></div>
+<pre class="code-pre"><span class="cmt">// Validate multi-select capability</span>
+<span class="cls">WebElement</span> multiDropdown <span class="op">=</span> driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"skills-multi"</span>));
+<span class="cls">Select</span> select <span class="op">=</span> <span class="kw">new</span> <span class="cls">Select</span>(multiDropdown);
+
+<span class="kw">if</span> (select.<span class="fn">isMultiple</span>()) {
+    <span class="cmt">// Select multiple items</span>
+    select.<span class="fn">selectByVisibleText</span>(<span class="str">"Java"</span>);
+    select.<span class="fn">selectByVisibleText</span>(<span class="str">"Selenium"</span>);
+
+    <span class="cmt">// Assert selected list size</span>
+    <span class="cls">List</span>&lt;<span class="cls">WebElement</span>&gt; selections <span class="op">=</span> select.<span class="fn">getAllSelectedOptions</span>();
+    <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Total selections: "</span> <span class="op">+</span> selections.<span class="fn">size</span>()); <span class="cmt">// Outputs 2</span>
+
+    <span class="cmt">// Clear selections</span>
+    select.<span class="fn">deselectAll</span>();
+}</pre>
+</div>
+</div>
+
+<!-- ══════════════ TAB 5: PLAYGROUNDS ══════════════ -->
+<div class="tab-content" id="tab-playground">
+<div class="section-title"><span class="dot"></span> Live Dropdown Playground</div>
+<p class="section-sub">Practice automations on static select menus and dynamic React dropdown structures below.</p>
+
+<div class="browser-sim-wrap" style="margin-bottom:28px">
+<div class="browser-sim-header">
+<span>🖥️ Playground 1: Static HTML Dropdown Selection</span>
+</div>
+<div class="browser-sim-body">
+<div class="sim-controls">
+<button class="btn-sim" onclick="runStaticSim('text', 'India')">VisibleText("India")</button>
+<button class="btn-sim" onclick="runStaticSim('value', 'US')">Value("US")</button>
+<button class="btn-sim" onclick="runStaticSim('index', 3)">Index(3)</button>
+<button class="btn-reset-sim" onclick="resetStaticSim()">↺ Reset</button>
+</div>
+
+<div class="fake-browser">
+<div class="fb-titlebar">
+<div class="fb-dots"><div class="fb-dot red"></div><div class="fb-dot yel"></div><div class="fb-dot grn"></div></div>
+<div class="fb-url">https://demo-app.example.com/signup</div>
+</div>
+<div class="fb-content" style="min-height:160px;">
+<div class="fb-form-group">
+<label class="fb-label">Static Selection Dropdown <span style="font-size:.68rem;color:var(--text2)">(select#country-select)</span></label>
+<select class="fb-input" id="sim-country-select" onchange="syncFromDOMSelect()">
+<option value="">Select a country...</option>
+<option value="US">United States</option>
+<option value="IN">India</option>
+<option value="CA">Canada</option>
+</select>
+</div>
+<div style="font-size:.8rem;color:var(--text2)">
+<strong>DOM State Indicators:</strong> <br/>
+Selected Index: <span id="stat-idx" class="mono" style="color:var(--accent2)">0</span> | 
+Selected Value: <span id="stat-val" class="mono" style="color:var(--accent3)">N/A</span> | 
+Visible Text: <span id="stat-txt" class="mono" style="color:var(--accent)">Select a country...</span>
+</div>
+</div>
+</div>
+
+<div class="cmd-log">
+<div class="cmd-log-bar"><span>📋 Simulated Code execution and logs</span></div>
+<div class="cmd-log-body" id="static-log-out" style="min-height:90px;"><span class="cmt">// Trigger select controls above to execute scripts</span></div>
+</div>
+</div>
+</div>
+
+<div class="browser-sim-wrap">
+<div class="browser-sim-header">
+<span>🖥️ Playground 2: Dynamic Auto-Suggest Field Simulator</span>
+</div>
+<div class="browser-sim-body">
+<p class="section-sub">Type query characters like <b>"ind"</b>, <b>"can"</b>, or <b>"uni"</b> to simulate search rendering cycles.</p>
+<div class="fake-browser">
+<div class="fb-titlebar">
+<div class="fb-dots"><div class="fb-dot red"></div><div class="fb-dot yel"></div><div class="fb-dot grn"></div></div>
+<div class="fb-url">https://demo-app.example.com/flights</div>
+</div>
+<div class="fb-content" style="min-height:220px;position:relative;">
+<div class="fb-form-group">
+<label class="fb-label">Dynamic Airport Search Input <span style="font-size:.68rem;color:var(--text2)">(input#airport-input)</span></label>
+<input class="fb-input" id="sim-dyn-input" onkeyup="handleDynamicKeyup()" placeholder="Type 'ind' or 'can' or 'uni'..." type="text"/>
+<div id="sim-suggestion-box" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:8px;position:absolute;width:320px;z-index:90;box-shadow:0 10px 15px rgba(0,0,0,0.2);margin-top:4px;"></div>
+</div>
+<div class="fb-msg" id="sim-dyn-success"></div>
+</div>
+</div>
+
+<div class="cmd-log">
+<div class="cmd-log-bar"><span>📋 Dynamic automation logs and locator trace</span></div>
+<div class="cmd-log-body" id="dynamic-log-out" style="min-height:100px;"><span class="cmt">// Start typing in input search area above</span></div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ══════════════ TAB 6: COMMON ERRORS ══════════════ -->
+<div class="tab-content" id="tab-errors">
+<div class="section-title"><span class="dot"></span> Common Dropdown Errors &amp; Fixes</div>
+<p class="section-sub">Here are the four most common exceptions developers encounter when automatiing dropdowns, along with code fixes and best practices.</p>
+
+<div class="err-sim-btns">
+<button class="err-btn active" onclick="showErr('tagname',this)">UnexpectedTagNameException</button>
+<button class="err-btn" onclick="showErr('stale',this)">StaleElementReferenceException</button>
+<button class="err-btn" onclick="showErr('notinteract',this)">ElementNotInteractableException</button>
+<button class="err-btn" onclick="showErr('sync',this)">NoSuchElementException (Timing)</button>
+</div>
+
+<div class="err-panel active" id="err-tagname">
+<div class="err-hdr">🔴 UnexpectedTagNameException</div>
+<div class="err-body">
+<h4>What happened?</h4>
+<p>You attempted to use the standard Selenium <code>Select</code> class helper wrapper over an element that is not a native <code>&lt;select&gt;</code> component (such as a <code>&lt;div&gt;</code>, <code>&lt;span&gt;</code>, or <code>&lt;input&gt;</code> based dropdown menu).</p>
+<div class="err-msg">org.openqa.selenium.support.ui.UnexpectedTagNameException: Element should have been "select" but was "div"
+    at org.openqa.selenium.support.ui.Select.&lt;init&gt;(Select.java:47)</div>
+<div class="code-diff">
+<div class="diff-wrong"><div class="diff-lbl">❌ Wrong (Treating Div as Select)</div><div class="diff-code"><span class="cls">WebElement</span> customSelect <span class="op">=</span> driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"custom-react-dropdown"</span>));
+<span class="cls">Select</span> select <span class="op">=</span> <span class="kw">new</span> <span class="cls">Select</span>(customSelect); <span class="cmt">// Throws Exception!</span>
+select.<span class="fn">selectByVisibleText</span>(<span class="str">"India"</span>);</div></div>
+<div class="diff-right"><div class="diff-lbl">✅ Correct (Interactive Coordinate click)</div><div class="diff-code"><span class="cmt">// Click menu to open options, then click target item</span>
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"custom-react-dropdown"</span>)).<span class="fn">click</span>();
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">xpath</span>(<span class="str">"//div[@class='options']//span[text()='India']"</span>)).<span class="fn">click</span>();</div></div>
+</div>
+<div class="fix-tag">✅ Fix: Verify element tags in Developer Tools (F12) before initializing any Select class wrappers.</div>
+</div>
+</div>
+
+<div class="err-panel" id="err-stale">
+<div class="err-hdr">🔴 StaleElementReferenceException</div>
+<div class="err-body">
+<h4>What happened?</h4>
+<p>In dynamic single-page applications, selecting an option or modifying search fields causes elements in the DOM to completely destroy and re-render. Attempting to click elements located before the re-render throws this exception.</p>
+<div class="err-msg">org.openqa.selenium.StaleElementReferenceException: stale element reference: stale element not found in the current frame</div>
+<div class="code-diff">
+<div class="diff-wrong"><div class="diff-lbl">❌ Wrong (Using outdated elements)</div><div class="diff-code"><span class="cls">List</span>&lt;<span class="cls">WebElement</span>&gt; results <span class="op">=</span> driver.<span class="fn">findElements</span>(<span class="cls">By</span>.<span class="fn">cssSelector</span>(<span class="str">".option"</span>));
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"search"</span>)).<span class="fn">sendKeys</span>(<span class="str">"ind"</span>); <span class="cmt">// Rerenders DOM!</span>
+results.<span class="fn">get</span>(<span class="num">0</span>).<span class="fn">click</span>(); <span class="cmt">// Throws exception!</span></div></div>
+<div class="diff-right"><div class="diff-lbl">✅ Correct (Fresh retrieval)</div><div class="diff-code">driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"search"</span>)).<span class="fn">sendKeys</span>(<span class="str">"ind"</span>);
+<span class="cmt">// Wait and fetch freshly generated elements after DOM updates</span>
+<span class="cls">WebElement</span> firstFreshResult <span class="op">=</span> wait.<span class="fn">until</span>(<span class="cls">ExpectedConditions</span>
+  .<span class="fn">visibilityOfElementLocated</span>(<span class="cls">By</span>.<span class="fn">cssSelector</span>(<span class="str">".option"</span>)));
+firstFreshResult.<span class="fn">click</span>();</div></div>
+</div>
+<div class="fix-tag">✅ Fix: Re-locate or refresh element instances immediately after DOM modifications or parent-element clicks.</div>
+</div>
+</div>
+
+<div class="err-panel" id="err-notinteract">
+<div class="err-hdr">🔴 ElementNotInteractableException</div>
+<div class="err-body">
+<h4>What happened?</h4>
+<p>The suggestion options are present in the DOM, but they are either hidden behind custom viewport configurations or haven't fully expanded. Attempting to click them prematurely throws this exception.</p>
+<div class="err-msg">org.openqa.selenium.ElementNotInteractableException: element not interactable: Element is not currently visible and may not be manipulated</div>
+<div class="code-diff">
+<div class="diff-wrong"><div class="diff-lbl">❌ Wrong (Direct clicks without wait)</div><div class="diff-code">driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"dropdownBtn"</span>)).<span class="fn">click</span>();
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"option2"</span>)).<span class="fn">click</span>(); <span class="cmt">// Fails if dropdown menu is still opening</span></div></div>
+<div class="diff-right"><div class="diff-lbl">✅ Correct (Condition click state)</div><div class="diff-code">driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"dropdownBtn"</span>)).<span class="fn">click</span>();
+<span class="cls">WebElement</span> match <span class="op">=</span> wait.<span class="fn">until</span>(<span class="cls">ExpectedConditions</span>
+  .<span class="fn">elementToBeClickable</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"option2"</span>)));
+match.<span class="fn">click</span>();</div></div>
+</div>
+<div class="fix-tag">✅ Fix: Ensure suggestions are fully visible and clickable using explicit waits like <code>elementToBeClickable()</code>.</div>
+</div>
+</div>
+
+<div class="err-panel" id="err-sync">
+<div class="err-hdr">🔴 NoSuchElementException (Sync Issue)</div>
+<div class="err-body">
+<h4>What happened?</h4>
+<p>You tried to query auto-complete suggestions immediately after entering query parameters, before the backend service could respond with matches.</p>
+<div class="err-msg">org.openqa.selenium.NoSuchElementException: Unable to locate element: {"method":"xpath","selector":"//li[text()='India']"}</div>
+<div class="code-diff">
+<div class="diff-wrong"><div class="diff-lbl">❌ Wrong (Instant query call)</div><div class="diff-code">driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"search"</span>)).<span class="fn">sendKeys</span>(<span class="str">"Ind"</span>);
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">xpath</span>(<span class="str">"//li[text()='India']"</span>)).<span class="fn">click</span>(); <span class="cmt">// Instant click fails!</span></div></div>
+<div class="diff-right"><div class="diff-lbl">✅ Correct (Explicit wait)</div><div class="diff-code">driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"search"</span>)).<span class="fn">sendKeys</span>(<span class="str">"Ind"</span>);
+wait.<span class="fn">until</span>(<span class="cls">ExpectedConditions</span>.<span class="fn">visibilityOfElementLocated</span>(
+  <span class="cls">By</span>.<span class="fn">xpath</span>(<span class="str">"//li[text()='India']"</span>)
+)).<span class="fn">click</span>();</div></div>
+</div>
+<div class="fix-tag">✅ Fix: Always include explicit waits when working with elements generated by asynchronous network operations.</div>
+</div>
+</div>
+</div>
+
+<!-- ══════════════ TAB 7: QUIZ ══════════════ -->
+<div class="tab-content" id="tab-quiz">
+<div class="section-title"><span class="dot"></span> Quick Check</div>
+<p class="section-sub">8 questions — test your understanding of static and dynamic dropdown automation.</p>
+<div class="quiz-container">
+
+<div class="quiz-block">
+<div class="quiz-num">Question 1 of 8</div>
+<div class="quiz-q">Which tag must the dropdown element possess to work with the Selenium <span class="quiz-code">Select</span> class?</div>
+<div class="quiz-opts">
+<div class="quiz-opt" onclick="answerQ(1,this,false)">⬜ &lt;div&gt;</div>
+<div class="quiz-opt" onclick="answerQ(1,this,true)">⬜ &lt;select&gt;</div>
+<div class="quiz-opt" onclick="answerQ(1,this,false)">⬜ &lt;input&gt;</div>
+<div class="quiz-opt" onclick="answerQ(1,this,false)">⬜ &lt;ul&gt;</div>
+</div>
+<div class="quiz-feedback" id="qf1"></div>
+</div>
+
+<div class="quiz-block">
+<div class="quiz-num">Question 2 of 8</div>
+<div class="quiz-q">Which Select class method is best suited for localized applications where user-facing text changes across languages?</div>
+<div class="quiz-opts">
+<div class="quiz-opt" onclick="answerQ(2,this,false)">⬜ selectByVisibleText()</div>
+<div class="quiz-opt" onclick="answerQ(2,this,true)">⬜ selectByValue()</div>
+<div class="quiz-opt" onclick="answerQ(2,this,false)">⬜ selectByIndex()</div>
+<div class="quiz-opt" onclick="answerQ(2,this,false)">⬜ selectByTagName()</div>
+</div>
+<div class="quiz-feedback" id="qf2"></div>
+</div>
+
+<div class="quiz-block">
+<div class="quiz-num">Question 3 of 8</div>
+<div class="quiz-q">What exception is thrown if you pass a dynamic list container (e.g., <span class="quiz-code">&lt;ul&gt;</span>) into <span class="quiz-code">new Select(element)</span>?</div>
+<div class="quiz-opts">
+<div class="quiz-opt" onclick="answerQ(3,this,false)">⬜ ElementNotInteractableException</div>
+<div class="quiz-opt" onclick="answerQ(3,this,true)">⬜ UnexpectedTagNameException</div>
+<div class="quiz-opt" onclick="answerQ(3,this,false)">⬜ StaleElementReferenceException</div>
+<div class="quiz-opt" onclick="answerQ(3,this,false)">⬜ NoSuchElementException</div>
+</div>
+<div class="quiz-feedback" id="qf3"></div>
+</div>
+
+<div class="quiz-block">
+<div class="quiz-num">Question 4 of 8</div>
+<div class="quiz-q">Why is <span class="quiz-code">selectByIndex()</span> generally discouraged in enterprise automation suites?</div>
+<div class="quiz-opts">
+<div class="quiz-opt" onclick="answerQ(4,this,false)">⬜ It runs significantly slower than other options</div>
+<div class="quiz-opt" onclick="answerQ(4,this,false)">⬜ It requires an active internet connection to execute</div>
+<div class="quiz-opt" onclick="answerQ(4,this,true)">⬜ It is brittle — structural layout changes or list re-ordering will break the script</div>
+<div class="quiz-opt" onclick="answerQ(4,this,false)">⬜ WebDriver does not support it in Chrome</div>
+</div>
+<div class="quiz-feedback" id="qf4"></div>
+</div>
+
+<div class="quiz-block">
+<div class="quiz-num">Question 5 of 8</div>
+<div class="quiz-q">Which Select API method returns all option elements belonging to the dropdown?</div>
+<div class="quiz-opts">
+<div class="quiz-opt" onclick="answerQ(5,this,false)">⬜ getAllSelectedOptions()</div>
+<div class="quiz-opt" onclick="answerQ(5,this,true)">⬜ getOptions()</div>
+<div class="quiz-opt" onclick="answerQ(5,this,false)">⬜ getFirstSelectedOption()</div>
+<div class="quiz-opt" onclick="answerQ(5,this,false)">⬜ getDropdownItems()</div>
+</div>
+<div class="quiz-feedback" id="qf5"></div>
+</div>
+
+<div class="quiz-block">
+<div class="quiz-num">Question 6 of 8</div>
+<div class="quiz-q">When automating a dynamic auto-suggest dropdown, what is the best strategy to handle suggestions?</div>
+<div class="quiz-opts">
+<div class="quiz-opt" onclick="answerQ(6,this,false)">⬜ Use Thread.sleep(5000) immediately after typing</div>
+<div class="quiz-opt" onclick="answerQ(6,this,true)">⬜ Type query characters, wait explicitly for suggestions to render in the DOM, and click the matching element</div>
+<div class="quiz-opt" onclick="answerQ(6,this,false)">⬜ Use the Select class to choose from the returned options</div>
+<div class="quiz-opt" onclick="answerQ(6,this,false)">⬜ Rely on driver.navigate().refresh() to update elements</div>
+</div>
+<div class="quiz-feedback" id="qf6"></div>
+</div>
+
+<div class="quiz-block">
+<div class="quiz-num">Question 7 of 8</div>
+<div class="quiz-q">What exception is thrown if dynamic page suggestions re-render and update in the background before Selenium clicks them?</div>
+<div class="quiz-opts">
+<div class="quiz-opt" onclick="answerQ(7,this,true)">⬜ StaleElementReferenceException</div>
+<div class="quiz-opt" onclick="answerQ(7,this,false)">⬜ UnexpectedTagNameException</div>
+<div class="quiz-opt" onclick="answerQ(7,this,false)">⬜ InvalidArgumentException</div>
+<div class="quiz-opt" onclick="answerQ(7,this,false)">⬜ WebDriverException</div>
+</div>
+<div class="quiz-feedback" id="qf7"></div>
+</div>
+
+<div class="quiz-block">
+<div class="quiz-num">Question 8 of 8</div>
+<div class="quiz-q">How can you verify if a native Select dropdown allows picking multiple options simultaneously?</div>
+<div class="quiz-opts">
+<div class="quiz-opt" onclick="answerQ(8,this,false)">⬜ By calling select.getAllSelectedOptions() and checking if it returns null</div>
+<div class="quiz-opt" onclick="answerQ(8,this,true)">⬜ By calling the select.isMultiple() boolean method</div>
+<div class="quiz-opt" onclick="answerQ(8,this,false)">⬜ By checking if select.getOptions() contains more than 10 options</div>
+<div class="quiz-opt" onclick="answerQ(8,this,false)">⬜ Standard HTML dropdowns do not support multiple selections</div>
+</div>
+<div class="quiz-feedback" id="qf8"></div>
+</div>
+
+</div>
+
+<div class="score-box" id="score-box">
+<div class="score-num" id="score-num">0/8</div>
+<div class="score-label" id="score-lbl"></div>
+<button class="btn-retake" onclick="retakeQuiz()">↺ Retake Quiz</button>
+</div>
+</div>
+</div><!-- /tabs-wrapper -->
+
+<div class="course-nav">
+<div class="course-nav-left">
+<a href="w3_t1_selenium-locators.html">← Previous</a>
+<a href="../index.html">🏠 Home</a>
+</div>
+<div class="course-nav-right">
+<a href="w3_t3_checkbox-radiobuttons.html">Next →</a>
+</div>
+</div>
+</div><!-- /container -->
+
+<script>
+/* ══ THEME ══════════════════════════════════════════════════ */
+function toggleTheme(){
+  var h=document.documentElement,b=document.getElementById('themeToggle');
+  h.dataset.theme=h.dataset.theme==='dark'?'light':'dark';
+  b.textContent=h.dataset.theme==='dark'?'☀ Light':'🌙 Dark';
+}
+
+/* ══ TABS ════════════════════════════════════════════════════ */
+function switchTab(id,btn){
+  document.querySelectorAll('.tab-content').forEach(function(t){t.classList.remove('active');});
+  document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
+  document.getElementById('tab-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ══ DYNAMIC FLOW ANIMATION ═══════════════════════════════════ */
+var _dfTimer=null, _dfRunning=false;
+function animateDynamicFlow(){
+  if(_dfRunning) return;
+  resetDynamicFlow();
+  _dfRunning=true;
+  var btn=document.getElementById('btn-flow-dyn');
+  btn.disabled=true; btn.textContent='⏸ Animating...';
+  var boxes=['dfp1','dfp2','dfp3','dfp4'], arrows=['dfa1','dfa2','dfa3'];
+  var d=0;
+  boxes.forEach(function(id,i){
+    setTimeout(function(){
+      document.getElementById(id).classList.add('active');
+      if(i<arrows.length) document.getElementById(arrows[i]).classList.add('lit');
+    },d);
+    d+=700;
+    setTimeout(function(){
+      if(i>0) document.getElementById(boxes[i-1]).classList.replace('active','done');
+    },d-200);
+  });
+  setTimeout(function(){
+    document.getElementById('dfp4').classList.replace('active','done');
+    btn.disabled=false; btn.textContent='▶ Animate Dynamic Flow'; _dfRunning=false;
+  },d+200);
+}
+function resetDynamicFlow(){
+  if(_dfTimer) clearTimeout(_dfTimer);
+  ['dfp1','dfp2','dfp3','dfp4'].forEach(function(id){
+    document.getElementById(id).classList.remove('active','done');
+  });
+  ['dfa1','dfa2','dfa3'].forEach(function(id){
+    document.getElementById(id).classList.remove('lit');
+  });
+  var btn=document.getElementById('btn-flow-dyn');
+  btn.disabled=false; btn.textContent='▶ Animate Dynamic Flow'; _dfRunning=false;
+}
+
+/* ══ PLAYGROUND 1: STATIC SIMULATOR ══════════════════════════ */
+function runStaticSim(strategy, val) {
+  var selectEl = document.getElementById('sim-country-select');
+  var out = document.getElementById('static-log-out');
+  
+  if (strategy === 'text') {
+    selectEl.value = 'IN';
+    out.innerHTML = '<span class="c-info">// 1. Locate and wrap select tag in object</span>\n' +
+                    '<span class="c-sel">Select select = new Select(driver.findElement(By.id("country-select")));</span>\n' +
+                    '<span class="c-info">// 2. Execute visible text selection</span>\n' +
+                    '<span class="c-sel">select.selectByVisibleText("India");</span>\n' +
+                    '<span class="c-ok">→ SUCCESS: Options matching visible text "India" selected!</span>';
+  } else if (strategy === 'value') {
+    selectEl.value = 'US';
+    out.innerHTML = '<span class="c-info">// 1. Locate and wrap select tag in object</span>\n' +
+                    '<span class="c-sel">Select select = new Select(driver.findElement(By.id("country-select")));</span>\n' +
+                    '<span class="c-info">// 2. Execute selection by value attribute</span>\n' +
+                    '<span class="c-sel">select.selectByValue("US");</span>\n' +
+                    '<span class="c-ok">→ SUCCESS: Options matching attribute value "US" selected!</span>';
+  } else if (strategy === 'index') {
+    selectEl.value = 'CA';
+    out.innerHTML = '<span class="c-info">// 1. Locate and wrap select tag in object</span>\n' +
+                    '<span class="c-sel">Select select = new Select(driver.findElement(By.id("country-select")));</span>\n' +
+                    '<span class="c-info">// 2. Execute index-based selection</span>\n' +
+                    '<span class="c-sel">select.selectByIndex(3);</span>\n' +
+                    '<span class="c-ok">→ SUCCESS: Element option at target index 3 selected!</span>';
+  }
+  syncFromDOMSelect();
+}
+
+function syncFromDOMSelect() {
+  var selectEl = document.getElementById('sim-country-select');
+  var idx = selectEl.selectedIndex;
+  var opt = selectEl.options[idx];
+  
+  document.getElementById('stat-idx').textContent = idx;
+  document.getElementById('stat-val').textContent = opt.value ? opt.value : 'N/A';
+  document.getElementById('stat-txt').textContent = opt.text;
+}
+
+function resetStaticSim() {
+  document.getElementById('sim-country-select').value = '';
+  document.getElementById('static-log-out').innerHTML = '<span class="cmt">// Trigger select controls above to execute scripts</span>';
+  syncFromDOMSelect();
+}
+
+/* ══ PLAYGROUND 2: DYNAMIC SIMULATOR ══════════════════════════ */
+var suggestionsDB = {
+  ind: ["India", "Indonesia"],
+  can: ["Canada", "Canary Islands"],
+  uni: ["United States", "United Kingdom", "United Arab Emirates"]
+};
+
+function handleDynamicKeyup() {
+  var inp = document.getElementById('sim-dyn-input').value.toLowerCase().trim();
+  var box = document.getElementById('sim-suggestion-box');
+  var log = document.getElementById('dynamic-log-out');
+  var msg = document.getElementById('sim-dyn-success');
+  
+  msg.style.display = 'none';
+  
+  if (inp === '') {
+    box.style.display = 'none';
+    log.innerHTML = '<span class="cmt">// Start typing in input search area above</span>';
+    return;
+  }
+  
+  log.innerHTML = '<span class="c-info">// 1. User typed query character: "' + inp + '"</span>\n' +
+                  '<span class="c-sel">driver.findElement(By.id("airport-input")).sendKeys("' + inp + '");</span>\n';
+                  
+  var matches = [];
+  for (var key in suggestionsDB) {
+    if (key.indexOf(inp) === 0 || inp.indexOf(key) === 0) {
+      matches = suggestionsDB[key];
+    }
+  }
+  
+  if (matches.length > 0) {
+    box.innerHTML = '';
+    matches.forEach(function(item) {
+      var li = document.createElement('div');
+      li.style.padding = '10px 14px';
+      li.style.cursor = 'pointer';
+      li.style.borderBottom = '1px solid var(--border)';
+      li.style.fontSize = '.85rem';
+      li.style.color = 'var(--text)';
+      li.textContent = item;
+      li.onmouseover = function() { this.style.background = 'var(--surface2)'; };
+      li.onmouseout = function() { this.style.background = 'none'; };
+      li.onclick = function() { selectDynamicItem(item); };
+      box.appendChild(li);
+    });
+    box.style.display = 'block';
+    log.innerHTML += '<span class="c-info">// 2. Dynamic nodes rendered in viewport DOM. Wait for matches...</span>\n' +
+                     '<span class="c-sel">wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@id=\'box\']//div")));</span>';
+  } else {
+    box.style.display = 'none';
+    log.innerHTML += '<span class="c-dim">// No options found matching search criteria.</span>';
+  }
+}
+
+function selectDynamicItem(item) {
+  var inp = document.getElementById('sim-dyn-input');
+  var box = document.getElementById('sim-suggestion-box');
+  var log = document.getElementById('dynamic-log-out');
+  var msg = document.getElementById('sim-dyn-success');
+  
+  inp.value = item;
+  box.style.display = 'none';
+  
+  log.innerHTML = '<span class="c-info">// 1. Enter query characters</span>\n' +
+                  '<span class="c-sel">driver.findElement(By.id("airport-input")).sendKeys("' + item.substring(0,3).toLowerCase() + '");</span>\n' +
+                  '<span class="c-info">// 2. Target match via clean XPath syntax click</span>\n' +
+                  '<span class="c-sel">driver.findElement(By.xpath("//div[text()=\'' + item + '\']")).click();</span>\n' +
+                  '<span class="c-ok">→ SUCCESS: Selected Dynamic option "' + item + '" directly from DOM!</span>';
+                  
+  msg.className = 'fb-msg success';
+  msg.style.display = 'block';
+  msg.textContent = '✅ Selected Option: ' + item;
+}
+
+/* ══ ERROR TAB ══════════════════════════════════════════════ */
+function showErr(id,btn){
+  document.querySelectorAll('.err-panel').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.err-btn').forEach(function(b){b.classList.remove('active');});
+  document.getElementById('err-'+id).classList.add('active');btn.classList.add('active');
+}
+
+/* ══ QUIZ ════════════════════════════════════════════════════ */
+var quizExp={
+  1:{c:'✅ Correct! The standard Selenium Select class only works on native HTML <select> elements. Attempting to run it on div or span custom containers will throw an UnexpectedTagNameException.',
+     w:'❌ Not quite. The Select class strictly requires a native <select> tag in the DOM to operate.'},
+  2:{c:'✅ Correct! selectByValue() uses structural "value" properties that typically remain constant across server-side localized translations, keeping tests robust in multi-language environments.',
+     w:'❌ Not quite. Visible text changes dynamically with user localization settings. Values remain structurally constant across translation files.'},
+  3:{c:'✅ Correct! The constructor of the Select class verifies if the passed element is indeed a select element. If not, it directly raises an UnexpectedTagNameException.',
+     w:'❌ Incorrect. The wrapper throws an UnexpectedTagNameException because the underlying structural requirements for native select loops are missing.'},
+  4:{c:'✅ Correct! Indexes are highly volatile. Adding, removing, or re-ordering any options inside database tables changes option indices and will instantly cause script breakages.',
+     w:'❌ Incorrect. Running speed is unaffected, but the risk of test failures remains extremely high if option sorting or indices change.'},
+  5:{c:'✅ Correct! getOptions() returns all options inside the dropdown list as a List of WebElements. This is useful for validation and menu audits.',
+     w:'❌ Incorrect. getAllSelectedOptions() only returns options currently selected in a multi-select control, not all available options.'},
+  6:{c:'✅ Correct! Dynamic auto-suggest components do not use select tags. You must enter query keys, wait for elements to render in the DOM, and click the targets.',
+     w:'❌ Incorrect. The Select helper class will fail with an UnexpectedTagNameException on dynamic elements.'},
+  7:{c:'✅ Correct! This exception indicates that the DOM item was destroyed or updated in the background after it was located but before an interaction (like click()) occurred.',
+     w:'❌ Incorrect. When an element is destroyed and recreated in the DOM, it throws a StaleElementReferenceException.'},
+  8:{c:'✅ Correct! calling select.isMultiple() returns a boolean indicating whether the native select element has the "multiple" attribute enabled.',
+     w:'❌ Incorrect. The boolean method select.isMultiple() is the standard API way to check if a dropdown supports multiple concurrent choices.'}
+};
+
+var qAns={},qCorrect=0;
+function answerQ(n,el,correct){
+  if(qAns[n]!==undefined) return;
+  qAns[n]=correct; if(correct) qCorrect++;
+  el.closest('.quiz-opts').querySelectorAll('.quiz-opt').forEach(function(o){o.classList.add('disabled');});
+  el.classList.add(correct?'correct':'wrong');
+  var fb=document.getElementById('qf'+n);
+  fb.innerHTML=correct?quizExp[n].c:quizExp[n].w;
+  fb.className='quiz-feedback show '+(correct?'correct':'wrong');
+  if(Object.keys(qAns).length===8) setTimeout(showScore,500);
+}
+
+function showScore(){
+  var box=document.getElementById('score-box'),num=document.getElementById('score-num'),lbl=document.getElementById('score-lbl');
+  num.textContent=qCorrect+'/8';
+  num.style.color=qCorrect===8?'var(--accent3)':qCorrect>=5?'var(--accent)':'var(--accent4)';
+  lbl.textContent=qCorrect===8?'🎉 Perfect! You have mastered both Static and Dynamic dropdown automation.':
+    qCorrect>=5?'👍 Solid progress! Review the questions you missed before proceeding.':'📖 We recommend reviewing the Dynamic Dropdowns and Select Class tabs before proceeding.';
+  box.classList.add('show');
+}
+
+function retakeQuiz(){
+  qAns={}; qCorrect=0;
+  document.getElementById('score-box').classList.remove('show');
+  document.querySelectorAll('.quiz-opt').forEach(function(o){o.className='quiz-opt';});
+  document.querySelectorAll('.quiz-feedback').forEach(function(f){f.className='quiz-feedback';f.innerHTML='';});
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1808 @@
+<!DOCTYPE html>
+<html data-theme="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Selenium Checkboxes &amp; Radio Buttons</title>
+<style>
+/* ── TOKENS ─────────────────────────────────────────────── */
+:root {
+  --bg:#0d1117; --surface:#161b22; --surface2:#1f2937; --border:#30363d;
+  --accent:#f89820; --accent2:#4fa3e0; --accent3:#58d68d; --accent4:#e74c3c; --accent5:#c678dd;
+  --text:#e6edf3; --text2:#8b949e; --text3:#c9d1d9;
+  --tab-bg:#161b22; --tab-active:#1f2937; --code-bg:#0d1117;
+  --radius:10px; --font-mono:'Courier New',Courier,monospace;
+  --sel:#43b02a;
+}
+[data-theme="light"]{
+  --bg:#f0f4f8; --surface:#ffffff; --surface2:#e8eef5; --border:#d1d9e0;
+  --text:#1a202c; --text2:#4a5568; --text3:#2d3748;
+  --tab-bg:#e8eef5; --tab-active:#ffffff; --code-bg:#e2e8f0;
+}
+[data-theme="light"] pre,[data-theme="light"] .code-pre{color:#1a202c;background:#e2e8f0;}
+[data-theme="light"] .quiz-code,[data-theme="light"] .card code,
+[data-theme="light"] .info-box code,[data-theme="light"] code{background:#dde4ee;color:var(--text);border:1px solid var(--border);}
+[data-theme="light"] .kw{color:#7c3aed;}[data-theme="light"] .cls{color:#b45309;}
+[data-theme="light"] .fn{color:#1d4ed8;}[data-theme="light"] .str{color:#15803d;}
+[data-theme="light"] .cmt{color:#6b7280;}[data-theme="light"] .num{color:#c2410c;}
+[data-theme="light"] .xml-tag{color:#be185d;}[data-theme="light"] .xml-val{color:#15803d;}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);
+  min-height:100vh;transition:background .3s,color .3s;line-height:1.65;
+  user-select:none;-webkit-user-select:none;}
+
+#watermark{position:fixed;bottom:14px;right:18px;font-size:.7rem;color:var(--text2);
+  opacity:.44;pointer-events:none;z-index:800;letter-spacing:.2px;white-space:nowrap;}
+
+/* ── HEADER ─────────────────────────────────────────────── */
+header{background:var(--surface);border-bottom:1px solid var(--border);
+  padding:0 32px;display:flex;align-items:center;justify-content:space-between;
+  height:62px;position:sticky;top:0;z-index:100;box-shadow:0 1px 0 var(--border);}
+.logo{display:flex;align-items:center;gap:10px;font-size:1.05rem;font-weight:700;}
+.logo-icon{width:32px;height:32px;border-radius:8px;
+  background:linear-gradient(135deg,#43b02a,#26890c);
+  display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:#fff;}
+.badge{font-size:.68rem;font-weight:600;padding:2px 8px;border-radius:20px;
+  background:var(--accent2);color:#000;text-transform:uppercase;letter-spacing:.5px;}
+#themeToggle{background:var(--surface2);border:1px solid var(--border);color:var(--text);
+  border-radius:8px;padding:6px 14px;cursor:pointer;font-size:.85rem;transition:all .2s;}
+#themeToggle:hover{border-color:var(--accent);color:var(--accent);}
+
+/* ── LAYOUT ─────────────────────────────────────────────── */
+.container{max-width:1100px;margin:0 auto;padding:32px 20px 80px;}
+
+/* ── HERO ───────────────────────────────────────────────── */
+.hero{background:linear-gradient(135deg,var(--surface),var(--surface2));
+  border:1px solid var(--border);border-radius:14px;padding:36px 40px;
+  margin-bottom:28px;display:flex;align-items:center;gap:28px;
+  position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:240px;height:240px;
+  border-radius:50%;background:radial-gradient(circle,rgba(79,163,224,.14) 0%,transparent 70%);
+  pointer-events:none;}
+.hero-icon{font-size:64px;flex-shrink:0;filter:drop-shadow(0 4px 16px rgba(79,163,224,.4));}
+.hero-text h1{font-size:1.75rem;font-weight:800;line-height:1.2;}
+.hero-text h1 span{color:var(--accent2);}
+.hero-text p{color:var(--text2);margin-top:8px;font-size:.95rem;}
+.hero-pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;}
+.pill{padding:4px 12px;border-radius:20px;font-size:.78rem;font-weight:600;
+  border:1px solid;display:flex;align-items:center;gap:5px;}
+.pill-orange{color:var(--accent);border-color:rgba(248,152,32,.35);background:rgba(248,152,32,.08);}
+.pill-blue{color:var(--accent2);border-color:rgba(79,163,224,.35);background:rgba(79,163,224,.08);}
+.pill-green{color:var(--accent3);border-color:rgba(88,214,141,.35);background:rgba(88,214,141,.08);}
+.pill-purple{color:var(--accent5);border-color:rgba(198,120,221,.35);background:rgba(198,120,221,.08);}
+.pill-sel{color:var(--sel);border-color:rgba(67,176,42,.35);background:rgba(67,176,42,.08);}
+
+/* ── BREADCRUMB ROW ─────────────────────────────────────── */
+.breadcrumb-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.breadcrumb{display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--text2);}
+.breadcrumb span{color:var(--accent2);font-weight:600;}
+.watermark{font-size:.7rem;color:var(--text2);opacity:.52;letter-spacing:.3px;
+  white-space:nowrap;font-weight:500;}
+
+/* ── TABS ───────────────────────────────────────────────── */
+.tabs-wrapper{background:var(--tab-bg);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.tab-nav{display:flex;overflow-x:auto;border-bottom:1px solid var(--border);scrollbar-width:none;}
+.tab-nav::-webkit-scrollbar{display:none;}
+.tab-btn{flex-shrink:0;padding:13px 18px;background:none;border:none;color:var(--text2);
+  font-size:.83rem;font-weight:600;cursor:pointer;position:relative;transition:color .2s;
+  display:flex;align-items:center;gap:6px;}
+.tab-btn:hover{color:var(--text);}
+.tab-btn.active{color:var(--accent2);background:var(--tab-active);}
+.tab-btn.active::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+  background:var(--accent2);border-radius:2px 2px 0 0;}
+.tab-content{display:none;padding:32px;}
+.tab-content.active{display:block;animation:fadeIn .25s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ── SECTION HEADINGS ───────────────────────────────────── */
+.section-title{font-size:1.2rem;font-weight:800;margin-bottom:6px;display:flex;align-items:center;gap:9px;}
+.section-title .dot{width:10px;height:10px;border-radius:50%;background:var(--accent2);}
+.section-sub{color:var(--text2);font-size:.9rem;margin-bottom:22px;}
+
+/* ── CARDS ──────────────────────────────────────────────── */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px;margin-bottom:28px;}
+.card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);
+  padding:20px;transition:border-color .2s,transform .2s;}
+.card:hover{border-color:var(--accent2);transform:translateY(-2px);}
+.card-icon{font-size:1.6rem;margin-bottom:10px;}
+.card h3{font-size:.95rem;font-weight:700;margin-bottom:6px;}
+.card p{font-size:.83rem;color:var(--text2);line-height:1.55;}
+.card code{font-family:var(--font-mono);font-size:.78rem;background:var(--code-bg);
+  padding:1px 6px;border-radius:4px;color:var(--accent3);border:1px solid var(--border);}
+
+/* ── INFO BOX ───────────────────────────────────────────── */
+.info-box{border-radius:var(--radius);padding:16px 20px;font-size:.875rem;
+  margin-bottom:20px;border-left:4px solid;display:flex;gap:12px;align-items:flex-start;}
+.info-box .ib-icon{font-size:1.2rem;flex-shrink:0;margin-top:1px;}
+.info-box.blue{background:rgba(79,163,224,.1);border-color:var(--accent2);}
+.info-box.orange{background:rgba(248,152,32,.1);border-color:var(--accent);}
+.info-box.green{background:rgba(88,214,141,.1);border-color:var(--accent3);}
+.info-box.red{background:rgba(231,76,60,.1);border-color:var(--accent4);}
+.info-box.sel{background:rgba(67,176,42,.1);border-color:var(--sel);}
+.info-box.purple{background:rgba(198,120,221,.1);border-color:var(--accent5);}
+.info-box code{font-family:var(--font-mono);font-size:.82rem;background:var(--code-bg);
+  padding:1px 6px;border-radius:4px;color:var(--accent3);border:1px solid var(--border);}
+
+/* ── CODE BLOCK ─────────────────────────────────────────── */
+.code-wrap{background:var(--code-bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin:16px 0;}
+.code-header{display:flex;align-items:center;justify-content:space-between;
+  padding:10px 16px;border-bottom:1px solid var(--border);background:rgba(255,255,255,.03);}
+.code-lang{font-size:.75rem;color:var(--text2);font-weight:600;}
+.code-dots{display:flex;gap:5px;}
+.code-dots span{width:11px;height:11px;border-radius:50%;}
+.code-dots .r{background:#ff5f57;}.code-dots .y{background:#ffbd2e;}.code-dots .g{background:#28c840;}
+.code-pre{padding:20px;overflow-x:auto;font-family:var(--font-mono);font-size:.85rem;line-height:1.75;color:#abb2bf;white-space:pre;}
+.kw{color:#c678dd;font-weight:600;}.cls{color:#e5c07b;}.fn{color:#61afef;}
+.str{color:#98c379;}.cmt{color:#5c6370;font-style:italic;}.num{color:#d19a66;}.op{color:#56b6c2;}
+.xml-tag{color:#e06c75;}.xml-attr{color:#d19a66;}.xml-val{color:#98c379;}
+
+/* ── FLOW PIPELINE ──────────────────────────────────────── */
+.flow-pipe{display:flex;flex-direction:column;gap:6px;margin:20px 0;}
+.fp-row{display:flex;align-items:center;gap:12px;}
+.fp-box{flex:1;background:var(--surface2);border:2px solid var(--border);border-radius:var(--radius);
+  padding:13px 18px;display:flex;align-items:center;gap:12px;transition:all .3s;}
+.fp-box.active{border-color:var(--accent2);background:rgba(79,163,224,.08);box-shadow:0 0 0 3px rgba(79,163,224,.15);}
+.fp-box.done{border-color:var(--accent3);background:rgba(88,214,141,.07);}
+.fp-icon{font-size:1.4rem;flex-shrink:0;}
+.fp-info .fp-label{font-size:.7rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.4px;}
+.fp-info .fp-title{font-size:.9rem;font-weight:700;margin-top:1px;}
+.fp-arrow{text-align:center;font-size:.8rem;color:var(--text2);padding:4px 0;}
+.fp-arrow.lit{color:var(--accent3);}
+
+/* ── ITER STEPS ─────────────────────────────────────────── */
+.iter-steps{display:flex;flex-direction:column;gap:10px;margin:16px 0;}
+.iter-row{display:flex;gap:14px;align-items:flex-start;background:var(--surface2);
+  border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;transition:border-color .2s;}
+.iter-row:hover{border-color:var(--accent2);}
+.iter-num{flex-shrink:0;width:28px;height:28px;border-radius:50%;background:var(--accent2);
+  color:#000;font-weight:800;font-size:.8rem;display:flex;align-items:center;justify-content:center;margin-top:1px;}
+.iter-body h4{font-size:.88rem;font-weight:700;margin-bottom:3px;}
+.iter-body p{font-size:.82rem;color:var(--text2);}
+.iter-body code{font-family:var(--font-mono);font-size:.8rem;background:var(--code-bg);
+  padding:1px 6px;border-radius:4px;color:var(--accent3);border:1px solid var(--border);}
+
+/* ── COMPARE TABLE ──────────────────────────────────────── */
+.compare-table{width:100%;border-collapse:collapse;font-size:.875rem;margin:16px 0;}
+.compare-table th{text-align:left;padding:10px 16px;background:var(--surface2);color:var(--text2);
+  font-weight:700;font-size:.78rem;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);}
+.compare-table td{padding:11px 16px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.compare-table tr:last-child td{border-bottom:none;}
+.compare-table tr:hover td{background:rgba(255,255,255,.02);}
+.mono{font-family:var(--font-mono);font-size:.82rem;color:var(--accent3);}
+
+/* ── NAV PILL ROW ───────────────────────────────────────── */
+.nav-pills{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0;}
+.nav-pill{padding:7px 16px;border-radius:8px;background:var(--surface2);
+  border:1px solid var(--border);font-size:.83rem;font-weight:600;color:var(--text2);}
+.nav-pill.active{background:rgba(79,163,224,.12);border-color:var(--accent2);color:var(--accent2);}
+
+/* ── BROWSER SIM ────────────────────────────────────────── */
+.fake-browser{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:18px;}
+.fb-titlebar{background:#1a1d23;padding:10px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);}
+.fb-dots{display:flex;gap:5px;}
+.fb-dot{width:12px;height:12px;border-radius:50%;}
+.fb-dot.red{background:#ff5f57;}.fb-dot.yel{background:#ffbd2e;}.fb-dot.grn{background:#28c840;}
+.fb-url{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:6px;
+  padding:5px 12px;font-size:.78rem;color:var(--text2);font-family:var(--font-mono);}
+.fb-content{padding:28px 32px;min-height:260px;}
+.fb-page-title{font-size:1.1rem;font-weight:800;margin-bottom:20px;color:var(--text);}
+
+/* Command log */
+.cmd-log{background:var(--code-bg);border:1px solid var(--border);border-radius:var(--radius);
+  overflow:hidden;margin-bottom:18px;}
+.cmd-log-bar{padding:9px 16px;background:rgba(255,255,255,.03);border-bottom:1px solid var(--border);
+  font-size:.78rem;color:var(--text2);font-weight:600;display:flex;align-items:center;gap:8px;}
+.cmd-log-body{padding:14px 18px;font-family:var(--font-mono);font-size:.84rem;
+  min-height:90px;line-height:1.9;white-space:pre-wrap;color:#abb2bf;max-height:220px;overflow-y:auto;}
+.c-sel{color:#43b02a;}.c-dim{color:#555;}.c-info{color:#7ec8e3;}.c-ok{color:#a8ff78;}.c-warn{color:#f89820;}
+
+/* Sim controls */
+.sim-controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;}
+.btn-sim{background:linear-gradient(135deg,var(--accent2),#2980b9);color:#fff;border:none;
+  border-radius:8px;padding:10px 24px;font-weight:800;font-size:.875rem;cursor:pointer;
+  transition:opacity .2s,transform .2s;}
+.btn-sim:hover{opacity:.88;transform:translateY(-1px);}
+.btn-sim:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.btn-reset-sim{background:none;border:1px solid var(--border);color:var(--text2);
+  border-radius:8px;padding:10px 18px;font-size:.875rem;cursor:pointer;transition:all .2s;}
+.btn-reset-sim:hover{border-color:var(--text2);color:var(--text);}
+.btn-run-all{background:linear-gradient(135deg,var(--sel),#1e6b0e);color:#fff;border:none;
+  border-radius:8px;padding:10px 24px;font-weight:800;font-size:.875rem;cursor:pointer;
+  transition:opacity .2s,transform .2s;}
+.btn-run-all:hover{opacity:.88;transform:translateY(-1px);}
+.btn-run-all:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.btn-step{background:linear-gradient(135deg,var(--accent5),#9b4dca);color:#fff;border:none;
+  border-radius:8px;padding:10px 20px;font-weight:800;font-size:.875rem;cursor:pointer;
+  transition:opacity .2s,transform .2s;}
+.btn-step:hover{opacity:.88;transform:translateY(-1px);}
+.btn-step:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+
+/* Result pills */
+.result-pills{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px;min-height:34px;}
+.rpill{display:flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;
+  font-size:.82rem;font-weight:600;border:1px solid;animation:fadeIn .2s;}
+.rpill-success{background:rgba(88,214,141,.12);border-color:rgba(88,214,141,.4);color:var(--accent3);}
+.rpill-error{background:rgba(231,76,60,.12);border-color:rgba(231,76,60,.4);color:var(--accent4);}
+.rpill-info{background:rgba(79,163,224,.12);border-color:rgba(79,163,224,.4);color:var(--accent2);}
+.rpill-warn{background:rgba(248,152,32,.12);border-color:rgba(248,152,32,.4);color:var(--accent);}
+
+/* ── ERROR PANEL ─────────────────────────────────────────── */
+.err-sim-btns{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px;}
+.err-btn{padding:8px 18px;border-radius:8px;border:1px solid var(--border);
+  background:var(--surface2);color:var(--text);font-size:.84rem;font-weight:600;
+  cursor:pointer;transition:all .2s;}
+.err-btn:hover{border-color:var(--accent4);color:var(--accent4);}
+.err-btn.active{background:rgba(231,76,60,.15);border-color:var(--accent4);color:var(--accent4);}
+.err-panel{display:none;background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--radius);overflow:hidden;}
+.err-panel.active{display:block;animation:fadeIn .2s ease;}
+.err-hdr{display:flex;align-items:center;gap:10px;padding:12px 18px;
+  background:rgba(231,76,60,.12);border-bottom:1px solid var(--border);
+  font-size:.875rem;font-weight:700;color:var(--accent4);}
+.err-body{padding:20px;}
+.err-body h4{font-size:.9rem;font-weight:700;margin-bottom:8px;}
+.err-body p{font-size:.85rem;color:var(--text2);margin-bottom:12px;}
+.err-msg{font-family:var(--font-mono);font-size:.8rem;background:var(--code-bg);
+  border:1px solid rgba(231,76,60,.3);border-radius:7px;padding:12px 16px;
+  color:#ff6b6b;margin-bottom:14px;white-space:pre;overflow-x:auto;}
+.code-diff{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0;}
+.diff-wrong,.diff-right{border-radius:8px;overflow:hidden;border:1px solid var(--border);}
+.diff-lbl{padding:7px 12px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
+.diff-wrong .diff-lbl{background:rgba(231,76,60,.15);color:var(--accent4);}
+.diff-right .diff-lbl{background:rgba(88,214,141,.15);color:var(--accent3);}
+.diff-code{padding:12px 14px;font-family:var(--font-mono);font-size:.8rem;background:var(--code-bg);line-height:1.7;color:#abb2bf;white-space:pre;}
+.fix-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(88,214,141,.1);
+  border:1px solid rgba(88,214,141,.3);color:var(--accent3);border-radius:6px;
+  padding:5px 12px;font-size:.82rem;font-weight:600;margin-top:4px;}
+.interview-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(198,120,221,.1);
+  border:1px solid rgba(198,120,221,.3);color:var(--accent5);border-radius:6px;
+  padding:5px 12px;font-size:.82rem;font-weight:600;margin-top:4px;}
+
+/* ── QUIZ ───────────────────────────────────────────────── */
+.quiz-container{display:flex;flex-direction:column;gap:24px;}
+.quiz-block{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:22px 24px;}
+.quiz-num{font-size:.72rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;}
+.quiz-q{font-weight:700;font-size:.92rem;margin-bottom:14px;line-height:1.5;}
+.quiz-opts{display:flex;flex-direction:column;gap:9px;}
+.quiz-opt{padding:10px 16px;border-radius:8px;border:1px solid var(--border);
+  background:var(--bg);font-size:.875rem;cursor:pointer;transition:all .2s;
+  display:flex;align-items:flex-start;gap:10px;text-align:left;}
+.quiz-opt:hover:not(.correct):not(.wrong){border-color:var(--accent2);background:rgba(79,163,224,.04);}
+.quiz-opt.correct{border-color:var(--accent3);background:rgba(88,214,141,.1);color:var(--accent3);pointer-events:none;}
+.quiz-opt.wrong{border-color:var(--accent4);background:rgba(231,76,60,.08);color:var(--accent4);pointer-events:none;}
+.quiz-opt.disabled{pointer-events:none;opacity:.5;}
+.quiz-feedback{margin-top:12px;font-size:.845rem;padding:10px 14px;border-radius:7px;display:none;}
+.quiz-feedback.show{display:block;animation:fadeIn .2s;}
+.quiz-feedback.correct{background:rgba(88,214,141,.1);color:var(--accent3);border:1px solid rgba(88,214,141,.25);}
+.quiz-feedback.wrong{background:rgba(231,76,60,.08);color:var(--accent4);border:1px solid rgba(231,76,60,.2);}
+.quiz-code{font-family:var(--font-mono);background:var(--code-bg);padding:1px 7px;
+  border-radius:4px;font-size:.85em;color:var(--text);border:1px solid var(--border);}
+.score-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);
+  padding:28px;text-align:center;display:none;margin-top:24px;}
+.score-box.show{display:block;animation:fadeIn .3s;}
+.score-num{font-size:3rem;font-weight:900;line-height:1;}
+.score-label{color:var(--text2);font-size:.9rem;margin-top:6px;margin-bottom:16px;}
+.btn-retake{background:var(--surface2);border:1px solid var(--border);color:var(--text);
+  border-radius:8px;padding:9px 24px;font-size:.875rem;font-weight:700;cursor:pointer;transition:all .2s;}
+.btn-retake:hover{border-color:var(--accent2);color:var(--accent2);}
+
+/* ── VISUAL DIAGRAM ─────────────────────────────────────── */
+.visual-diagram{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin:18px 0;}
+.vd-title{font-size:.82rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:16px;}
+.form-demo{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px;max-width:480px;}
+.form-demo-title{font-size:1rem;font-weight:700;margin-bottom:18px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+.form-field{margin-bottom:16px;}
+.form-label{font-size:.78rem;font-weight:600;color:var(--text2);margin-bottom:8px;display:block;}
+.cb-group,.rb-group{display:flex;flex-direction:column;gap:10px;}
+.cb-item,.rb-item{display:flex;align-items:center;gap:10px;font-size:.88rem;cursor:default;}
+.cb-box{width:18px;height:18px;border-radius:4px;border:2px solid var(--border);
+  background:var(--bg);flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  font-size:.7rem;transition:all .2s;}
+.cb-box.checked{background:var(--accent2);border-color:var(--accent2);color:#fff;}
+.rb-circle{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);
+  background:var(--bg);flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  transition:all .2s;}
+.rb-circle.selected{border-color:var(--accent2);}
+.rb-dot{width:8px;height:8px;border-radius:50%;background:var(--accent2);
+  display:none;}
+.rb-circle.selected .rb-dot{display:block;}
+.diff-highlight{background:rgba(79,163,224,.08);border:1px solid rgba(79,163,224,.2);border-radius:8px;padding:16px;margin:12px 0;}
+
+/* ── PLAYGROUND ─────────────────────────────────────────── */
+.playground-wrap{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+@media(max-width:780px){.playground-wrap{grid-template-columns:1fr;}}
+.pg-panel{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+.pg-panel-hdr{padding:12px 18px;background:rgba(255,255,255,.03);border-bottom:1px solid var(--border);font-size:.82rem;font-weight:700;display:flex;align-items:center;gap:8px;}
+.pg-panel-body{padding:20px;}
+.pg-cb-item,.pg-rb-item{display:flex;align-items:center;gap:12px;padding:10px 14px;
+  border-radius:8px;border:1px solid var(--border);background:var(--bg);
+  margin-bottom:10px;cursor:pointer;transition:all .2s;font-size:.9rem;}
+.pg-cb-item:hover,.pg-rb-item:hover{border-color:var(--accent2);}
+.pg-cb-item.active{border-color:var(--accent3);background:rgba(88,214,141,.07);}
+.pg-rb-item.active{border-color:var(--accent2);background:rgba(79,163,224,.07);}
+.pg-cb-vis{width:20px;height:20px;border-radius:4px;border:2px solid var(--border);
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.75rem;transition:all .2s;}
+.pg-cb-vis.on{background:var(--accent2);border-color:var(--accent2);color:#fff;}
+.pg-rb-vis{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.pg-rb-vis.on{border-color:var(--accent2);}
+.pg-rb-dot{width:9px;height:9px;border-radius:50%;background:var(--accent2);display:none;}
+.pg-rb-vis.on .pg-rb-dot{display:block;}
+.state-badge{font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:auto;}
+.state-on{background:rgba(88,214,141,.15);color:var(--accent3);border:1px solid rgba(88,214,141,.3);}
+.state-off{background:rgba(139,148,158,.1);color:var(--text2);border:1px solid var(--border);}
+.exec-panel{background:var(--code-bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-top:16px;}
+.exec-panel-hdr{padding:9px 16px;border-bottom:1px solid var(--border);font-size:.78rem;color:var(--text2);font-weight:600;display:flex;align-items:center;gap:8px;}
+.exec-panel-body{padding:14px 18px;font-family:var(--font-mono);font-size:.82rem;line-height:2;min-height:80px;color:#abb2bf;white-space:pre-wrap;max-height:200px;overflow-y:auto;}
+.locator-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(198,120,221,.1);
+  border:1px solid rgba(198,120,221,.3);color:var(--accent5);border-radius:6px;
+  padding:4px 10px;font-size:.8rem;font-weight:700;font-family:var(--font-mono);}
+.cmd-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(79,163,224,.1);
+  border:1px solid rgba(79,163,224,.3);color:var(--accent2);border-radius:6px;
+  padding:4px 10px;font-size:.8rem;font-weight:700;font-family:var(--font-mono);}
+.state-info-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;}
+.si-item{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:.8rem;}
+.si-label{color:var(--text2);font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.3px;}
+.si-val{font-family:var(--font-mono);font-weight:700;margin-top:2px;font-size:.85rem;}
+.si-true{color:var(--accent3);}.si-false{color:var(--accent4);}
+
+/* ── COURSE NAV ─────────────────────────────────────────── */
+.course-nav{
+  position:sticky;bottom:0;background:var(--surface,var(--bg));z-index:999;
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;
+  margin-top:18px;padding:14px 20px 12px;border-top:.5px solid var(--border);}
+.course-nav-left,.course-nav-right{display:flex;align-items:center;gap:10px;}
+.course-nav a{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;
+  padding:7px 15px;border:.5px solid var(--border);border-radius:8px;color:var(--text);
+  background:var(--surface2);font-size:.86rem;font-weight:600;line-height:1.25;transition:all .2s ease;}
+.course-nav a:hover{border-color:var(--accent2);}
+.course-topic{font-size:.8rem;color:var(--text2);}
+
+/* ── RESPONSIVE ─────────────────────────────────────────── */
+@media(max-width:700px){
+  .hero{flex-direction:column;padding:24px 20px;}
+  .tab-btn{padding:12px 11px;font-size:.77rem;}
+  .tab-content{padding:20px 16px;}
+  .hero-text h1{font-size:1.35rem;}
+  .code-diff{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+<header>
+<div class="logo">
+<div class="logo-icon">Se</div>
+  Selenium Training
+</div>
+<button id="themeToggle" onclick="toggleTheme()">🌙 Dark</button>
+</header>
+
+<div class="container">
+  <div class="breadcrumb-row">
+    <div class="breadcrumb">
+      Automation Series <span style="color:var(--border)">›</span> Week 2 <span style="color:var(--border)">›</span> <span>Checkboxes &amp; Radio Buttons</span>
+    </div>
+    <span class="watermark">Ronak Shah — Automation Training Content</span>
+  </div>
+
+<div class="hero">
+<div class="hero-icon">☑️</div>
+<div class="hero-text">
+<h1>Selenium <span>Checkboxes &amp; Radio Buttons</span></h1>
+<p>Master checkbox and radio button interactions in Selenium WebDriver — locate, click, verify state, handle groups, and automate real-world forms.</p>
+<div class="hero-pills">
+<span class="pill pill-blue">☑ Checkboxes</span>
+<span class="pill pill-orange">🔘 Radio Buttons</span>
+<span class="pill pill-green">▶ Live Playground</span>
+<span class="pill pill-purple">🔍 isSelected()</span>
+<span class="pill pill-sel">💼 Real World</span>
+</div>
+</div>
+</div>
+
+<div class="tabs-wrapper">
+<div class="tab-nav">
+<button class="tab-btn active" onclick="switchTab('intro',this)"><span>📖</span> Introduction</button>
+<button class="tab-btn" onclick="switchTab('checkbox',this)"><span>☑</span> Checkbox Handling</button>
+<button class="tab-btn" onclick="switchTab('radio',this)"><span>🔘</span> Radio Button Handling</button>
+<button class="tab-btn" onclick="switchTab('playground',this)"><span>▶</span> Live Playground</button>
+<button class="tab-btn" onclick="switchTab('realworld',this)"><span>💼</span> Real World Examples</button>
+<button class="tab-btn" onclick="switchTab('mistakes',this)"><span>❌</span> Common Mistakes</button>
+<button class="tab-btn" onclick="switchTab('quiz',this)"><span>🧠</span> Quick Check</button>
+</div>
+
+<!-- ══════════════ TAB 1: INTRODUCTION ══════════════ -->
+<div class="tab-content active" id="tab-intro">
+<div class="section-title"><span class="dot"></span> What are Checkboxes?</div>
+<p class="section-sub">Checkboxes are form controls that let users select one or more options independently. Each checkbox works on its own — checking one does not affect others.</p>
+
+<div class="cards">
+<div class="card">
+<div class="card-icon">☑️</div>
+<h3>Checkbox</h3>
+<p>A square-shaped toggle. Can be <strong>checked</strong> or <strong>unchecked</strong>. Multiple checkboxes can be selected at the same time. HTML: <code>&lt;input type="checkbox"&gt;</code></p>
+</div>
+<div class="card">
+<div class="card-icon">🔘</div>
+<h3>Radio Button</h3>
+<p>A circular toggle. Grouped by <code>name</code> attribute. Only ONE can be selected at a time in a group. HTML: <code>&lt;input type="radio"&gt;</code></p>
+</div>
+<div class="card">
+<div class="card-icon">🎯</div>
+<h3>isSelected()</h3>
+<p>Selenium method that returns <code>true</code> if the element is currently checked/selected. Works on both checkboxes and radio buttons.</p>
+</div>
+<div class="card">
+<div class="card-icon">🖱️</div>
+<h3>click() to Toggle</h3>
+<p>Use <code>click()</code> to check or uncheck. Always verify the state with <code>isSelected()</code> BEFORE clicking to avoid toggling unexpectedly.</p>
+</div>
+</div>
+
+<!-- Visual demo -->
+<div class="section-title" style="font-size:1rem"><span class="dot"></span> Visual — Checkbox vs Radio Button</div>
+<div class="visual-diagram">
+<div class="vd-title">Interactive Form Demo — Click to see the difference</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;flex-wrap:wrap;">
+<div class="form-demo">
+<div class="form-demo-title">☑ Checkboxes — Multiple allowed</div>
+<div class="cb-group" id="demo-cb-group">
+<div class="cb-item" onclick="toggleDemoCb(0)"><div class="cb-box checked" id="dcb0">✓</div><span>Accept Terms &amp; Conditions</span></div>
+<div class="cb-item" onclick="toggleDemoCb(1)"><div class="cb-box" id="dcb1"></div><span>Subscribe Newsletter</span></div>
+<div class="cb-item" onclick="toggleDemoCb(2)"><div class="cb-box" id="dcb2"></div><span>Receive SMS Alerts</span></div>
+<div class="cb-item" onclick="toggleDemoCb(3)"><div class="cb-box" id="dcb3"></div><span>Receive Promotional Emails</span></div>
+</div>
+<div style="margin-top:10px;font-size:.78rem;color:var(--text2)">💡 You can select ALL of them simultaneously</div>
+</div>
+<div class="form-demo">
+<div class="form-demo-title">🔘 Radio Buttons — Only ONE allowed</div>
+<div class="rb-group" id="demo-rb-group">
+<div class="rb-item" onclick="selectDemoRb(0)"><div class="rb-circle selected" id="drb0"><div class="rb-dot"></div></div><span>Male</span></div>
+<div class="rb-item" onclick="selectDemoRb(1)"><div class="rb-circle" id="drb1"><div class="rb-dot"></div></div><span>Female</span></div>
+<div class="rb-item" onclick="selectDemoRb(2)"><div class="rb-circle" id="drb2"><div class="rb-dot"></div></div><span>Other</span></div>
+</div>
+<div style="margin-top:10px;font-size:.78rem;color:var(--text2)">💡 Selecting one automatically deselects the others</div>
+</div>
+</div>
+</div>
+
+<div class="section-title" style="font-size:1rem;margin-top:6px"><span class="dot"></span> Key Differences</div>
+<table class="compare-table">
+<thead><tr><th>Feature</th><th>Checkbox</th><th>Radio Button</th></tr></thead>
+<tbody>
+<tr><td>Shape</td><td>Square (□)</td><td>Circle (○)</td></tr>
+<tr><td>Multiple selection</td><td>✅ Yes — select as many as you want</td><td>❌ No — only one per group</td></tr>
+<tr><td>HTML input type</td><td class="mono">type="checkbox"</td><td class="mono">type="radio"</td></tr>
+<tr><td>Grouped by</td><td>Independent — no grouping</td><td><code>name</code> attribute groups them</td></tr>
+<tr><td>Selenium interaction</td><td><code>click()</code> to toggle on/off</td><td><code>click()</code> to select (can't deselect directly)</td></tr>
+<tr><td>Verify state</td><td><code>isSelected()</code> → true/false</td><td><code>isSelected()</code> → true/false</td></tr>
+<tr><td>Default state</td><td>Usually unchecked</td><td>Usually one pre-selected</td></tr>
+</tbody>
+</table>
+
+<div class="section-title" style="font-size:1rem;margin-top:6px"><span class="dot"></span> Where They Appear in Real Applications</div>
+<div class="cards">
+<div class="card">
+<div class="card-icon">📝</div>
+<h3>Registration Forms</h3>
+<p>Accept T&amp;C checkbox. Newsletter subscription. Gender radio buttons. Age verification checkbox.</p>
+</div>
+<div class="card">
+<div class="card-icon">🛒</div>
+<h3>Shopping Websites</h3>
+<p>Filter products by brand, size, color. "Same as billing address" checkbox. Gift wrap option. Payment method radio buttons.</p>
+</div>
+<div class="card">
+<div class="card-icon">🏦</div>
+<h3>Banking Applications</h3>
+<p>KYC form checkboxes. Account type radio buttons (Savings/Current). Two-factor authentication preference.</p>
+</div>
+<div class="card">
+<div class="card-icon">✈️</div>
+<h3>Flight Booking</h3>
+<p>One-way / Round-trip radio buttons. Seat preference checkboxes. Meal options. Add-on service checkboxes.</p>
+</div>
+<div class="card">
+<div class="card-icon">📋</div>
+<h3>Insurance Forms</h3>
+<p>Coverage type selection radio buttons. Rider selection checkboxes. Nominee relationship radio buttons.</p>
+</div>
+<div class="card">
+<div class="card-icon">🎓</div>
+<h3>Exam / Survey Forms</h3>
+<p>MCQ answers as radio buttons. Multi-select questions as checkboxes. Poll responses.</p>
+</div>
+</div>
+
+<div class="info-box blue">
+<span class="ib-icon">💡</span>
+<div><strong>Why Selenium provides dedicated handling:</strong> Checkboxes and radio buttons are NOT regular buttons. Clicking them is not enough — you need to verify their <em>state</em> before and after. Selenium's <code>isSelected()</code> method gives you this power, letting you write reliable, state-aware automation.</div>
+</div>
+</div>
+
+<!-- ══════════════ TAB 2: CHECKBOX HANDLING ══════════════ -->
+<div class="tab-content" id="tab-checkbox">
+<div class="section-title"><span class="dot"></span> Checkbox Handling in Selenium</div>
+<p class="section-sub">Learn how to locate, click, verify, and manage checkboxes reliably using Selenium WebDriver.</p>
+
+<div class="info-box blue">
+<span class="ib-icon">🔌</span>
+<div><strong>Core idea:</strong> A checkbox is just an <code>&lt;input type="checkbox"&gt;</code> element. Selenium finds it like any other element using <code>findElement()</code>, then uses <code>click()</code> to toggle it and <code>isSelected()</code> to read its state.</div>
+</div>
+
+<div class="section-title" style="font-size:1rem"><span class="dot"></span> Step 1 — Locating Checkboxes</div>
+<div class="iter-steps">
+<div class="iter-row"><div class="iter-num">1</div><div class="iter-body"><h4>By ID (Fastest and most reliable)</h4><p>Use <code>By.id("termsCheckbox")</code> when the checkbox has a unique ID attribute. Always prefer ID when available.</p></div></div>
+<div class="iter-row"><div class="iter-num">2</div><div class="iter-body"><h4>By Name</h4><p>Use <code>By.name("newsletter")</code> when multiple checkboxes share a name. Good for grouped checkboxes in forms.</p></div></div>
+<div class="iter-row"><div class="iter-num">3</div><div class="iter-body"><h4>By CSS Selector</h4><p>Use <code>By.cssSelector("input[type='checkbox']")</code> for type-based selection. More flexible than ID when no ID is available.</p></div></div>
+<div class="iter-row"><div class="iter-num">4</div><div class="iter-body"><h4>By XPath</h4><p>Use <code>By.xpath("//input[@type='checkbox' and @id='terms']")</code> for complex conditions. Most powerful but slightly slower.</p></div></div>
+</div>
+
+<div class="code-wrap">
+<div class="code-header"><div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><span class="code-lang">☕ Locating Checkboxes — All 4 Strategies</span></div>
+<pre class="code-pre"><span class="kw">import</span> org.openqa.selenium.<span class="cls">WebDriver</span>;
+<span class="kw">import</span> org.openqa.selenium.<span class="cls">WebElement</span>;
+<span class="kw">import</span> org.openqa.selenium.<span class="cls">By</span>;
+<span class="kw">import</span> org.openqa.selenium.chrome.<span class="cls">ChromeDriver</span>;
+
+<span class="kw">public class</span> <span class="cls">CheckboxLocators</span> {
+    <span class="kw">public static void</span> <span class="fn">main</span>(<span class="cls">String</span>[] args) {
+
+        <span class="cls">WebDriver</span> driver <span class="op">=</span> <span class="kw">new</span> <span class="cls">ChromeDriver</span>();
+        driver.<span class="fn">get</span>(<span class="str">"https://example-registration.com"</span>);
+
+        <span class="cmt">// 1. By ID — fastest, most reliable</span>
+        <span class="cls">WebElement</span> cbById <span class="op">=</span> driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"termsCheckbox"</span>));
+
+        <span class="cmt">// 2. By Name — useful for grouped checkboxes</span>
+        <span class="cls">WebElement</span> cbByName <span class="op">=</span> driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">name</span>(<span class="str">"newsletter"</span>));
+
+        <span class="cmt">// 3. By CSS Selector — type-based selection</span>
+        <span class="cls">WebElement</span> cbByCss <span class="op">=</span> driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">cssSelector</span>(<span class="str">"input[type='checkbox']"</span>));
+
+        <span class="cmt">// 3b. CSS — with specific ID</span>
+        <span class="cls">WebElement</span> cbByCssId <span class="op">=</span> driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">cssSelector</span>(<span class="str">"input#termsCheckbox"</span>));
+
+        <span class="cmt">// 4. By XPath — most flexible</span>
+        <span class="cls">WebElement</span> cbByXpath <span class="op">=</span> driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">xpath</span>(<span class="str">"//input[@type='checkbox' and @id='terms']"</span>));
+
+        <span class="cmt">// 4b. XPath by visible label text</span>
+        <span class="cls">WebElement</span> cbByLabel <span class="op">=</span> driver.<span class="fn">findElement</span>(
+            <span class="cls">By</span>.<span class="fn">xpath</span>(<span class="str">"//label[contains(text(),'Terms')]/preceding-sibling::input"</span>));
+
+        driver.<span class="fn">quit</span>();
+    }
+}</pre>
+</div>
+
+<div class="section-title" style="font-size:1rem;margin-top:4px"><span class="dot"></span> Clicking a Checkbox + State Verification</div>
+<div class="code-wrap">
+<div class="code-header"><div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><span class="code-lang">☕ click() + isSelected() — The Right Pattern</span></div>
+<pre class="code-pre"><span class="kw">public class</span> <span class="cls">CheckboxClick</span> {
+    <span class="kw">public static void</span> <span class="fn">main</span>(<span class="cls">String</span>[] args) {
+
+        <span class="cls">WebDriver</span> driver <span class="op">=</span> <span class="kw">new</span> <span class="cls">ChromeDriver</span>();
+        driver.<span class="fn">get</span>(<span class="str">"https://example-registration.com"</span>);
+
+        <span class="cls">WebElement</span> termsCheckbox <span class="op">=</span> driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"termsCheckbox"</span>));
+
+        <span class="cmt">// ✅ Step 1: Check current state BEFORE clicking</span>
+        <span class="kw">boolean</span> isAlreadyChecked <span class="op">=</span> termsCheckbox.<span class="fn">isSelected</span>();
+        <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Before click: "</span> <span class="op">+</span> isAlreadyChecked); <span class="cmt">// false</span>
+
+        <span class="cmt">// ✅ Step 2: Click only if not already checked</span>
+        <span class="kw">if</span> (!isAlreadyChecked) {
+            termsCheckbox.<span class="fn">click</span>();
+            <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Checkbox was unchecked. Now clicking to check it."</span>);
+        } <span class="kw">else</span> {
+            <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Checkbox already checked. No action needed."</span>);
+        }
+
+        <span class="cmt">// ✅ Step 3: Verify final state after click</span>
+        <span class="kw">boolean</span> isNowChecked <span class="op">=</span> termsCheckbox.<span class="fn">isSelected</span>();
+        <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"After click: "</span> <span class="op">+</span> isNowChecked); <span class="cmt">// true</span>
+
+        <span class="cmt">// Assert using TestNG or manual check</span>
+        <span class="kw">if</span> (isNowChecked) {
+            <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"✅ PASS — Terms checkbox is now checked"</span>);
+        } <span class="kw">else</span> {
+            <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"❌ FAIL — Terms checkbox NOT checked"</span>);
+        }
+
+        driver.<span class="fn">quit</span>();
+    }
+}</pre>
+</div>
+
+<div class="info-box orange">
+<span class="ib-icon">⚠</span>
+<div><strong>Golden Rule:</strong> Always call <code>isSelected()</code> BEFORE calling <code>click()</code> on a checkbox. If you blindly click an already-checked checkbox, you will accidentally UNCHECK it — breaking your test.</div>
+</div>
+
+<div class="section-title" style="font-size:1rem;margin-top:4px"><span class="dot"></span> Selecting Multiple Checkboxes</div>
+<div class="code-wrap">
+<div class="code-header"><div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><span class="code-lang">☕ Multiple Checkboxes — Individual &amp; Loop Approach</span></div>
+<pre class="code-pre"><span class="kw">import</span> java.util.<span class="cls">List</span>;
+
+<span class="kw">public class</span> <span class="cls">MultipleCheckboxes</span> {
+    <span class="kw">public static void</span> <span class="fn">main</span>(<span class="cls">String</span>[] args) {
+
+        <span class="cls">WebDriver</span> driver <span class="op">=</span> <span class="kw">new</span> <span class="cls">ChromeDriver</span>();
+        driver.<span class="fn">get</span>(<span class="str">"https://example-registration.com"</span>);
+
+        <span class="cmt">// ── Approach 1: Select each checkbox individually ──</span>
+        <span class="cls">WebElement</span> cbTerms <span class="op">=</span> driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"termsCheckbox"</span>));
+        <span class="cls">WebElement</span> cbNewsletter <span class="op">=</span> driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"newsletterCheckbox"</span>));
+        <span class="cls">WebElement</span> cbSMS <span class="op">=</span> driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"smsCheckbox"</span>));
+
+        <span class="kw">if</span> (!cbTerms.<span class="fn">isSelected</span>())      cbTerms.<span class="fn">click</span>();
+        <span class="kw">if</span> (!cbNewsletter.<span class="fn">isSelected</span>()) cbNewsletter.<span class="fn">click</span>();
+        <span class="kw">if</span> (!cbSMS.<span class="fn">isSelected</span>())        cbSMS.<span class="fn">click</span>();
+
+        <span class="cmt">// ── Approach 2: Select ALL checkboxes using a loop ──</span>
+        <span class="cls">List</span>&lt;<span class="cls">WebElement</span>&gt; allCheckboxes <span class="op">=</span>
+            driver.<span class="fn">findElements</span>(<span class="cls">By</span>.<span class="fn">cssSelector</span>(<span class="str">"input[type='checkbox']"</span>));
+
+        <span class="kw">for</span> (<span class="cls">WebElement</span> checkbox : allCheckboxes) {
+            <span class="kw">if</span> (!checkbox.<span class="fn">isSelected</span>()) {   <span class="cmt">// only click if not already checked</span>
+                checkbox.<span class="fn">click</span>();
+            }
+        }
+        <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"All checkboxes selected. Count: "</span> <span class="op">+</span> allCheckboxes.<span class="fn">size</span>());
+
+        <span class="cmt">// ── Approach 3: Deselect ALL checkboxes ──</span>
+        <span class="kw">for</span> (<span class="cls">WebElement</span> checkbox : allCheckboxes) {
+            <span class="kw">if</span> (checkbox.<span class="fn">isSelected</span>()) {    <span class="cmt">// only click if currently checked</span>
+                checkbox.<span class="fn">click</span>();
+            }
+        }
+        <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"All checkboxes deselected."</span>);
+
+        driver.<span class="fn">quit</span>();
+    }
+}</pre>
+</div>
+
+<div class="section-title" style="font-size:1rem;margin-top:4px"><span class="dot"></span> isSelected() — Understanding the Return Value</div>
+<table class="compare-table">
+<thead><tr><th>Element State</th><th>isSelected() Returns</th><th>What it means</th></tr></thead>
+<tbody>
+<tr><td>Checkbox is ✓ checked</td><td style="color:var(--accent3)"><strong>true</strong></td><td>Element has the <code>checked</code> attribute active</td></tr>
+<tr><td>Checkbox is □ unchecked</td><td style="color:var(--accent4)"><strong>false</strong></td><td>No <code>checked</code> attribute / it was removed</td></tr>
+<tr><td>Radio button is selected</td><td style="color:var(--accent3)"><strong>true</strong></td><td>This option is the currently selected one</td></tr>
+<tr><td>Radio button not selected</td><td style="color:var(--accent4)"><strong>false</strong></td><td>Another option in the group is selected</td></tr>
+<tr><td>Regular text input</td><td style="color:var(--accent)"><strong>Exception</strong></td><td>isSelected() only works on checkboxes and radio buttons</td></tr>
+</tbody>
+</table>
+
+<div class="info-box green">
+<span class="ib-icon">✅</span>
+<div><strong>Best Practice:</strong> Wrap checkbox interactions in a utility method that always checks state first. This pattern prevents accidental toggling and makes your tests deterministic — they produce the same result no matter what state the page starts in.</div>
+</div>
+
+<div class="code-wrap">
+<div class="code-header"><div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><span class="code-lang">☕ Best Practice — Reusable Checkbox Utility Method</span></div>
+<pre class="code-pre"><span class="kw">public class</span> <span class="cls">CheckboxUtils</span> {
+
+    <span class="cmt">/**
+     * Ensures a checkbox is CHECKED.
+     * If already checked — does nothing. If unchecked — clicks it.
+     */</span>
+    <span class="kw">public static void</span> <span class="fn">selectCheckbox</span>(<span class="cls">WebElement</span> checkbox) {
+        <span class="kw">if</span> (!checkbox.<span class="fn">isSelected</span>()) {
+            checkbox.<span class="fn">click</span>();
+            <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"✅ Checkbox checked."</span>);
+        } <span class="kw">else</span> {
+            <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"ℹ️ Checkbox was already checked. Skipped."</span>);
+        }
+    }
+
+    <span class="cmt">/**
+     * Ensures a checkbox is UNCHECKED.
+     * If already unchecked — does nothing. If checked — clicks it.
+     */</span>
+    <span class="kw">public static void</span> <span class="fn">deselectCheckbox</span>(<span class="cls">WebElement</span> checkbox) {
+        <span class="kw">if</span> (checkbox.<span class="fn">isSelected</span>()) {
+            checkbox.<span class="fn">click</span>();
+            <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"✅ Checkbox unchecked."</span>);
+        } <span class="kw">else</span> {
+            <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"ℹ️ Checkbox was already unchecked. Skipped."</span>);
+        }
+    }
+
+    <span class="cmt">// Usage:</span>
+    <span class="kw">public static void</span> <span class="fn">main</span>(<span class="cls">String</span>[] args) {
+        <span class="cls">WebDriver</span> driver <span class="op">=</span> <span class="kw">new</span> <span class="cls">ChromeDriver</span>();
+        driver.<span class="fn">get</span>(<span class="str">"https://example.com/register"</span>);
+
+        <span class="cls">WebElement</span> terms <span class="op">=</span> driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"terms"</span>));
+        <span class="fn">selectCheckbox</span>(terms);      <span class="cmt">// Always ends up checked</span>
+
+        <span class="cls">WebElement</span> newsletter <span class="op">=</span> driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"newsletter"</span>));
+        <span class="fn">deselectCheckbox</span>(newsletter); <span class="cmt">// Always ends up unchecked</span>
+
+        driver.<span class="fn">quit</span>();
+    }
+}</pre>
+</div>
+</div>
+
+<!-- ══════════════ TAB 3: RADIO BUTTON HANDLING ══════════════ -->
+<div class="tab-content" id="tab-radio">
+<div class="section-title"><span class="dot"></span> Radio Button Handling in Selenium</div>
+<p class="section-sub">Radio buttons are grouped controls where only one option can be selected at a time. Understanding the grouping mechanism is key to automating them correctly.</p>
+
+<div class="info-box blue">
+<span class="ib-icon">🔌</span>
+<div><strong>How radio buttons work internally:</strong> All radio buttons in the same group share the same <code>name</code> attribute. When the browser detects a click on one radio button, it automatically deselects all others with the same <code>name</code>. Selenium just calls <code>click()</code> — the browser does the deselection logic.</div>
+</div>
+
+<!-- Visual explanation -->
+<div class="visual-diagram">
+<div class="vd-title">Radio Button Group — How the browser links them</div>
+<div style="font-family:var(--font-mono);font-size:.83rem;line-height:2;color:#abb2bf;">
+<span style="color:#e06c75;">&lt;input</span> <span style="color:#d19a66;">type</span>=<span style="color:#98c379;">"radio"</span> <span style="color:#d19a66;">name</span>=<span style="color:#98c379;">"gender"</span> <span style="color:#d19a66;">id</span>=<span style="color:#98c379;">"male"</span>  <span style="color:#d19a66;">value</span>=<span style="color:#98c379;">"M"</span> <span style="color:#e06c75;">/&gt;</span> Male<br>
+<span style="color:#e06c75;">&lt;input</span> <span style="color:#d19a66;">type</span>=<span style="color:#98c379;">"radio"</span> <span style="color:#d19a66;">name</span>=<span style="color:#98c379;">"gender"</span> <span style="color:#d19a66;">id</span>=<span style="color:#98c379;">"female"</span><span style="color:#d19a66;">value</span>=<span style="color:#98c379;">"F"</span> <span style="color:#e06c75;">/&gt;</span> Female<br>
+<span style="color:#e06c75;">&lt;input</span> <span style="color:#d19a66;">type</span>=<span style="color:#98c379;">"radio"</span> <span style="color:#d19a66;">name</span>=<span style="color:#98c379;">"gender"</span> <span style="color:#d19a66;">id</span>=<span style="color:#98c379;">"other"</span> <span style="color:#d19a66;">value</span>=<span style="color:#98c379;">"O"</span> <span style="color:#e06c75;">/&gt;</span> Other
+</div>
+<div style="margin-top:12px;padding:12px 16px;background:rgba(79,163,224,.07);border-radius:8px;font-size:.84rem;">
+<span style="color:var(--accent2);font-weight:700;">name="gender"</span> is the <strong>group identifier</strong>. All three share it → they form one radio group → only one can be selected at a time.
+</div>
+</div>
+
+<div class="section-title" style="font-size:1rem"><span class="dot"></span> Selecting Radio Buttons — All Locator Strategies</div>
+<div class="code-wrap">
+<div class="code-header"><div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><span class="code-lang">☕ Radio Button — Locating and Selecting</span></div>
+<pre class="code-pre"><span class="kw">public class</span> <span class="cls">RadioButtonHandling</span> {
+    <span class="kw">public static void</span> <span class="fn">main</span>(<span class="cls">String</span>[] args) {
+
+        <span class="cls">WebDriver</span> driver <span class="op">=</span> <span class="kw">new</span> <span class="cls">ChromeDriver</span>();
+        driver.<span class="fn">get</span>(<span class="str">"https://example.com/register"</span>);
+
+        <span class="cmt">// ── Method 1: By ID (most reliable) ──</span>
+        <span class="cls">WebElement</span> rbMale <span class="op">=</span> driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"male"</span>));
+
+        <span class="cmt">// ── Method 2: By name + value (CSS) ──</span>
+        <span class="cls">WebElement</span> rbFemale <span class="op">=</span> driver.<span class="fn">findElement</span>(
+            <span class="cls">By</span>.<span class="fn">cssSelector</span>(<span class="str">"input[name='gender'][value='F']"</span>));
+
+        <span class="cmt">// ── Method 3: By XPath with value attribute ──</span>
+        <span class="cls">WebElement</span> rbOther <span class="op">=</span> driver.<span class="fn">findElement</span>(
+            <span class="cls">By</span>.<span class="fn">xpath</span>(<span class="str">"//input[@type='radio' and @value='O']"</span>));
+
+        <span class="cmt">// ── Method 4: By label text (XPath) ──</span>
+        <span class="cls">WebElement</span> rbByLabel <span class="op">=</span> driver.<span class="fn">findElement</span>(
+            <span class="cls">By</span>.<span class="fn">xpath</span>(<span class="str">"//label[text()='Female']/preceding-sibling::input[@type='radio']"</span>));
+
+        <span class="cmt">// ── Selecting a radio button ──</span>
+        <span class="kw">if</span> (!rbMale.<span class="fn">isSelected</span>()) {   <span class="cmt">// check current state first</span>
+            rbMale.<span class="fn">click</span>();             <span class="cmt">// select Male</span>
+        }
+
+        <span class="cmt">// ── Verify selection ──</span>
+        <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Male selected:   "</span> <span class="op">+</span> rbMale.<span class="fn">isSelected</span>());   <span class="cmt">// true</span>
+        <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Female selected: "</span> <span class="op">+</span> rbFemale.<span class="fn">isSelected</span>()); <span class="cmt">// false</span>
+        <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Other selected:  "</span> <span class="op">+</span> rbOther.<span class="fn">isSelected</span>());  <span class="cmt">// false</span>
+
+        <span class="cmt">// ── Now switch to Female ──</span>
+        rbFemale.<span class="fn">click</span>(); <span class="cmt">// browser auto-deselects Male</span>
+
+        <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Male selected:   "</span> <span class="op">+</span> rbMale.<span class="fn">isSelected</span>());   <span class="cmt">// false</span>
+        <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Female selected: "</span> <span class="op">+</span> rbFemale.<span class="fn">isSelected</span>()); <span class="cmt">// true</span>
+
+        driver.<span class="fn">quit</span>();
+    }
+}</pre>
+</div>
+
+<div class="section-title" style="font-size:1rem;margin-top:4px"><span class="dot"></span> Reading All Radio Buttons in a Group</div>
+<div class="code-wrap">
+<div class="code-header"><div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><span class="code-lang">☕ Finding Which Radio Button is Currently Selected</span></div>
+<pre class="code-pre"><span class="kw">import</span> java.util.<span class="cls">List</span>;
+
+<span class="kw">public class</span> <span class="cls">RadioGroupHandling</span> {
+    <span class="kw">public static void</span> <span class="fn">main</span>(<span class="cls">String</span>[] args) {
+
+        <span class="cls">WebDriver</span> driver <span class="op">=</span> <span class="kw">new</span> <span class="cls">ChromeDriver</span>();
+        driver.<span class="fn">get</span>(<span class="str">"https://example.com/register"</span>);
+
+        <span class="cmt">// Get ALL radio buttons in the "gender" group</span>
+        <span class="cls">List</span>&lt;<span class="cls">WebElement</span>&gt; genderRadios <span class="op">=</span>
+            driver.<span class="fn">findElements</span>(<span class="cls">By</span>.<span class="fn">cssSelector</span>(<span class="str">"input[name='gender']"</span>));
+
+        <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Total gender options: "</span> <span class="op">+</span> genderRadios.<span class="fn">size</span>()); <span class="cmt">// 3</span>
+
+        <span class="cmt">// Find which one is currently selected</span>
+        <span class="kw">for</span> (<span class="cls">WebElement</span> radio : genderRadios) {
+            <span class="kw">if</span> (radio.<span class="fn">isSelected</span>()) {
+                <span class="cls">String</span> value <span class="op">=</span> radio.<span class="fn">getAttribute</span>(<span class="str">"value"</span>);
+                <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Currently selected: "</span> <span class="op">+</span> value);
+            }
+        }
+
+        <span class="cmt">// Select radio button by VALUE dynamically</span>
+        <span class="cls">String</span> targetGender <span class="op">=</span> <span class="str">"F"</span>; <span class="cmt">// coming from test data</span>
+        <span class="cls">WebElement</span> targetRadio <span class="op">=</span> driver.<span class="fn">findElement</span>(
+            <span class="cls">By</span>.<span class="fn">cssSelector</span>(<span class="str">"input[name='gender'][value='"</span> <span class="op">+</span> targetGender <span class="op">+</span> <span class="str">"']"</span>));
+
+        <span class="kw">if</span> (!targetRadio.<span class="fn">isSelected</span>()) {
+            targetRadio.<span class="fn">click</span>();
+        }
+        <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Selected: "</span> <span class="op">+</span> targetGender);
+
+        driver.<span class="fn">quit</span>();
+    }
+}</pre>
+</div>
+
+<div class="info-box green">
+<span class="ib-icon">✅</span>
+<div><strong>Best Practice:</strong> Use <code>findElements()</code> (plural) to get all radio buttons in a group. Loop through them, compare the <code>value</code> attribute with your expected value, and call <code>click()</code> only on the matching one. This is data-driven and reusable.</div>
+</div>
+
+<div class="info-box orange">
+<span class="ib-icon">⚠</span>
+<div><strong>Cannot deselect a radio button directly:</strong> Unlike checkboxes, you cannot uncheck a radio button by clicking it again. The only way to "deselect" a radio button is to select another one in the group. This is browser behaviour — not a Selenium limitation.</div>
+</div>
+
+<table class="compare-table" style="margin-top:16px">
+<thead><tr><th>Scenario</th><th>Selenium Command</th><th>isSelected() Result</th></tr></thead>
+<tbody>
+<tr><td>Select Male radio</td><td class="mono">rbMale.click()</td><td style="color:var(--accent3)">rbMale.isSelected() → true</td></tr>
+<tr><td>Then select Female</td><td class="mono">rbFemale.click()</td><td style="color:var(--accent4)">rbMale.isSelected() → false</td></tr>
+<tr><td>Try to deselect Male directly</td><td class="mono">rbMale.click() (already selected)</td><td>Nothing changes — stays selected</td></tr>
+<tr><td>Verify default selected</td><td class="mono">radio.isSelected()</td><td>Returns the page's default state</td></tr>
+</tbody>
+</table>
+</div>
+
+<!-- ══════════════ TAB 4: LIVE PLAYGROUND ══════════════ -->
+<div class="tab-content" id="tab-playground">
+<div class="section-title"><span class="dot"></span> Interactive Selenium Playground</div>
+<p class="section-sub">Click the form controls and watch Selenium commands execute visually — step by step.</p>
+
+<div class="playground-wrap">
+<!-- LEFT: Registration Form -->
+<div>
+<div class="pg-panel">
+<div class="pg-panel-hdr">🖥️ Registration Form — Click to Interact</div>
+<div class="pg-panel-body">
+<div style="font-size:.78rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.4px;margin-bottom:12px;">☑ Checkboxes — Select any combination</div>
+<div id="pg-cb-terms" class="pg-cb-item" onclick="pgToggleCb('terms')">
+  <div class="pg-cb-vis" id="pg-cbv-terms"></div>
+  <span>Accept Terms &amp; Conditions</span>
+  <span class="state-badge state-off" id="pg-cbs-terms">false</span>
+</div>
+<div id="pg-cb-news" class="pg-cb-item" onclick="pgToggleCb('news')">
+  <div class="pg-cb-vis" id="pg-cbv-news"></div>
+  <span>Subscribe Newsletter</span>
+  <span class="state-badge state-off" id="pg-cbs-news">false</span>
+</div>
+<div id="pg-cb-sms" class="pg-cb-item" onclick="pgToggleCb('sms')">
+  <div class="pg-cb-vis" id="pg-cbv-sms"></div>
+  <span>Receive SMS Alerts</span>
+  <span class="state-badge state-off" id="pg-cbs-sms">false</span>
+</div>
+<div id="pg-cb-promo" class="pg-cb-item" onclick="pgToggleCb('promo')">
+  <div class="pg-cb-vis" id="pg-cbv-promo"></div>
+  <span>Receive Promotional Emails</span>
+  <span class="state-badge state-off" id="pg-cbs-promo">false</span>
+</div>
+
+<div style="font-size:.78rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.4px;margin:18px 0 12px;">🔘 Gender — Select only one</div>
+<div id="pg-rb-male" class="pg-rb-item" onclick="pgSelectRb('male')">
+  <div class="pg-rb-vis" id="pg-rbv-male"><div class="pg-rb-dot"></div></div>
+  <span>Male</span>
+  <span class="state-badge state-off" id="pg-rbs-male">false</span>
+</div>
+<div id="pg-rb-female" class="pg-rb-item" onclick="pgSelectRb('female')">
+  <div class="pg-rb-vis" id="pg-rbv-female"><div class="pg-rb-dot"></div></div>
+  <span>Female</span>
+  <span class="state-badge state-off" id="pg-rbs-female">false</span>
+</div>
+<div id="pg-rb-other" class="pg-rb-item" onclick="pgSelectRb('other')">
+  <div class="pg-rb-vis" id="pg-rbv-other"><div class="pg-rb-dot"></div></div>
+  <span>Other</span>
+  <span class="state-badge state-off" id="pg-rbs-other">false</span>
+</div>
+</div>
+</div>
+
+<!-- State Info Panel -->
+<div class="state-info-row" style="margin-top:14px;">
+<div class="si-item">
+  <div class="si-label">Last Locator</div>
+  <div class="si-val" id="pg-locator" style="color:var(--accent5)">—</div>
+</div>
+<div class="si-item">
+  <div class="si-label">Last Command</div>
+  <div class="si-val" id="pg-cmd" style="color:var(--accent2)">—</div>
+</div>
+<div class="si-item">
+  <div class="si-label">isSelected()</div>
+  <div class="si-val" id="pg-issel">—</div>
+</div>
+</div>
+
+<!-- Controls -->
+<div class="sim-controls" style="margin-top:14px;">
+<button class="btn-run-all" onclick="pgRunAll()">▶ Run All Steps</button>
+<button class="btn-step" onclick="pgRunStep()">→ Next Step</button>
+<button class="btn-reset-sim" onclick="pgReset()">↺ Reset</button>
+</div>
+</div>
+
+<!-- RIGHT: Execution Log -->
+<div>
+<div class="pg-panel" style="height:100%;">
+<div class="pg-panel-hdr">⚡ Selenium Execution Log</div>
+<div class="pg-panel-body">
+<div class="exec-panel">
+<div class="exec-panel-hdr">
+  <span id="pg-log-status" style="width:8px;height:8px;border-radius:50%;background:var(--text2);display:inline-block;"></span>
+  Command Output
+</div>
+<div class="exec-panel-body" id="pg-log"><span class="c-dim">// Interact with the form or click Run All</span></div>
+</div>
+
+<div style="margin-top:14px;font-size:.78rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.4px;margin-bottom:10px;">Execution Flow</div>
+<div class="flow-pipe" id="pg-flow" style="gap:4px;">
+<div class="fp-row"><div class="fp-box" id="pgf1"><div class="fp-icon">🔍</div><div class="fp-info"><div class="fp-label">Step 1</div><div class="fp-title">Locate Element</div></div></div></div>
+<div class="fp-arrow" id="pgfa1">↓</div>
+<div class="fp-row"><div class="fp-box" id="pgf2"><div class="fp-icon">🖱️</div><div class="fp-info"><div class="fp-label">Step 2</div><div class="fp-title">Execute Action</div></div></div></div>
+<div class="fp-arrow" id="pgfa2">↓</div>
+<div class="fp-row"><div class="fp-box" id="pgf3"><div class="fp-icon">🔄</div><div class="fp-info"><div class="fp-label">Step 3</div><div class="fp-title">State Changed</div></div></div></div>
+<div class="fp-arrow" id="pgfa3">↓</div>
+<div class="fp-row"><div class="fp-box" id="pgf4"><div class="fp-icon">✅</div><div class="fp-info"><div class="fp-label">Step 4</div><div class="fp-title">Verification</div></div></div></div>
+</div>
+
+<div class="result-pills" id="pg-pills" style="margin-top:14px;"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ══════════════ TAB 5: REAL WORLD EXAMPLES ══════════════ -->
+<div class="tab-content" id="tab-realworld">
+<div class="section-title"><span class="dot"></span> Real World Selenium Examples</div>
+<p class="section-sub">Production-quality Java code for real application scenarios. Each example includes detailed explanations and interview tips.</p>
+
+<div class="section-title" style="font-size:1rem"><span class="dot"></span> 1. Registration Form — Terms &amp; Conditions</div>
+<div class="code-wrap">
+<div class="code-header"><div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><span class="code-lang">☕ Terms &amp; Conditions Checkbox — Real Form</span></div>
+<pre class="code-pre"><span class="kw">public class</span> <span class="cls">RegistrationFormTest</span> {
+    <span class="kw">public static void</span> <span class="fn">main</span>(<span class="cls">String</span>[] args) {
+
+        <span class="cls">WebDriver</span> driver <span class="op">=</span> <span class="kw">new</span> <span class="cls">ChromeDriver</span>();
+        driver.<span class="fn">get</span>(<span class="str">"https://demoqa.com/automation-practice-form"</span>);
+
+        <span class="cmt">// Locate the Terms checkbox by ID</span>
+        <span class="cls">WebElement</span> termsCheckbox <span class="op">=</span> driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"terms-checkbox"</span>));
+
+        <span class="cmt">// Always check state first</span>
+        <span class="kw">if</span> (!termsCheckbox.<span class="fn">isSelected</span>()) {
+            termsCheckbox.<span class="fn">click</span>();
+        }
+
+        <span class="cmt">// Verify it is now checked</span>
+        <span class="kw">boolean</span> accepted <span class="op">=</span> termsCheckbox.<span class="fn">isSelected</span>();
+        <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Terms accepted: "</span> <span class="op">+</span> accepted); <span class="cmt">// true</span>
+
+        <span class="cmt">// Submit is only enabled when terms are accepted</span>
+        <span class="cls">WebElement</span> submitBtn <span class="op">=</span> driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"submitBtn"</span>));
+        <span class="kw">if</span> (accepted) {
+            submitBtn.<span class="fn">click</span>();
+            <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Form submitted successfully."</span>);
+        }
+
+        driver.<span class="fn">quit</span>();
+    }
+}</pre>
+</div>
+
+<div class="section-title" style="font-size:1rem;margin-top:4px"><span class="dot"></span> 2. Gender Selection — Radio Buttons</div>
+<div class="code-wrap">
+<div class="code-header"><div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><span class="code-lang">☕ Gender Radio Button — Registration Form</span></div>
+<pre class="code-pre"><span class="kw">public class</span> <span class="cls">GenderSelectionTest</span> {
+    <span class="kw">public static void</span> <span class="fn">main</span>(<span class="cls">String</span>[] args) {
+
+        <span class="cls">WebDriver</span> driver <span class="op">=</span> <span class="kw">new</span> <span class="cls">ChromeDriver</span>();
+        driver.<span class="fn">get</span>(<span class="str">"https://demoqa.com/automation-practice-form"</span>);
+
+        <span class="cmt">// Gender radio buttons at demoqa</span>
+        <span class="cls">WebElement</span> genderMale   <span class="op">=</span> driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">cssSelector</span>(<span class="str">"input[value='Male']"</span>));
+        <span class="cls">WebElement</span> genderFemale <span class="op">=</span> driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">cssSelector</span>(<span class="str">"input[value='Female']"</span>));
+        <span class="cls">WebElement</span> genderOther  <span class="op">=</span> driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">cssSelector</span>(<span class="str">"input[value='Other']"</span>));
+
+        <span class="cmt">// Select "Female"</span>
+        <span class="kw">if</span> (!genderFemale.<span class="fn">isSelected</span>()) {
+            genderFemale.<span class="fn">click</span>();
+        }
+
+        <span class="cmt">// Verify correct selection</span>
+        <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Male:   "</span>   <span class="op">+</span> genderMale.<span class="fn">isSelected</span>());   <span class="cmt">// false</span>
+        <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Female: "</span> <span class="op">+</span> genderFemale.<span class="fn">isSelected</span>()); <span class="cmt">// true</span>
+        <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Other:  "</span>  <span class="op">+</span> genderOther.<span class="fn">isSelected</span>());  <span class="cmt">// false</span>
+
+        driver.<span class="fn">quit</span>();
+    }
+}</pre>
+</div>
+
+<div class="section-title" style="font-size:1rem;margin-top:4px"><span class="dot"></span> 3. Shopping Website Filters — Multiple Checkboxes</div>
+<div class="code-wrap">
+<div class="code-header"><div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><span class="code-lang">☕ Shopping Filter — Select Multiple Brands</span></div>
+<pre class="code-pre"><span class="kw">import</span> java.util.<span class="cls">Arrays</span>;
+<span class="kw">import</span> java.util.<span class="cls">List</span>;
+
+<span class="kw">public class</span> <span class="cls">ShoppingFilterTest</span> {
+    <span class="kw">public static void</span> <span class="fn">main</span>(<span class="cls">String</span>[] args) {
+
+        <span class="cls">WebDriver</span> driver <span class="op">=</span> <span class="kw">new</span> <span class="cls">ChromeDriver</span>();
+        driver.<span class="fn">get</span>(<span class="str">"https://shop.example.com/electronics"</span>);
+
+        <span class="cmt">// Brands we want to select</span>
+        <span class="cls">List</span>&lt;<span class="cls">String</span>&gt; brandsToSelect <span class="op">=</span> <span class="cls">Arrays</span>.<span class="fn">asList</span>(<span class="str">"Samsung"</span>, <span class="str">"Sony"</span>, <span class="str">"LG"</span>);
+
+        <span class="cmt">// Get all brand checkboxes in the filter panel</span>
+        <span class="cls">List</span>&lt;<span class="cls">WebElement</span>&gt; brandCheckboxes <span class="op">=</span>
+            driver.<span class="fn">findElements</span>(<span class="cls">By</span>.<span class="fn">cssSelector</span>(<span class="str">".brand-filter input[type='checkbox']"</span>));
+
+        <span class="kw">for</span> (<span class="cls">WebElement</span> cb : brandCheckboxes) {
+            <span class="cmt">// Get the value or data-brand attribute for matching</span>
+            <span class="cls">String</span> brandName <span class="op">=</span> cb.<span class="fn">getAttribute</span>(<span class="str">"data-brand"</span>);
+
+            <span class="kw">if</span> (brandsToSelect.<span class="fn">contains</span>(brandName)) {
+                <span class="kw">if</span> (!cb.<span class="fn">isSelected</span>()) {
+                    cb.<span class="fn">click</span>();
+                    <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Selected brand: "</span> <span class="op">+</span> brandName);
+                }
+            } <span class="kw">else</span> {
+                <span class="cmt">// Deselect if not in our target list</span>
+                <span class="kw">if</span> (cb.<span class="fn">isSelected</span>()) {
+                    cb.<span class="fn">click</span>();
+                    <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Deselected brand: "</span> <span class="op">+</span> brandName);
+                }
+            }
+        }
+
+        driver.<span class="fn">quit</span>();
+    }
+}</pre>
+</div>
+
+<div class="section-title" style="font-size:1rem;margin-top:4px"><span class="dot"></span> 4. Flight Booking — One-Way vs Round Trip</div>
+<div class="code-wrap">
+<div class="code-header"><div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><span class="code-lang">☕ Flight Booking — Trip Type Radio Buttons</span></div>
+<pre class="code-pre"><span class="kw">public class</span> <span class="cls">FlightBookingTest</span> {
+    <span class="kw">public static void</span> <span class="fn">main</span>(<span class="cls">String</span>[] args) {
+
+        <span class="cls">WebDriver</span> driver <span class="op">=</span> <span class="kw">new</span> <span class="cls">ChromeDriver</span>();
+        driver.<span class="fn">get</span>(<span class="str">"https://makemytrip.com"</span>);
+
+        <span class="cmt">// Trip type radio buttons</span>
+        <span class="cls">WebElement</span> oneWay    <span class="op">=</span> driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">cssSelector</span>(<span class="str">"input[value='O']"</span>));
+        <span class="cls">WebElement</span> roundTrip <span class="op">=</span> driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">cssSelector</span>(<span class="str">"input[value='R']"</span>));
+
+        <span class="cmt">// Check default — usually Round Trip is pre-selected</span>
+        <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Default Round Trip: "</span> <span class="op">+</span> roundTrip.<span class="fn">isSelected</span>());
+
+        <span class="cmt">// Select One Way</span>
+        <span class="kw">if</span> (!oneWay.<span class="fn">isSelected</span>()) {
+            oneWay.<span class="fn">click</span>();
+        }
+
+        <span class="cmt">// Verify state flipped</span>
+        <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"One Way selected:    "</span> <span class="op">+</span> oneWay.<span class="fn">isSelected</span>());    <span class="cmt">// true</span>
+        <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Round Trip selected: "</span> <span class="op">+</span> roundTrip.<span class="fn">isSelected</span>()); <span class="cmt">// false</span>
+
+        <span class="cmt">// Now handle seat preferences (checkboxes)</span>
+        <span class="cls">WebElement</span> windowSeat <span class="op">=</span> driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"windowSeat"</span>));
+        <span class="cls">WebElement</span> extraLeg   <span class="op">=</span> driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"extraLegRoom"</span>));
+
+        <span class="kw">if</span> (!windowSeat.<span class="fn">isSelected</span>()) windowSeat.<span class="fn">click</span>();
+        <span class="kw">if</span> (!extraLeg.<span class="fn">isSelected</span>())   extraLeg.<span class="fn">click</span>();
+
+        driver.<span class="fn">quit</span>();
+    }
+}</pre>
+</div>
+
+<div class="section-title" style="font-size:1rem;margin-top:4px"><span class="dot"></span> 5. Banking KYC Form — Checkbox List with Loop</div>
+<div class="code-wrap">
+<div class="code-header"><div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><span class="code-lang">☕ Banking KYC — Checkbox Selection by Visible Text</span></div>
+<pre class="code-pre"><span class="kw">public class</span> <span class="cls">BankingKycTest</span> {
+
+    <span class="cmt">// Select a checkbox based on the visible label text next to it</span>
+    <span class="kw">public static void</span> <span class="fn">selectCheckboxByText</span>(<span class="cls">WebDriver</span> driver, <span class="cls">String</span> labelText) {
+        <span class="cls">WebElement</span> checkbox <span class="op">=</span> driver.<span class="fn">findElement</span>(
+            <span class="cls">By</span>.<span class="fn">xpath</span>(<span class="str">"//label[normalize-space(text())='"</span> <span class="op">+</span> labelText
+                      <span class="op">+</span> <span class="str">"']/preceding-sibling::input[@type='checkbox']"</span>));
+
+        <span class="kw">if</span> (!checkbox.<span class="fn">isSelected</span>()) {
+            checkbox.<span class="fn">click</span>();
+            <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Checked: "</span> <span class="op">+</span> labelText);
+        }
+    }
+
+    <span class="kw">public static void</span> <span class="fn">main</span>(<span class="cls">String</span>[] args) {
+        <span class="cls">WebDriver</span> driver <span class="op">=</span> <span class="kw">new</span> <span class="cls">ChromeDriver</span>();
+        driver.<span class="fn">get</span>(<span class="str">"https://bank.example.com/kyc"</span>);
+
+        <span class="cmt">// Select specific KYC declarations by their label text</span>
+        <span class="fn">selectCheckboxByText</span>(driver, <span class="str">"I am an Indian resident"</span>);
+        <span class="fn">selectCheckboxByText</span>(driver, <span class="str">"I declare the information provided is accurate"</span>);
+        <span class="fn">selectCheckboxByText</span>(driver, <span class="str">"I consent to credit bureau check"</span>);
+
+        driver.<span class="fn">quit</span>();
+    }
+}</pre>
+</div>
+
+<div class="section-title" style="font-size:1rem;margin-top:4px"><span class="dot"></span> 6. Verify Default Selected Radio Button</div>
+<div class="code-wrap">
+<div class="code-header"><div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><span class="code-lang">☕ Verify Which Radio Button is Pre-Selected by Default</span></div>
+<pre class="code-pre"><span class="kw">import</span> java.util.<span class="cls">List</span>;
+
+<span class="kw">public class</span> <span class="cls">DefaultRadioVerification</span> {
+    <span class="kw">public static void</span> <span class="fn">main</span>(<span class="cls">String</span>[] args) {
+
+        <span class="cls">WebDriver</span> driver <span class="op">=</span> <span class="kw">new</span> <span class="cls">ChromeDriver</span>();
+        driver.<span class="fn">get</span>(<span class="str">"https://insurance.example.com/plan-selection"</span>);
+
+        <span class="cmt">// Get all plan selection radio buttons</span>
+        <span class="cls">List</span>&lt;<span class="cls">WebElement</span>&gt; planRadios <span class="op">=</span>
+            driver.<span class="fn">findElements</span>(<span class="cls">By</span>.<span class="fn">cssSelector</span>(<span class="str">"input[name='plan']"</span>));
+
+        <span class="cls">String</span> defaultSelected <span class="op">=</span> <span class="str">""</span>;
+        <span class="kw">for</span> (<span class="cls">WebElement</span> radio : planRadios) {
+            <span class="kw">if</span> (radio.<span class="fn">isSelected</span>()) {
+                defaultSelected <span class="op">=</span> radio.<span class="fn">getAttribute</span>(<span class="str">"value"</span>);
+                <span class="kw">break</span>;
+            }
+        }
+
+        <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Default plan: "</span> <span class="op">+</span> defaultSelected); <span class="cmt">// e.g. "basic"</span>
+
+        <span class="cmt">// Verify expected default</span>
+        <span class="kw">if</span> (defaultSelected.<span class="fn">equals</span>(<span class="str">"basic"</span>)) {
+            <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"✅ PASS — Basic plan is pre-selected by default"</span>);
+        } <span class="kw">else</span> {
+            <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"❌ FAIL — Unexpected default: "</span> <span class="op">+</span> defaultSelected);
+        }
+
+        driver.<span class="fn">quit</span>();
+    }
+}</pre>
+</div>
+
+<div class="info-box purple">
+<span class="ib-icon">🎯</span>
+<div><strong>Interview Tip:</strong> A common interview question is "How do you verify which radio button is selected by default?" — Use <code>findElements()</code> on the group, loop through them, and call <code>isSelected()</code> on each. The one that returns <code>true</code> is the default. Always store and assert the value against your test expectation.</div>
+</div>
+</div>
+
+<!-- ══════════════ TAB 6: COMMON MISTAKES ══════════════ -->
+<div class="tab-content" id="tab-mistakes">
+<div class="section-title"><span class="dot"></span> Common Mistakes in Checkbox &amp; Radio Handling</div>
+<p class="section-sub">Every real Selenium engineer has made these mistakes. Learn what went wrong, how to fix it, and what to say in interviews.</p>
+
+<div class="err-sim-btns">
+<button class="err-btn active" onclick="showErr('1',this)">☑ Already Checked</button>
+<button class="err-btn" onclick="showErr('2',this)">🔍 Skipping isSelected</button>
+<button class="err-btn" onclick="showErr('3',this)">❌ Wrong XPath</button>
+<button class="err-btn" onclick="showErr('4',this)">👻 Hidden Checkbox</button>
+<button class="err-btn" onclick="showErr('5',this)">🏷️ Click Label Bug</button>
+<button class="err-btn" onclick="showErr('6',this)">🔄 Dynamic IDs</button>
+<button class="err-btn" onclick="showErr('7',this)">🔒 Overlay Issue</button>
+<button class="err-btn" onclick="showErr('8',this)">💥 NoSuchElement</button>
+<button class="err-btn" onclick="showErr('9',this)">🚫 NotInteractable</button>
+</div>
+
+<!-- Mistake 1 -->
+<div class="err-panel active" id="err-1">
+<div class="err-hdr">☑ Mistake 1 — Clicking an Already-Checked Checkbox</div>
+<div class="err-body">
+<h4>What happens</h4>
+<p>If you blindly call <code>click()</code> without checking the current state, you may accidentally uncheck a checkbox that was already checked.</p>
+<div class="err-msg">// Before click: checkbox is ALREADY checked (true)
+// After blind click: checkbox becomes UNCHECKED (false)
+// Test passes but form behaviour is wrong!</div>
+<div class="code-diff">
+<div class="diff-wrong"><div class="diff-lbl">❌ Wrong</div><div class="diff-code"><span class="kw">WebElement</span> cb = driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"terms"</span>));
+cb.<span class="fn">click</span>(); <span class="cmt">// ← blindly clicking — dangerous!</span></div></div>
+<div class="diff-right"><div class="diff-lbl">✅ Correct</div><div class="diff-code"><span class="kw">WebElement</span> cb = driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"terms"</span>));
+<span class="kw">if</span> (!cb.<span class="fn">isSelected</span>()) {
+    cb.<span class="fn">click</span>(); <span class="cmt">// only click if unchecked</span>
+}</div></div>
+</div>
+<div class="fix-tag">✅ Fix: Always call isSelected() before click()</div>&nbsp;
+<div class="interview-tag">🎯 Interview: "Why not just call click() on a checkbox?" — Because if it's already checked, click() will uncheck it, reversing the intended state.</div>
+</div>
+</div>
+
+<!-- Mistake 2 -->
+<div class="err-panel" id="err-2">
+<div class="err-hdr">🔍 Mistake 2 — Skipping isSelected() for Verification</div>
+<div class="err-body">
+<h4>What happens</h4>
+<p>Many beginners click a checkbox and assume it worked. Without calling <code>isSelected()</code> after the click, you have no assertion — the test passes even if the click failed silently.</p>
+<div class="err-msg">// Click happened — but did the checkbox actually check?
+// Maybe JS intercepted. Maybe CSS overlay caught the click.
+// Without isSelected() check, we'll never know!</div>
+<div class="code-diff">
+<div class="diff-wrong"><div class="diff-lbl">❌ Wrong</div><div class="diff-code"><span class="kw">WebElement</span> cb = driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"terms"</span>));
+cb.<span class="fn">click</span>();
+<span class="cmt">// No verification — risky!</span></div></div>
+<div class="diff-right"><div class="diff-lbl">✅ Correct</div><div class="diff-code">cb.<span class="fn">click</span>();
+<span class="kw">boolean</span> checked = cb.<span class="fn">isSelected</span>();
+Assert.<span class="fn">assertTrue</span>(checked,
+    <span class="str">"Terms checkbox should be checked!"</span>);</div></div>
+</div>
+<div class="fix-tag">✅ Fix: Always assert with isSelected() after clicking</div>&nbsp;
+<div class="interview-tag">🎯 Interview: "How do you verify a checkbox is checked?" — Use isSelected() and assert it returns true.</div>
+</div>
+</div>
+
+<!-- Mistake 3 -->
+<div class="err-panel" id="err-3">
+<div class="err-hdr">❌ Mistake 3 — Wrong XPath for Checkbox</div>
+<div class="err-body">
+<h4>What happens</h4>
+<p>Using a label's XPath instead of the actual input element's XPath. Labels are not interactable for <code>isSelected()</code>.</p>
+<div class="err-msg">org.openqa.selenium.ElementNotInteractableException:
+element not interactable — element is &lt;label&gt; not &lt;input&gt;</div>
+<div class="code-diff">
+<div class="diff-wrong"><div class="diff-lbl">❌ Wrong</div><div class="diff-code"><span class="cmt">// This finds the LABEL, not the checkbox!</span>
+driver.<span class="fn">findElement</span>(
+  <span class="cls">By</span>.<span class="fn">xpath</span>(<span class="str">"//label[@for='terms']"</span>))
+  .<span class="fn">isSelected</span>(); <span class="cmt">// Exception!</span></div></div>
+<div class="diff-right"><div class="diff-lbl">✅ Correct</div><div class="diff-code"><span class="cmt">// Find the INPUT element itself</span>
+driver.<span class="fn">findElement</span>(
+  <span class="cls">By</span>.<span class="fn">xpath</span>(
+    <span class="str">"//input[@type='checkbox' and @id='terms']"</span>
+  )).<span class="fn">isSelected</span>(); <span class="cmt">// works!</span></div></div>
+</div>
+<div class="fix-tag">✅ Fix: XPath must target &lt;input type="checkbox"&gt; not &lt;label&gt;</div>&nbsp;
+<div class="interview-tag">🎯 Interview: "isSelected() threw an exception on a label element — why?" — isSelected() only works on input[type=checkbox] and input[type=radio].</div>
+</div>
+</div>
+
+<!-- Mistake 4 -->
+<div class="err-panel" id="err-4">
+<div class="err-hdr">👻 Mistake 4 — Hidden Checkbox (Styled with CSS)</div>
+<div class="err-body">
+<h4>What happens</h4>
+<p>Modern UI frameworks (React, Angular, Vue) often hide the real <code>&lt;input&gt;</code> element and use a styled <code>&lt;div&gt;</code> or <code>&lt;span&gt;</code> as the visual checkbox. Clicking the hidden input throws an exception.</p>
+<div class="err-msg">org.openqa.selenium.ElementNotInteractableException:
+element not interactable — element has zero dimensions or is hidden</div>
+<div class="code-diff">
+<div class="diff-wrong"><div class="diff-lbl">❌ Wrong</div><div class="diff-code"><span class="cmt">// Tries to click the hidden real input</span>
+driver.<span class="fn">findElement</span>(
+  <span class="cls">By</span>.<span class="fn">cssSelector</span>(<span class="str">"input[type='checkbox']"</span>))
+  .<span class="fn">click</span>(); <span class="cmt">// ← hidden!</span></div></div>
+<div class="diff-right"><div class="diff-lbl">✅ Correct</div><div class="diff-code"><span class="cmt">// Click the visible styled element instead</span>
+driver.<span class="fn">findElement</span>(
+  <span class="cls">By</span>.<span class="fn">cssSelector</span>(<span class="str">"label[for='terms']"</span>))
+  .<span class="fn">click</span>();
+<span class="cmt">// OR use JavaScript executor</span>
+((<span class="cls">JavascriptExecutor</span>)driver).<span class="fn">executeScript</span>(
+  <span class="str">"arguments[0].click();"</span>, hiddenCheckbox);</div></div>
+</div>
+<div class="fix-tag">✅ Fix: Click the associated &lt;label&gt; or use JavascriptExecutor</div>&nbsp;
+<div class="interview-tag">🎯 Interview: "How do you click a hidden checkbox?" — Click its label, or use JavascriptExecutor to call click() programmatically, bypassing visibility constraints.</div>
+</div>
+</div>
+
+<!-- Mistake 5 -->
+<div class="err-panel" id="err-5">
+<div class="err-hdr">🏷️ Mistake 5 — Clicking Label Instead of Input for isSelected()</div>
+<div class="err-body">
+<h4>What happens</h4>
+<p>Clicking a label works for toggling. But calling <code>isSelected()</code> on a label always returns false — <code>isSelected()</code> only works on the actual input element.</p>
+<div class="err-msg">// Clicking label toggles the checkbox — OK for click()
+// But isSelected() on label always returns false — WRONG!</div>
+<div class="code-diff">
+<div class="diff-wrong"><div class="diff-lbl">❌ Wrong</div><div class="diff-code"><span class="cls">WebElement</span> label = driver.<span class="fn">findElement</span>(
+  <span class="cls">By</span>.<span class="fn">cssSelector</span>(<span class="str">"label[for='terms']"</span>));
+label.<span class="fn">click</span>(); <span class="cmt">// works to toggle</span>
+label.<span class="fn">isSelected</span>(); <span class="cmt">// always false!</span></div></div>
+<div class="diff-right"><div class="diff-lbl">✅ Correct</div><div class="diff-code"><span class="cmt">// Click label to toggle (OK)</span>
+driver.<span class="fn">findElement</span>(
+  <span class="cls">By</span>.<span class="fn">cssSelector</span>(<span class="str">"label[for='terms']"</span>))
+  .<span class="fn">click</span>();
+<span class="cmt">// isSelected() on the INPUT (correct)</span>
+<span class="kw">boolean</span> state = driver.<span class="fn">findElement</span>(
+  <span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"terms"</span>)).<span class="fn">isSelected</span>();</div></div>
+</div>
+<div class="fix-tag">✅ Fix: Always call isSelected() on the &lt;input&gt; element, not &lt;label&gt;</div>&nbsp;
+<div class="interview-tag">🎯 Interview: "Can you call isSelected() on a label?" — No. isSelected() only works on &lt;input type='checkbox'&gt; and &lt;input type='radio'&gt; elements.</div>
+</div>
+</div>
+
+<!-- Mistake 6 -->
+<div class="err-panel" id="err-6">
+<div class="err-hdr">🔄 Mistake 6 — Dynamic IDs</div>
+<div class="err-body">
+<h4>What happens</h4>
+<p>Some frameworks generate IDs dynamically. The ID changes on every page load, making locators by ID fragile and unreliable.</p>
+<div class="err-msg">org.openqa.selenium.NoSuchElementException:
+Unable to locate element: #checkbox_7f3a2_terms
+(ID changes on each page load!)</div>
+<div class="code-diff">
+<div class="diff-wrong"><div class="diff-lbl">❌ Wrong</div><div class="diff-code"><span class="cmt">// Dynamic ID — breaks on every run</span>
+driver.<span class="fn">findElement</span>(
+  <span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"checkbox_7f3a2_terms"</span>));</div></div>
+<div class="diff-right"><div class="diff-lbl">✅ Correct</div><div class="diff-code"><span class="cmt">// Use stable attributes instead</span>
+driver.<span class="fn">findElement</span>(
+  <span class="cls">By</span>.<span class="fn">cssSelector</span>(<span class="str">"input[name='terms']"</span>));
+<span class="cmt">// OR by label text</span>
+driver.<span class="fn">findElement</span>(
+  <span class="cls">By</span>.<span class="fn">xpath</span>(<span class="str">"//label[contains(text(),'Terms')]"
+    + "/preceding-sibling::input"</span>));</div></div>
+</div>
+<div class="fix-tag">✅ Fix: Use name, value, data-* attributes, or label text — not dynamic IDs</div>&nbsp;
+<div class="interview-tag">🎯 Interview: "How do you handle checkboxes with dynamic IDs?" — Use stable attributes like name, value, data-testid, or navigate via the visible label text using XPath.</div>
+</div>
+</div>
+
+<!-- Mistake 7 -->
+<div class="err-panel" id="err-7">
+<div class="err-hdr">🔒 Mistake 7 — Radio Button Not Clickable Due to Overlay</div>
+<div class="err-body">
+<h4>What happens</h4>
+<p>A loading spinner, tooltip, modal, or cookie banner overlays the radio button. Selenium finds the element but cannot click it because another element intercepts the click.</p>
+<div class="err-msg">org.openqa.selenium.ElementClickInterceptedException:
+element click intercepted: Other element would receive the click:
+&lt;div class="cookie-banner"&gt;</div>
+<div class="code-diff">
+<div class="diff-wrong"><div class="diff-lbl">❌ Wrong</div><div class="diff-code">driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"male"</span>)).<span class="fn">click</span>();
+<span class="cmt">// Fails — overlay intercepts!</span></div></div>
+<div class="diff-right"><div class="diff-lbl">✅ Correct</div><div class="diff-code"><span class="cmt">// Dismiss overlay first</span>
+<span class="kw">try</span> {
+  driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"cookieAccept"</span>)).<span class="fn">click</span>();
+} <span class="kw">catch</span> (<span class="cls">Exception</span> e) {}
+<span class="cmt">// Then click the radio</span>
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"male"</span>)).<span class="fn">click</span>();</div></div>
+</div>
+<div class="fix-tag">✅ Fix: Dismiss overlays first, scroll element into view, or use JavascriptExecutor</div>&nbsp;
+<div class="interview-tag">🎯 Interview: "What is ElementClickInterceptedException?" — Another element is on top and catches the click event before the target element receives it. Fix by dismissing the overlay or using JS executor.</div>
+</div>
+</div>
+
+<!-- Mistake 8 -->
+<div class="err-panel" id="err-8">
+<div class="err-hdr">💥 Mistake 8 — NoSuchElementException</div>
+<div class="err-body">
+<h4>What happens</h4>
+<p>The checkbox or radio button does not exist in the DOM at the moment Selenium looks for it — usually a timing issue or wrong locator.</p>
+<div class="err-msg">org.openqa.selenium.NoSuchElementException:
+Unable to locate element: {"method":"id","selector":"smsCheckbox"}</div>
+<div class="code-diff">
+<div class="diff-wrong"><div class="diff-lbl">❌ Wrong</div><div class="diff-code"><span class="cmt">// No wait — element may not be ready</span>
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"smsCheckbox"</span>)).<span class="fn">click</span>();</div></div>
+<div class="diff-right"><div class="diff-lbl">✅ Correct</div><div class="diff-code"><span class="cls">WebDriverWait</span> wait <span class="op">=</span> <span class="kw">new</span> <span class="cls">WebDriverWait</span>(
+  driver, <span class="cls">Duration</span>.<span class="fn">ofSeconds</span>(<span class="num">10</span>));
+<span class="cls">WebElement</span> cb <span class="op">=</span> wait.<span class="fn">until</span>(
+  <span class="cls">ExpectedConditions</span>
+    .<span class="fn">presenceOfElementLocated</span>(
+      <span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"smsCheckbox"</span>)));
+cb.<span class="fn">click</span>();</div></div>
+</div>
+<div class="fix-tag">✅ Fix: Use WebDriverWait with ExpectedConditions before interacting</div>&nbsp;
+<div class="interview-tag">🎯 Interview: "How do you handle NoSuchElementException for a checkbox?" — Use explicit wait (WebDriverWait + ExpectedConditions) to wait for the element to appear in the DOM before interacting.</div>
+</div>
+</div>
+
+<!-- Mistake 9 -->
+<div class="err-panel" id="err-9">
+<div class="err-hdr">🚫 Mistake 9 — ElementNotInteractableException</div>
+<div class="err-body">
+<h4>What happens</h4>
+<p>The element is found in the DOM but cannot be interacted with — it's disabled, hidden with CSS, or not yet visible.</p>
+<div class="err-msg">org.openqa.selenium.ElementNotInteractableException:
+element not interactable — element is disabled or not visible</div>
+<div class="code-diff">
+<div class="diff-wrong"><div class="diff-lbl">❌ Wrong</div><div class="diff-code"><span class="cmt">// Checkbox is disabled — click fails</span>
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"promoCheckbox"</span>)).<span class="fn">click</span>();</div></div>
+<div class="diff-right"><div class="diff-lbl">✅ Correct</div><div class="diff-code"><span class="cls">WebElement</span> cb <span class="op">=</span> driver.<span class="fn">findElement</span>(
+  <span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"promoCheckbox"</span>));
+<span class="cmt">// Check if enabled before clicking</span>
+<span class="kw">if</span> (cb.<span class="fn">isEnabled</span>() &amp;&amp; cb.<span class="fn">isDisplayed</span>()) {
+    cb.<span class="fn">click</span>();
+} <span class="kw">else</span> {
+    <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Checkbox not interactable"</span>);
+}</div></div>
+</div>
+<div class="fix-tag">✅ Fix: Check isEnabled() and isDisplayed() before clicking. Scroll into view if needed.</div>&nbsp;
+<div class="interview-tag">🎯 Interview: "Difference between NoSuchElementException and ElementNotInteractableException?" — NoSuchElement: element not in DOM. NotInteractable: element exists but cannot be interacted with (disabled/hidden).</div>
+</div>
+</div>
+</div>
+
+<!-- ══════════════ TAB 7: QUICK CHECK ══════════════ -->
+<div class="tab-content" id="tab-quiz">
+<div class="section-title"><span class="dot"></span> Quick Check — Test Your Knowledge</div>
+<p class="section-sub">8 questions covering checkboxes, radio buttons, Selenium commands, and best practices.</p>
+<div class="quiz-container">
+
+<!-- Q1 -->
+<div class="quiz-block">
+<div class="quiz-num">Question 1 of 8</div>
+<div class="quiz-q">Which Selenium method is used to check if a checkbox or radio button is currently selected?</div>
+<div class="quiz-opts" id="qo1">
+<button class="quiz-opt" onclick="ansQ(1,this,false)"><span>A</span> <span>getAttribute("checked")</span></button>
+<button class="quiz-opt" onclick="ansQ(1,this,false)"><span>B</span> <span>isEnabled()</span></button>
+<button class="quiz-opt" onclick="ansQ(1,this,true)"><span>C</span> <span>isSelected()</span></button>
+<button class="quiz-opt" onclick="ansQ(1,this,false)"><span>D</span> <span>isDisplayed()</span></button>
+</div>
+<div class="quiz-feedback" id="qf1"></div>
+</div>
+
+<!-- Q2 -->
+<div class="quiz-block">
+<div class="quiz-num">Question 2 of 8</div>
+<div class="quiz-q">You click a checkbox without checking its state first. What is the risk?</div>
+<div class="quiz-opts" id="qo2">
+<button class="quiz-opt" onclick="ansQ(2,this,false)"><span>A</span> <span>NoSuchElementException will be thrown</span></button>
+<button class="quiz-opt" onclick="ansQ(2,this,true)"><span>B</span> <span>If it was already checked, you will uncheck it accidentally</span></button>
+<button class="quiz-opt" onclick="ansQ(2,this,false)"><span>C</span> <span>The browser will prevent the click</span></button>
+<button class="quiz-opt" onclick="ansQ(2,this,false)"><span>D</span> <span>isSelected() will return null</span></button>
+</div>
+<div class="quiz-feedback" id="qf2"></div>
+</div>
+
+<!-- Q3 -->
+<div class="quiz-block">
+<div class="quiz-num">Question 3 of 8</div>
+<div class="quiz-q">What attribute groups radio buttons together so only one can be selected at a time?</div>
+<div class="quiz-opts" id="qo3">
+<button class="quiz-opt" onclick="ansQ(3,this,false)"><span>A</span> <span>id attribute</span></button>
+<button class="quiz-opt" onclick="ansQ(3,this,true)"><span>B</span> <span>name attribute</span></button>
+<button class="quiz-opt" onclick="ansQ(3,this,false)"><span>C</span> <span>value attribute</span></button>
+<button class="quiz-opt" onclick="ansQ(3,this,false)"><span>D</span> <span>class attribute</span></button>
+</div>
+<div class="quiz-feedback" id="qf3"></div>
+</div>
+
+<!-- Q4 -->
+<div class="quiz-block">
+<div class="quiz-num">Question 4 of 8</div>
+<div class="quiz-q">Which CSS selector correctly locates a radio button with value "Female" inside the gender group?</div>
+<div class="quiz-opts" id="qo4">
+<button class="quiz-opt" onclick="ansQ(4,this,false)"><span>A</span> <span class="quiz-code">input[type='radio']</span></button>
+<button class="quiz-opt" onclick="ansQ(4,this,true)"><span>B</span> <span class="quiz-code">input[name='gender'][value='Female']</span></button>
+<button class="quiz-opt" onclick="ansQ(4,this,false)"><span>C</span> <span class="quiz-code">radio[value='Female']</span></button>
+<button class="quiz-opt" onclick="ansQ(4,this,false)"><span>D</span> <span class="quiz-code">input.gender[value='Female']</span></button>
+</div>
+<div class="quiz-feedback" id="qf4"></div>
+</div>
+
+<!-- Q5 -->
+<div class="quiz-block">
+<div class="quiz-num">Question 5 of 8</div>
+<div class="quiz-q">You call <code class="quiz-code">isSelected()</code> on a <code class="quiz-code">&lt;label&gt;</code> element. What is returned?</div>
+<div class="quiz-opts" id="qo5">
+<button class="quiz-opt" onclick="ansQ(5,this,false)"><span>A</span> <span>The actual checked state of the linked input</span></button>
+<button class="quiz-opt" onclick="ansQ(5,this,false)"><span>B</span> <span>true if the label is visible</span></button>
+<button class="quiz-opt" onclick="ansQ(5,this,true)"><span>C</span> <span>Always false — isSelected() only works on input elements</span></button>
+<button class="quiz-opt" onclick="ansQ(5,this,false)"><span>D</span> <span>NullPointerException is thrown</span></button>
+</div>
+<div class="quiz-feedback" id="qf5"></div>
+</div>
+
+<!-- Q6 -->
+<div class="quiz-block">
+<div class="quiz-num">Question 6 of 8</div>
+<div class="quiz-q">Which exception is thrown when Selenium finds the checkbox in the DOM but it is disabled or hidden?</div>
+<div class="quiz-opts" id="qo6">
+<button class="quiz-opt" onclick="ansQ(6,this,false)"><span>A</span> <span>NoSuchElementException</span></button>
+<button class="quiz-opt" onclick="ansQ(6,this,false)"><span>B</span> <span>ElementClickInterceptedException</span></button>
+<button class="quiz-opt" onclick="ansQ(6,this,true)"><span>C</span> <span>ElementNotInteractableException</span></button>
+<button class="quiz-opt" onclick="ansQ(6,this,false)"><span>D</span> <span>StaleElementReferenceException</span></button>
+</div>
+<div class="quiz-feedback" id="qf6"></div>
+</div>
+
+<!-- Q7 -->
+<div class="quiz-block">
+<div class="quiz-num">Question 7 of 8</div>
+<div class="quiz-q">How do you select all checkboxes on a page using Selenium?</div>
+<div class="quiz-opts" id="qo7">
+<button class="quiz-opt" onclick="ansQ(7,this,false)"><span>A</span> <span>driver.selectAll()</span></button>
+<button class="quiz-opt" onclick="ansQ(7,this,true)"><span>B</span> <span>Use findElements() with CSS input[type='checkbox'], loop, and click() each if !isSelected()</span></button>
+<button class="quiz-opt" onclick="ansQ(7,this,false)"><span>C</span> <span>Use findElement() in a loop</span></button>
+<button class="quiz-opt" onclick="ansQ(7,this,false)"><span>D</span> <span>Use Actions.selectAll() method</span></button>
+</div>
+<div class="quiz-feedback" id="qf7"></div>
+</div>
+
+<!-- Q8 -->
+<div class="quiz-block">
+<div class="quiz-num">Question 8 of 8</div>
+<div class="quiz-q">Which XPath correctly finds a checkbox by the visible text of its associated label?</div>
+<div class="quiz-opts" id="qo8">
+<button class="quiz-opt" onclick="ansQ(8,this,false)"><span>A</span> <span class="quiz-code">//input[@label='Accept Terms']</span></button>
+<button class="quiz-opt" onclick="ansQ(8,this,false)"><span>B</span> <span class="quiz-code">//checkbox[text()='Accept Terms']</span></button>
+<button class="quiz-opt" onclick="ansQ(8,this,true)"><span>C</span> <span class="quiz-code">//label[contains(text(),'Accept Terms')]/preceding-sibling::input</span></button>
+<button class="quiz-opt" onclick="ansQ(8,this,false)"><span>D</span> <span class="quiz-code">//input[@text='Accept Terms']</span></button>
+</div>
+<div class="quiz-feedback" id="qf8"></div>
+</div>
+
+</div><!-- end quiz-container -->
+
+<div class="score-box" id="score-box">
+<div class="score-num" id="score-num"></div>
+<div class="score-label" id="score-lbl"></div>
+<button class="btn-retake" onclick="retakeQuiz()">↺ Retry Quiz</button>
+</div>
+</div>
+
+</div><!-- tabs-wrapper -->
+
+<nav class="course-nav">
+<div class="course-nav-left">
+  <a href="w3_t2_dropdowns.html">← Previous</a>
+  <a href="../index.html">🏠 Home</a>
+</div>
+<div class="course-nav-right">
+  <a href="w3_t4_alerts.html">Next →</a>
+</div>
+</nav>
+</div><!-- container -->
+
+<script>
+/* ══ THEME ════════════════════════════════════════════════════ */
+function toggleTheme(){
+  var h=document.documentElement;
+  var isDark=h.getAttribute('data-theme')==='dark';
+  h.setAttribute('data-theme',isDark?'light':'dark');
+  document.getElementById('themeToggle').textContent=isDark?'🌙 Dark':'☀️ Light';
+}
+
+/* ══ TABS ══════════════════════════════════════════════════════ */
+function switchTab(id,btn){
+  document.querySelectorAll('.tab-content').forEach(function(t){t.classList.remove('active');});
+  document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
+  document.getElementById('tab-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ══ INTRO DEMO TOGGLES ════════════════════════════════════════ */
+function toggleDemoCb(idx){
+  var box=document.getElementById('dcb'+idx);
+  var checked=box.classList.contains('checked');
+  if(checked){box.classList.remove('checked');box.textContent='';}
+  else{box.classList.add('checked');box.textContent='✓';}
+}
+function selectDemoRb(idx){
+  for(var i=0;i<3;i++){
+    var c=document.getElementById('drb'+i);
+    c.classList.remove('selected');
+  }
+  document.getElementById('drb'+idx).classList.add('selected');
+}
+
+/* ══ COMMON MISTAKES ════════════════════════════════════════════ */
+function showErr(id,btn){
+  document.querySelectorAll('.err-panel').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.err-btn').forEach(function(b){b.classList.remove('active');});
+  document.getElementById('err-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ══ PLAYGROUND ═════════════════════════════════════════════════ */
+var _pgState = {
+  terms:false, news:false, sms:false, promo:false,
+  gender:null, stepIndex:0
+};
+var _pgRunAllSteps = [
+  {type:'cb',id:'terms',locator:'By.id("termsCheckbox")',cmd:'click()'},
+  {type:'cb',id:'news',locator:'By.name("newsletter")',cmd:'click()'},
+  {type:'cb',id:'sms',locator:'By.cssSelector("input#smsCheckbox")',cmd:'click()'},
+  {type:'rb',id:'female',locator:'By.cssSelector("input[value=\'Female\']")',cmd:'click()'},
+  {type:'cb',id:'promo',locator:'By.xpath("//input[@id=\'promoCheckbox\']")',cmd:'click()'},
+  {type:'rb',id:'male',locator:'By.cssSelector("input[value=\'Male\']")',cmd:'click()'},
+];
+
+function pgLog(msg){
+  var log=document.getElementById('pg-log');
+  log.innerHTML+='\n'+msg;
+  log.scrollTop=log.scrollHeight;
+}
+function pgSetStatus(color){
+  document.getElementById('pg-log-status').style.background=color;
+}
+function pgAddPill(txt,type){
+  var pills=document.getElementById('pg-pills');
+  var d=document.createElement('div');
+  d.className='rpill rpill-'+type;
+  d.textContent=txt;
+  pills.appendChild(d);
+}
+function pgUpdateInfo(locator,cmd,isSelected){
+  document.getElementById('pg-locator').textContent=locator||'—';
+  document.getElementById('pg-cmd').textContent=cmd||'—';
+  var el=document.getElementById('pg-issel');
+  if(isSelected===true){el.textContent='true';el.className='si-val si-true';}
+  else if(isSelected===false){el.textContent='false';el.className='si-val si-false';}
+  else{el.textContent='—';el.className='si-val';}
+}
+function pgToggleCb(id){
+  _pgState[id]=!_pgState[id];
+  var vis=document.getElementById('pg-cbv-'+id);
+  var badge=document.getElementById('pg-cbs-'+id);
+  var item=document.getElementById('pg-cb-'+id);
+  if(_pgState[id]){
+    vis.classList.add('on');vis.textContent='✓';
+    badge.className='state-badge state-on';badge.textContent='true';
+    item.classList.add('active');
+    var locMap={terms:'By.id("termsCheckbox")',news:'By.name("newsletter")',sms:'By.cssSelector("input#smsCheckbox")',promo:'By.xpath("//input[@id=\'promoCheckbox\']")'};
+    var labelMap={terms:'Accept Terms',news:'Newsletter',sms:'SMS Alerts',promo:'Promo Emails'};
+    pgLog('<span class="c-sel">driver.findElement('+locMap[id]+').click();</span>');
+    pgLog('<span class="c-ok">→ Checkbox "'+labelMap[id]+'" → CHECKED</span>');
+    pgLog('<span class="c-info">isSelected() → true</span>');
+    pgUpdateInfo(locMap[id],'click()',true);
+    pgAddPill('✓ '+labelMap[id]+' checked','success');
+    pgFlowAnimate();
+  } else {
+    vis.classList.remove('on');vis.textContent='';
+    badge.className='state-badge state-off';badge.textContent='false';
+    item.classList.remove('active');
+    pgLog('<span class="c-warn">→ Checkbox unchecked. isSelected() → false</span>');
+    pgUpdateInfo('—','click()',false);
+  }
+  pgSetStatus('var(--accent3)');
+}
+function pgSelectRb(id){
+  var rbIds=['male','female','other'];
+  rbIds.forEach(function(rid){
+    var vis=document.getElementById('pg-rbv-'+rid);
+    var badge=document.getElementById('pg-rbs-'+rid);
+    var item=document.getElementById('pg-rb-'+rid);
+    vis.classList.remove('on');
+    badge.className='state-badge state-off';badge.textContent='false';
+    item.classList.remove('active');
+  });
+  _pgState.gender=id;
+  var vis=document.getElementById('pg-rbv-'+id);
+  var badge=document.getElementById('pg-rbs-'+id);
+  var item=document.getElementById('pg-rb-'+id);
+  vis.classList.add('on');
+  badge.className='state-badge state-on';badge.textContent='true';
+  item.classList.add('active');
+  var labelMap={male:'Male',female:'Female',other:'Other'};
+  var valMap={male:'M',female:'F',other:'O'};
+  var locator='By.cssSelector("input[value=\''+valMap[id]+'\']")';
+  pgLog('<span class="c-sel">driver.findElement('+locator+').click();</span>');
+  pgLog('<span class="c-ok">→ Radio "'+labelMap[id]+'" → SELECTED</span>');
+  pgLog('<span class="c-info">isSelected() → true (others → false)</span>');
+  pgUpdateInfo(locator,'click()',true);
+  pgAddPill('✓ Gender: '+labelMap[id],'info');
+  pgSetStatus('var(--accent2)');
+  pgFlowAnimate();
+}
+function pgFlowAnimate(){
+  var steps=['pgf1','pgf2','pgf3','pgf4'];
+  var arrows=['pgfa1','pgfa2','pgfa3'];
+  var delay=0;
+  steps.forEach(function(id,i){
+    setTimeout(function(){
+      document.getElementById(id).classList.add('active');
+      if(i<arrows.length) document.getElementById(arrows[i]).classList.add('lit');
+    },delay+=120);
+  });
+  setTimeout(function(){
+    steps.forEach(function(id){document.getElementById(id).classList.remove('active');document.getElementById(id).classList.add('done');});
+    arrows.forEach(function(id){document.getElementById(id).classList.remove('lit');});
+  },delay+400);
+}
+function pgRunStep(){
+  var steps=_pgRunAllSteps;
+  if(_pgState.stepIndex>=steps.length){
+    pgLog('<span class="c-ok">✓ All steps completed. Click ↺ Reset to restart.</span>');
+    return;
+  }
+  var step=steps[_pgState.stepIndex];
+  if(step.type==='cb') pgToggleCb(step.id);
+  else pgSelectRb(step.id);
+  _pgState.stepIndex++;
+}
+function pgRunAll(){
+  pgReset();
+  var delays=[300,900,1500,2200,2900,3600];
+  var steps=_pgRunAllSteps;
+  steps.forEach(function(step,i){
+    setTimeout(function(){
+      if(step.type==='cb') pgToggleCb(step.id);
+      else pgSelectRb(step.id);
+    },delays[i]);
+  });
+  setTimeout(function(){
+    pgLog('<span class="c-ok">✅ All steps executed. Test complete — driver.quit();</span>');
+    pgSetStatus('var(--accent3)');
+  },4200);
+}
+function pgReset(){
+  _pgState={terms:false,news:false,sms:false,promo:false,gender:null,stepIndex:0};
+  ['terms','news','sms','promo'].forEach(function(id){
+    var vis=document.getElementById('pg-cbv-'+id);
+    var badge=document.getElementById('pg-cbs-'+id);
+    var item=document.getElementById('pg-cb-'+id);
+    vis.classList.remove('on');vis.textContent='';
+    badge.className='state-badge state-off';badge.textContent='false';
+    item.classList.remove('active');
+  });
+  ['male','female','other'].forEach(function(id){
+    var vis=document.getElementById('pg-rbv-'+id);
+    var badge=document.getElementById('pg-rbs-'+id);
+    var item=document.getElementById('pg-rb-'+id);
+    vis.classList.remove('on');
+    badge.className='state-badge state-off';badge.textContent='false';
+    item.classList.remove('active');
+  });
+  document.getElementById('pg-log').innerHTML='<span class="c-dim">// Interact with the form or click Run All</span>';
+  document.getElementById('pg-pills').innerHTML='';
+  ['pgf1','pgf2','pgf3','pgf4'].forEach(function(id){
+    document.getElementById(id).classList.remove('active','done');
+  });
+  ['pgfa1','pgfa2','pgfa3'].forEach(function(id){
+    document.getElementById(id).classList.remove('lit');
+  });
+  pgUpdateInfo(null,null,null);
+  pgSetStatus('var(--text2)');
+}
+
+/* ══ QUIZ ════════════════════════════════════════════════════════ */
+var qExpMap = {
+  1:{c:'✅ Correct! isSelected() is the dedicated Selenium method that returns true if a checkbox is checked or a radio button is selected. It only works on input[type="checkbox"] and input[type="radio"] elements.',
+     w:'❌ Not quite. isSelected() is the correct method. getAttribute("checked") is unreliable — it returns null or the attribute string, not a reliable boolean. isEnabled() checks if the element is clickable. isDisplayed() checks visibility.'},
+  2:{c:'✅ Correct! If the checkbox is already checked and you click it again, you UNCHECK it. This is why you must always call isSelected() before clicking — to perform a state-aware action, not a blind toggle.',
+     w:'❌ Not quite. No exception is thrown — the click will succeed. The problem is silent: if the checkbox was already checked, clicking it unchecks it, reversing the intended state without any error.'},
+  3:{c:'✅ Correct! The name attribute is the HTML grouping mechanism for radio buttons. All radio buttons with the same name belong to one group — the browser ensures only one is selected at a time.',
+     w:'❌ Not quite. While id is unique per element, it does not group radio buttons. The name attribute is what the browser uses to link radio buttons into a mutually exclusive selection group.'},
+  4:{c:'✅ Correct! input[name="gender"][value="Female"] targets radio buttons in the gender group with the specific value. This is the most precise and reliable CSS selector for radio buttons when ID is not available.',
+     w:'❌ Not quite. input[type="radio"] alone matches all radio buttons on the page — too broad. The correct selector combines name (the group) and value (the specific option): input[name="gender"][value="Female"].'},
+  5:{c:'✅ Correct! isSelected() only works on <input type="checkbox"> and <input type="radio"> elements. A <label> element does not have a selected/checked state, so isSelected() always returns false on a label.',
+     w:'❌ Not quite. No exception is thrown for calling isSelected() on a label — it simply always returns false. To get the correct state, you must call isSelected() on the actual <input> element, not the label.'},
+  6:{c:'✅ Correct! ElementNotInteractableException means Selenium found the element in the DOM, but it cannot interact with it — because it is disabled (attribute="disabled"), hidden via CSS (display:none), or outside the visible viewport.',
+     w:'❌ Not quite. NoSuchElementException means the element was not found at all. ElementClickInterceptedException means another element is blocking the click. ElementNotInteractableException specifically means: found but cannot be interacted with.'},
+  7:{c:'✅ Correct! The correct approach is: use findElements() (plural) with CSS selector input[type="checkbox"] to get all checkboxes as a List<WebElement>, then loop through, and call click() on each only if !isSelected() returns true.',
+     w:'❌ Not quite. There is no selectAll() method in Selenium. The correct approach is findElements() + a for-each loop + isSelected() check before each click. This is data-driven and state-aware.'},
+  8:{c:'✅ Correct! This XPath navigates from the visible label text to its preceding-sibling input. //label[contains(text(),"Accept Terms")]/preceding-sibling::input finds the checkbox even when no stable ID is available — very useful for dynamic pages.',
+     w:'❌ Not quite. HTML inputs do not have a "label" or "text" attribute. The correct XPath navigates from the visible label text to its associated input using the preceding-sibling axis: //label[contains(text(),"Accept Terms")]/preceding-sibling::input.'}
+};
+var qAnswers={};var qScore=0;
+function ansQ(n,el,correct){
+  if(qAnswers[n]!==undefined)return;
+  qAnswers[n]=correct;if(correct)qScore++;
+  el.closest('.quiz-opts').querySelectorAll('.quiz-opt').forEach(function(o){o.classList.add('disabled');});
+  el.classList.add(correct?'correct':'wrong');
+  var fb=document.getElementById('qf'+n);
+  fb.innerHTML=correct?qExpMap[n].c:qExpMap[n].w;
+  fb.className='quiz-feedback show '+(correct?'correct':'wrong');
+  if(Object.keys(qAnswers).length===8) setTimeout(showQScore,500);
+}
+function showQScore(){
+  var box=document.getElementById('score-box');
+  var num=document.getElementById('score-num');
+  var lbl=document.getElementById('score-lbl');
+  num.textContent=qScore+'/8';
+  num.style.color=qScore===8?'var(--accent3)':qScore>=6?'var(--accent)':'var(--accent4)';
+  lbl.textContent=qScore===8?'🎉 Perfect! You have mastered Checkbox and Radio Button handling!':
+    qScore>=6?'👍 Great work! Review the questions you missed.':'📖 Revisit the Checkbox Handling and Common Mistakes tabs.';
+  box.classList.add('show');
+  box.scrollIntoView({behavior:'smooth',block:'center'});
+}
+function retakeQuiz(){
+  qAnswers={};qScore=0;
+  document.getElementById('score-box').classList.remove('show');
+  document.querySelectorAll('.quiz-opt').forEach(function(o){o.className='quiz-opt';});
+  document.querySelectorAll('.quiz-feedback').forEach(function(f){f.className='quiz-feedback';f.innerHTML='';});
+}
+</script>
+</body>
+</html>

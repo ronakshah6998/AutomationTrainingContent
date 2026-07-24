@@ -1,0 +1,1226 @@
+
+<!DOCTYPE html>
+<html data-theme="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Maven Setup + WebDriver Basics + Selenium Actions</title>
+<style>
+/* ── TOKENS ─────────────────────────────────────────────── */
+:root {
+--bg:#0d1117; --surface:#161b22; --surface2:#1f2937; --border:#30363d;
+--accent:#f89820; --accent2:#4fa3e0; --accent3:#58d68d; --accent4:#e74c3c; --accent5:#c678dd;
+--text:#e6edf3; --text2:#8b949e; --text3:#c9d1d9;
+--tab-bg:#161b22; --tab-active:#1f2937; --code-bg:#0d1117;
+--radius:10px; --font-mono:'Courier New',Courier,monospace;
+--sel:#43b02a;
+}
+[data-theme="light"]{
+--bg:#f0f4f8; --surface:#ffffff; --surface2:#e8eef5; --border:#d1d9e0;
+--text:#1a202c; --text2:#4a5568; --text3:#2d3748;
+--tab-bg:#e8eef5; --tab-active:#ffffff; --code-bg:#e2e8f0;
+}
+[data-theme="light"] pre,[data-theme="light"] .code-pre{color:#1a202c;background:#e2e8f0;}
+[data-theme="light"] .quiz-code,[data-theme="light"] .card code,
+[data-theme="light"] .info-box code,[data-theme="light"] code{background:#dde4ee;color:var(--text);border:1px solid var(--border);}
+[data-theme="light"] .kw{color:#7c3aed;}[data-theme="light"] .cls{color:#b45309;}
+[data-theme="light"] .fn{color:#1d4ed8;}[data-theme="light"] .str{color:#15803d;}
+[data-theme="light"] .cmt{color:#6b7280;}[data-theme="light"] .num{color:#c2410c;}
+[data-theme="light"] .xml-tag{color:#be185d;}[data-theme="light"] .xml-val{color:#15803d;}
+,::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);
+min-height:100vh;transition:background .3s,color .3s;line-height:1.65;
+user-select:none;-webkit-user-select:none;}
+/* ── WATERMARK ─────────────────────────────────────────── */
+#watermark{position:fixed;bottom:14px;right:18px;font-size:.7rem;color:var(--text2);
+opacity:.44;pointer-events:none;z-index:800;letter-spacing:.2px;white-space:nowrap;}
+/* ── HEADER ─────────────────────────────────────────────── */
+header{background:var(--surface);border-bottom:1px solid var(--border);
+padding:0 32px;display:flex;align-items:center;justify-content:space-between;
+height:62px;position:sticky;top:0;z-index:100;box-shadow:0 1px 0 var(--border);}
+.logo{display:flex;align-items:center;gap:10px;font-size:1.05rem;font-weight:700;}
+.logo-icon{width:32px;height:32px;border-radius:8px;
+background:linear-gradient(135deg,#43b02a,#26890c);
+display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:#fff;}
+.badge{font-size:.68rem;font-weight:600;padding:2px 8px;border-radius:20px;
+background:var(--accent2);color:#000;text-transform:uppercase;letter-spacing:.5px;}
+#themeToggle{background:var(--surface2);border:1px solid var(--border);color:var(--text);
+border-radius:8px;padding:6px 14px;cursor:pointer;font-size:.85rem;transition:all .2s;}
+#themeToggle:hover{border-color:var(--accent);color:var(--accent);}
+/* ── LAYOUT ─────────────────────────────────────────────── */
+.container{max-width:1100px;margin:0 auto;padding:32px 20px 80px;}
+/* ── HERO ───────────────────────────────────────────────── */
+.hero{background:linear-gradient(135deg,var(--surface),var(--surface2));
+border:1px solid var(--border);border-radius:14px;padding:36px 40px;
+margin-bottom:28px;display:flex;align-items:center;gap:28px;
+position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:240px;height:240px;
+border-radius:50%;background:radial-gradient(circle,rgba(79,163,224,.14) 0%,transparent 70%);
+pointer-events:none;}
+.hero-icon{font-size:64px;flex-shrink:0;filter:drop-shadow(0 4px 16px rgba(79,163,224,.4));}
+.hero-text h1{font-size:1.75rem;font-weight:800;line-height:1.2;}
+.hero-text h1 span{color:var(--accent2);}
+.hero-text p{color:var(--text2);margin-top:8px;font-size:.95rem;}
+.hero-pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;}
+.pill{padding:4px 12px;border-radius:20px;font-size:.78rem;font-weight:600;
+border:1px solid;display:flex;align-items:center;gap:5px;}
+.pill-orange{color:var(--accent);border-color:rgba(248,152,32,.35);background:rgba(248,152,32,.08);}
+.pill-blue{color:var(--accent2);border-color:rgba(79,163,224,.35);background:rgba(79,163,224,.08);}
+.pill-green{color:var(--accent3);border-color:rgba(88,214,141,.35);background:rgba(88,214,141,.08);}
+.pill-purple{color:var(--accent5);border-color:rgba(198,120,221,.35);background:rgba(198,120,221,.08);}
+.pill-sel{color:var(--sel);border-color:rgba(67,176,42,.35);background:rgba(67,176,42,.08);}
+/* ── BREADCRUMB ROW ─────────────────────────────────────── */
+.breadcrumb-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.breadcrumb{display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--text2);}
+.breadcrumb span{color:var(--accent2);font-weight:600;}
+.watermark{font-size:.7rem;color:var(--text2);opacity:.52;letter-spacing:.3px;
+white-space:nowrap;font-weight:500;}
+/* ── TABS ───────────────────────────────────────────────── */
+.tabs-wrapper{background:var(--tab-bg);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.tab-nav{display:flex;overflow-x:auto;border-bottom:1px solid var(--border);scrollbar-width:none;}
+.tab-nav::-webkit-scrollbar{display:none;}
+.tab-btn{flex-shrink:0;padding:13px 18px;background:none;border:none;color:var(--text2);
+font-size:.83rem;font-weight:600;cursor:pointer;position:relative;transition:color .2s;
+display:flex;align-items:center;gap:6px;}
+.tab-btn:hover{color:var(--text);}
+.tab-btn.active{color:var(--accent2);background:var(--tab-active);}
+.tab-btn.active::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+background:var(--accent2);border-radius:2px 2px 0 0;}
+.tab-content{display:none;padding:32px;}
+.tab-content.active{display:block;animation:fadeIn .25s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+/* ── SECTION HEADINGS ───────────────────────────────────── */
+.section-title{font-size:1.2rem;font-weight:800;margin-bottom:6px;display:flex;align-items:center;gap:9px;}
+.section-title .dot{width:10px;height:10px;border-radius:50%;background:var(--accent2);}
+.section-sub{color:var(--text2);font-size:.9rem;margin-bottom:22px;}
+/* ── CARDS ──────────────────────────────────────────────── */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px;margin-bottom:28px;}
+.card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);
+padding:20px;transition:border-color .2s,transform .2s;}
+.card:hover{border-color:var(--accent2);transform:translateY(-2px);}
+.card-icon{font-size:1.6rem;margin-bottom:10px;}
+.card h3{font-size:.95rem;font-weight:700;margin-bottom:6px;}
+.card p{font-size:.83rem;color:var(--text2);line-height:1.55;}
+.card code{font-family:var(--font-mono);font-size:.78rem;background:var(--code-bg);
+padding:1px 6px;border-radius:4px;color:var(--accent3);border:1px solid var(--border);}
+/* ── INFO BOX ───────────────────────────────────────────── */
+.info-box{border-radius:var(--radius);padding:16px 20px;font-size:.875rem;
+margin-bottom:20px;border-left:4px solid;display:flex;gap:12px;align-items:flex-start;}
+.info-box .ib-icon{font-size:1.2rem;flex-shrink:0;margin-top:1px;}
+.info-box.blue{background:rgba(79,163,224,.1);border-color:var(--accent2);}
+.info-box.orange{background:rgba(248,152,32,.1);border-color:var(--accent);}
+.info-box.green{background:rgba(88,214,141,.1);border-color:var(--accent3);}
+.info-box.red{background:rgba(231,76,60,.1);border-color:var(--accent4);}
+.info-box.sel{background:rgba(67,176,42,.1);border-color:var(--sel);}
+.info-box code{font-family:var(--font-mono);font-size:.82rem;background:var(--code-bg);
+padding:1px 6px;border-radius:4px;color:var(--accent3);border:1px solid var(--border);}
+/* ── CODE BLOCK ─────────────────────────────────────────── */
+.code-wrap{background:var(--code-bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin:16px 0;}
+.code-header{display:flex;align-items:center;justify-content:space-between;
+padding:10px 16px;border-bottom:1px solid var(--border);background:rgba(255,255,255,.03);}
+.code-lang{font-size:.75rem;color:var(--text2);font-weight:600;}
+.code-dots{display:flex;gap:5px;}
+.code-dots span{width:11px;height:11px;border-radius:50%;}
+.code-dots .r{background:#ff5f57;}.code-dots .y{background:#ffbd2e;}.code-dots .g{background:#28c840;}
+.code-pre{padding:20px;overflow-x:auto;font-family:var(--font-mono);font-size:.85rem;line-height:1.75;color:#abb2bf;white-space:pre;}
+.kw{color:#c678dd;font-weight:600;}.cls{color:#e5c07b;}.fn{color:#61afef;}
+.str{color:#98c379;}.cmt{color:#5c6370;font-style:italic;}.num{color:#d19a66;}.op{color:#56b6c2;}
+.xml-tag{color:#e06c75;}.xml-attr{color:#d19a66;}.xml-val{color:#98c379;}
+/* ── FLOW PIPELINE ──────────────────────────────────────── */
+.flow-pipe{display:flex;flex-direction:column;gap:6px;margin:20px 0;}
+.fp-row{display:flex;align-items:center;gap:12px;}
+.fp-box{flex:1;background:var(--surface2);border:2px solid var(--border);border-radius:var(--radius);
+padding:13px 18px;display:flex;align-items:center;gap:12px;transition:all .3s;}
+.fp-box.active{border-color:var(--accent2);background:rgba(79,163,224,.08);box-shadow:0 0 0 3px rgba(79,163,224,.15);}
+.fp-box.done{border-color:var(--accent3);background:rgba(88,214,141,.07);}
+.fp-icon{font-size:1.4rem;flex-shrink:0;}
+.fp-info .fp-label{font-size:.7rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.4px;}
+.fp-info .fp-title{font-size:.9rem;font-weight:700;margin-top:1px;}
+.fp-arrow{text-align:center;font-size:.8rem;color:var(--text2);padding:4px 0;}
+.fp-arrow.lit{color:var(--accent3);}
+/* ── ITER STEPS ─────────────────────────────────────────── */
+.iter-steps{display:flex;flex-direction:column;gap:10px;margin:16px 0;}
+.iter-row{display:flex;gap:14px;align-items:flex-start;background:var(--surface2);
+border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;transition:border-color .2s;}
+.iter-row:hover{border-color:var(--accent2);}
+.iter-num{flex-shrink:0;width:28px;height:28px;border-radius:50%;background:var(--accent2);
+color:#000;font-weight:800;font-size:.8rem;display:flex;align-items:center;justify-content:center;margin-top:1px;}
+.iter-body h4{font-size:.88rem;font-weight:700;margin-bottom:3px;}
+.iter-body p{font-size:.82rem;color:var(--text2);}
+.iter-body code{font-family:var(--font-mono);font-size:.8rem;background:var(--code-bg);
+padding:1px 6px;border-radius:4px;color:var(--accent3);border:1px solid var(--border);}
+/* ── COMPARE TABLE ──────────────────────────────────────── */
+.compare-table{width:100%;border-collapse:collapse;font-size:.875rem;margin:16px 0;}
+.compare-table th{text-align:left;padding:10px 16px;background:var(--surface2);color:var(--text2);
+font-weight:700;font-size:.78rem;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);}
+.compare-table td{padding:11px 16px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.compare-table tr:last-child td{border-bottom:none;}
+.compare-table tr:hover td{background:rgba(255,255,255,.02);}
+.mono{font-family:var(--font-mono);font-size:.82rem;color:var(--accent3);}
+/* ── FOLDER TREE ────────────────────────────────────────── */
+.folder-tree{background:var(--code-bg);border:1px solid var(--border);border-radius:var(--radius);
+padding:20px 24px;font-family:var(--font-mono);font-size:.85rem;line-height:2;color:#abb2bf;}
+.ft-folder{color:#e5c07b;font-weight:600;}
+.ft-file{color:#98c379;}
+.ft-xml{color:#e06c75;}
+.ft-gray{color:var(--text2);}
+.ft-indent1{padding-left:20px;}
+.ft-indent2{padding-left:40px;}
+.ft-indent3{padding-left:60px;}
+.ft-indent4{padding-left:80px;}
+/* ── NAV PILL ROW ───────────────────────────────────────── */
+.nav-pills{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0;}
+.nav-pill{padding:7px 16px;border-radius:8px;background:var(--surface2);
+border:1px solid var(--border);font-size:.83rem;font-weight:600;color:var(--text2);}
+.nav-pill.active{background:rgba(79,163,224,.12);border-color:var(--accent2);color:var(--accent2);}
+/* ── ACTION CARDS ───────────────────────────────────────── */
+.action-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin:18px 0 26px;}
+.action-card{background:var(--surface2);border:2px solid var(--border);border-radius:var(--radius);
+padding:18px;transition:all .2s;}
+.action-card:hover{transform:translateY(-2px);}
+.action-card.click-card{border-color:rgba(231,76,60,.4);}
+.action-card.send-card{border-color:rgba(79,163,224,.4);}
+.action-card.get-card{border-color:rgba(88,214,141,.4);}
+.action-card.hover-card{border-color:rgba(248,152,32,.4);}
+.ac-tag{font-size:.68rem;font-weight:700;padding:2px 8px;border-radius:5px;
+text-transform:uppercase;letter-spacing:.4px;display:inline-block;margin-bottom:10px;}
+.ac-tag.click{background:rgba(231,76,60,.15);color:var(--accent4);}
+.ac-tag.send{background:rgba(79,163,224,.15);color:var(--accent2);}
+.ac-tag.get{background:rgba(88,214,141,.15);color:var(--accent3);}
+.ac-tag.hover{background:rgba(248,152,32,.15);color:var(--accent);}
+.action-card h4{font-family:var(--font-mono);font-size:.9rem;font-weight:800;margin-bottom:6px;}
+.action-card p{font-size:.8rem;color:var(--text2);line-height:1.5;margin-bottom:8px;}
+.action-card .ac-ex{font-family:var(--font-mono);font-size:.76rem;background:var(--code-bg);
+padding:6px 10px;border-radius:6px;border:1px solid var(--border);color:#abb2bf;white-space:pre;}
+/* ── BROWSER SIM ────────────────────────────────────────── */
+.browser-sim-wrap{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+.browser-sim-header{display:flex;align-items:center;justify-content:space-between;
+padding:13px 20px;background:rgba(255,255,255,.03);border-bottom:1px solid var(--border);
+font-weight:700;font-size:.88rem;}
+.browser-sim-body{padding:24px;}
+/* Fake browser window */
+.fake-browser{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:18px;position:relative;}
+.fb-titlebar{background:#1a1d23;padding:10px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);}
+.fb-dots{display:flex;gap:5px;}
+.fb-dot{width:12px;height:12px;border-radius:50%;}
+.fb-dot.red{background:#ff5f57;}.fb-dot.yel{background:#ffbd2e;}.fb-dot.grn{background:#28c840;}
+.fb-url{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:6px;
+padding:5px 12px;font-size:.78rem;color:var(--text2);font-family:var(--font-mono);}
+.fb-content{padding:28px 32px;min-height:220px;}
+.fb-page-title{font-size:1.1rem;font-weight:800;margin-bottom:24px;color:var(--text);}
+.fb-form-group{margin-bottom:16px;}
+.fb-label{font-size:.78rem;font-weight:600;color:var(--text2);margin-bottom:6px;display:block;}
+.fb-input{width:100%;max-width:320px;padding:10px 14px;border-radius:8px;
+border:2px solid var(--border);background:var(--surface);color:var(--text);
+font-size:.9rem;font-family:var(--font-mono);outline:none;transition:border-color .2s;}
+.fb-input:focus{border-color:var(--accent2);}
+.fb-input.success{border-color:var(--accent3);}
+.fb-btn{padding:10px 28px;border-radius:8px;background:var(--accent2);color:#fff;
+border:none;font-weight:800;font-size:.9rem;cursor:pointer;transition:all .2s;
+margin-top:4px;}
+.fb-btn:hover{opacity:.88;transform:translateY(-1px);}
+.fb-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.fb-msg{padding:12px 16px;border-radius:8px;font-size:.875rem;font-weight:600;
+margin-top:14px;display:none;animation:fadeIn .3s;}
+.fb-msg.success{background:rgba(88,214,141,.12);border:1px solid rgba(88,214,141,.35);color:var(--accent3);}
+.fb-msg.error{background:rgba(231,76,60,.1);border:1px solid rgba(231,76,60,.3);color:var(--accent4);}
+/* Command log */
+.cmd-log{background:var(--code-bg);border:1px solid var(--border);border-radius:var(--radius);
+overflow:hidden;margin-bottom:18px;}
+.cmd-log-bar{padding:9px 16px;background:rgba(255,255,255,.03);border-bottom:1px solid var(--border);
+font-size:.78rem;color:var(--text2);font-weight:600;display:flex;align-items:center;gap:8px;}
+.cmd-log-body{padding:14px 18px;font-family:var(--font-mono);font-size:.84rem;
+min-height:80px;line-height:1.9;white-space:pre-wrap;color:#abb2bf;}
+.c-sel{color:#43b02a;}.c-dim{color:#555;}.c-info{color:#7ec8e3;}.c-ok{color:#a8ff78;}
+/* Sim controls */
+.sim-controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;}
+.btn-sim{background:linear-gradient(135deg,var(--accent2),#2980b9);color:#fff;border:none;
+border-radius:8px;padding:10px 24px;font-weight:800;font-size:.875rem;cursor:pointer;
+transition:opacity .2s,transform .2s;}
+.btn-sim:hover{opacity:.88;transform:translateY(-1px);}
+.btn-sim:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.btn-reset-sim{background:none;border:1px solid var(--border);color:var(--text2);
+border-radius:8px;padding:10px 18px;font-size:.875rem;cursor:pointer;transition:all .2s;}
+.btn-reset-sim:hover{border-color:var(--text2);color:var(--text);}
+.btn-run-all{background:linear-gradient(135deg,var(--sel),#1e6b0e);color:#fff;border:none;
+border-radius:8px;padding:10px 24px;font-weight:800;font-size:.875rem;cursor:pointer;
+transition:opacity .2s,transform .2s;}
+.btn-run-all:hover{opacity:.88;transform:translateY(-1px);}
+.btn-run-all:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+/* Result pills */
+.result-pills{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px;min-height:34px;}
+.rpill{display:flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;
+font-size:.82rem;font-weight:600;border:1px solid;animation:fadeIn .2s;}
+.rpill-success{background:rgba(88,214,141,.12);border-color:rgba(88,214,141,.4);color:var(--accent3);}
+.rpill-error{background:rgba(231,76,60,.12);border-color:rgba(231,76,60,.4);color:var(--accent4);}
+.rpill-info{background:rgba(79,163,224,.12);border-color:rgba(79,163,224,.4);color:var(--accent2);}
+.rpill-warn{background:rgba(248,152,32,.12);border-color:rgba(248,152,32,.4);color:var(--accent);}
+/* ── ERROR PANEL ─────────────────────────────────────────── */
+.err-sim-btns{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px;}
+.err-btn{padding:8px 18px;border-radius:8px;border:1px solid var(--border);
+background:var(--surface2);color:var(--text);font-size:.84rem;font-weight:600;
+cursor:pointer;transition:all .2s;}
+.err-btn:hover{border-color:var(--accent4);color:var(--accent4);}
+.err-btn.active{background:rgba(231,76,60,.15);border-color:var(--accent4);color:var(--accent4);}
+.err-panel{display:none;background:var(--surface2);border:1px solid var(--border);
+border-radius:var(--radius);overflow:hidden;}
+.err-panel.active{display:block;animation:fadeIn .2s ease;}
+.err-hdr{display:flex;align-items:center;gap:10px;padding:12px 18px;
+background:rgba(231,76,60,.12);border-bottom:1px solid var(--border);
+font-size:.875rem;font-weight:700;color:var(--accent4);}
+.err-body{padding:20px;}
+.err-body h4{font-size:.9rem;font-weight:700;margin-bottom:8px;}
+.err-body p{font-size:.85rem;color:var(--text2);margin-bottom:12px;}
+.err-msg{font-family:var(--font-mono);font-size:.8rem;background:var(--code-bg);
+border:1px solid rgba(231,76,60,.3);border-radius:7px;padding:12px 16px;
+color:#ff6b6b;margin-bottom:14px;white-space:pre;overflow-x:auto;}
+.code-diff{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0;}
+.diff-wrong,.diff-right{border-radius:8px;overflow:hidden;border:1px solid var(--border);}
+.diff-lbl{padding:7px 12px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
+.diff-wrong .diff-lbl{background:rgba(231,76,60,.15);color:var(--accent4);}
+.diff-right .diff-lbl{background:rgba(88,214,141,.15);color:var(--accent3);}
+.diff-code{padding:12px 14px;font-family:var(--font-mono);font-size:.8rem;background:var(--code-bg);line-height:1.7;color:#abb2bf;white-space:pre;}
+.fix-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(88,214,141,.1);
+border:1px solid rgba(88,214,141,.3);color:var(--accent3);border-radius:6px;
+padding:5px 12px;font-size:.82rem;font-weight:600;margin-top:4px;}
+/* ── QUIZ ───────────────────────────────────────────────── */
+.quiz-container{display:flex;flex-direction:column;gap:24px;}
+.quiz-block{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:22px 24px;}
+.quiz-num{font-size:.72rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;}
+.quiz-q{font-weight:700;font-size:.92rem;margin-bottom:14px;line-height:1.5;}
+.quiz-opts{display:flex;flex-direction:column;gap:9px;}
+.quiz-opt{padding:10px 16px;border-radius:8px;border:1px solid var(--border);
+background:var(--bg);font-size:.875rem;cursor:pointer;transition:all .2s;
+display:flex;align-items:flex-start;gap:10px;text-align:left;}
+.quiz-opt:hover:not(.correct):not(.wrong){border-color:var(--accent2);background:rgba(79,163,224,.04);}
+.quiz-opt.correct{border-color:var(--accent3);background:rgba(88,214,141,.1);color:var(--accent3);pointer-events:none;}
+.quiz-opt.wrong{border-color:var(--accent4);background:rgba(231,76,60,.08);color:var(--accent4);pointer-events:none;}
+.quiz-opt.disabled{pointer-events:none;opacity:.5;}
+.quiz-feedback{margin-top:12px;font-size:.845rem;padding:10px 14px;border-radius:7px;display:none;}
+.quiz-feedback.show{display:block;animation:fadeIn .2s;}
+.quiz-feedback.correct{background:rgba(88,214,141,.1);color:var(--accent3);border:1px solid rgba(88,214,141,.25);}
+.quiz-feedback.wrong{background:rgba(231,76,60,.08);color:var(--accent4);border:1px solid rgba(231,76,60,.2);}
+.quiz-code{font-family:var(--font-mono);background:var(--code-bg);padding:1px 7px;
+border-radius:4px;font-size:.85em;color:var(--text);border:1px solid var(--border);}
+.score-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);
+padding:28px;text-align:center;display:none;margin-top:24px;}
+.score-box.show{display:block;animation:fadeIn .3s;}
+.score-num{font-size:3rem;font-weight:900;line-height:1;}
+.score-label{color:var(--text2);font-size:.9rem;margin-top:6px;margin-bottom:16px;}
+.btn-retake{background:var(--surface2);border:1px solid var(--border);color:var(--text);
+border-radius:8px;padding:9px 24px;font-size:.875rem;font-weight:700;cursor:pointer;transition:all .2s;}
+.btn-retake:hover{border-color:var(--accent2);color:var(--accent2);}
+/* ── RESPONSIVE ─────────────────────────────────────────── */
+@media(max-width:700px){
+.hero{flex-direction:column;padding:24px 20px;}
+.tab-btn{padding:12px 11px;font-size:.77rem;}
+.tab-content{padding:20px 16px;}
+.hero-text h1{font-size:1.35rem;}
+.code-diff{grid-template-columns:1fr;}
+.action-grid{grid-template-columns:1fr;}
+}
+.course-nav{
+position:sticky;
+bottom:0;
+background:var(--surface, var(--bg-primary));
+z-index:999;
+display:flex;
+justify-content:space-between;
+align-items:center;
+flex-wrap:wrap;
+gap:12px;
+margin-top:18px;
+padding:14px 20px 12px;
+border-top:.5px solid var(--border);
+}
+.course-nav-left,
+.course-nav-right{
+display:flex;
+align-items:center;
+gap:10px;
+}
+.course-nav a{
+display:inline-flex;
+align-items:center;
+justify-content:center;
+text-decoration:none;
+padding:7px 15px;
+border:.5px solid var(--border);
+border-radius:8px;
+color:var(--text);
+background:var(--surface2);
+font-size:.86rem;
+font-weight:600;
+line-height:1.25;
+transition:all .2s ease;
+}
+.course-nav a:hover{
+border-color:var(--accent2);
+}
+.course-topic{
+font-size:.8rem;
+color:var(--text2);
+}
+/* ── PLAYGROUND SPECIFIC SCOPED STYLES (NESTED TO AVOID MAIN TABS CONFLICTS) ── */
+.fake-browser .tab-headers-row {
+display: flex;
+background: var(--surface);
+border-bottom: 1px solid var(--border);
+}
+.fake-browser .tab-header-item {
+padding: 8px 16px;
+font-size: 0.8rem;
+font-weight: 600;
+border-right: 1px solid var(--border);
+color: var(--text2);
+cursor: pointer;
+display: flex;
+align-items: center;
+gap: 8px;
+background: rgba(255,255,255,0.01);
+}
+.fake-browser .tab-header-item.active {
+background: var(--surface2);
+color: var(--accent2);
+border-bottom: 2px solid var(--accent2);
+}
+.fake-browser .tab-header-item .close-tab-x {
+font-size: 0.75rem;
+color: var(--accent4);
+cursor: pointer;
+}
+.fake-browser .tab-header-item .close-tab-x:hover {
+color: #fff;
+background: var(--accent4);
+border-radius: 50%;
+padding: 0 3px;
+}
+.popup-box-sim {
+position: absolute;
+top: 50px;
+left: 50px;
+width: 280px;
+background: var(--surface);
+border: 2px solid var(--accent2);
+border-radius: 8px;
+box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+z-index: 50;
+display: none;
+}
+.popup-header-sim {
+background: var(--surface2);
+padding: 8px 12px;
+font-size: 0.75rem;
+font-weight: 700;
+border-bottom: 1px solid var(--border);
+display: flex;
+justify-content: space-between;
+}
+.popup-body-sim {
+padding: 16px;
+font-size: 0.8rem;
+}
+</style>
+</head>
+<body>
+<header>
+<div class="logo">
+<div class="logo-icon">Se</div>
+Selenium Training
+</div>
+<button id="themeToggle" onclick="toggleTheme()">🌙 Dark</button>
+</header>
+<div class="container">
+<div class="breadcrumb-row">
+<div class="breadcrumb">
+Automation Series <span style="color:var(--border)">›</span> Week 3 <span style="color:var(--border)">›</span> <span>Windows &amp; Tabs Management</span>
+</div>
+<span class="watermark">Ronak Shah — Automation Training Content</span>
+</div>
+<div class="hero">
+<div class="hero-icon">🗔</div>
+<div class="hero-text">
+<h1>Mastering <span>Windows &amp; Tabs</span> in Selenium</h1>
+<p>Understand window handles, orchestrate multi-window driver contexts, synchronize loading tabs, and handle pop-ups efficiently.</p>
+<div class="hero-pills">
+<span class="pill pill-orange">🔑 getWindowHandle</span>
+<span class="pill pill-blue">🔄 switchTo().window()</span>
+<span class="pill pill-green">🌐 Selenium 4 newWindow</span>
+<span class="pill pill-purple">⚡ ExpectedConditions</span>
+</div>
+</div>
+</div>
+<div class="tabs-wrapper">
+<div class="tab-nav">
+<button class="tab-btn active" onclick="switchTab('intro',this)"><span>ℹ️</span> Introduction</button>
+<button class="tab-btn" onclick="switchTab('handles',this)"><span>🔑</span> Window Handles</button>
+<button class="tab-btn" onclick="switchTab('switching',this)"><span>🔄</span> Switching Contexts</button>
+<button class="tab-btn" onclick="switchTab('flow',this)"><span>📈</span> Execution Flow</button>
+<button class="tab-btn" onclick="switchTab('playground',this)"><span>🎮</span> Live Playground</button>
+<button class="tab-btn" onclick="switchTab('errors',this)"><span>⚠️</span> Common Errors</button>
+<button class="tab-btn" onclick="switchTab('quiz',this)"><span>🧠</span> Quick Check</button>
+</div>
+<!-- ══════════════ TAB 1: INTRODUCTION ══════════════ -->
+<div class="tab-content active" id="tab-intro">
+<div class="section-title"><span class="dot"></span> Why Windows &amp; Tabs are Distinct Challenges</div>
+<p class="section-sub">Web browsers are built around isolated process loops. When an automation click launches a tab, Selenium remains context-locked in the parent frame until switched.</p>
+<div class="info-box blue">
+<span class="ib-icon">💡</span>
+<div><strong>The Switching Rule:</strong> Selenium WebDriver does not mimic human visual focus. If you click a button that opens a new tab or browser popup, you may visually see the tab appear, but your Selenium execution context remains bound to the original parent document until you explicitly transfer control [5].</div>
+</div>
+<div class="cards">
+<div class="card">
+<div class="card-icon">🔑</div>
+<h3>Unique GUIDs</h3>
+<p>Each browser tab/window gets assigned a unique runtime Alphanumeric Hash (GUID) called a Window Handle.</p>
+</div>
+<div class="card">
+<div class="card-icon">⚡</div>
+<h3>Asynchronous Sets</h3>
+<p>Selenium stores handles in unordered sets. You must loop or iterate to target child containers [3].</p>
+</div>
+<div class="card">
+<div class="card-icon">⚠️</div>
+<h3>Process Locking</h3>
+<p>Leaving a handle dangling after calling <code>close()</code> blocks further actions. You must point context home [1].</p>
+</div>
+<div class="card">
+<div class="card-icon">📦</div>
+<h3>Selenium 4 Upgrades</h3>
+<p>Modern scripts can natively generate pristine isolated tabs/windows using helper methods directly.</p>
+</div>
+</div>
+<div class="section-title" style="font-size:1rem;margin-top:4px"><span class="dot"></span> Real-World Enterprise Scenarios</div>
+<p class="section-sub">In enterprise web testing, handling multi-window flows is inevitable. Common test flows include:</p>
+<div class="iter-steps">
+<div class="iter-row"><div class="iter-num">1</div><div class="iter-body"><h4>Social OAuth Integrations</h4><p>Clicking "Login with Google" or "Login with Facebook" launches a secure popup window for authentication. Tests must switch to this pop-up, fill credentials, authorize, and switch back.</p></div></div>
+<div class="iter-row"><div class="iter-num">2</div><div class="iter-body"><h4>Document Reports &amp; Invoice Downloads</h4><p>Tax portals, billing systems, and retail platforms often launch PDFs or CSV print previews directly in a new tab. Verification scripts must transition tab focus to analyze those page details.</p></div></div>
+<div class="iter-row"><div class="iter-num">3</div><div class="iter-body"><h4>External Hyperlink Checkouts</h4><p>Validating redirects to external payment gateways, standard reference document links, or compliance terms opening in separate windows.</p></div></div>
+</div>
+<div class="info-box green" style="margin-top:20px">
+<span class="ib-icon">✅</span>
+<div><strong>Architectural Best Practice:</strong> Keep parent/child handles isolated in variable references (e.g., <code>String parentHandle = driver.getWindowHandle();</code>). This guarantees your ability to always return safely to your home workspace regardless of child lifecycle errors.</div>
+</div>
+</div>
+<!-- ══════════════ TAB 2: WINDOW HANDLES ══════════════ -->
+<div class="tab-content" id="tab-handles">
+<div class="section-title"><span class="dot"></span> Understanding Window handles API</div>
+<p class="section-sub">Two primary methods from the WebDriver API allow developers to collect browser execution process references.</p>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0 24px">
+<div class="code-wrap" style="margin:0">
+<div class="code-header"><div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><span class="code-lang">driver.getWindowHandle()</span></div>
+<pre class="code-pre"><span class="cmt">// Returns unique active context handle (String)</span>
+<span class="cls">String</span> parentHandle <span class="op">=</span> driver.<span class="fn">getWindowHandle</span>();
+<span class="cmt">// Output structure is a randomized browser GUID:</span>
+<span class="cmt">// e.g., "CDwindow-4B8C1D6E5D3F2A0A"</span></pre>
+</div>
+<div class="code-wrap" style="margin:0">
+<div class="code-header"><div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><span class="code-lang">driver.getWindowHandles()</span></div>
+<pre class="code-pre"><span class="cmt">// Returns Set&lt;String&gt; of all open handles [3]</span>
+<span class="cls">Set</span>&lt;<span class="cls">String</span>&gt; allHandles <span class="op">=</span> driver.<span class="fn">getWindowHandles</span>(); [3]
+<span class="cmt">// A Set prevents duplicate IDs</span>
+<span class="cmt">// Order is NOT guaranteed [3]</span></pre>
+</div>
+</div>
+<div class="section-title" style="font-size:1rem"><span class="dot"></span> Why Set&lt;String&gt; Instead of List&lt;String&gt;?</div>
+<p class="section-sub">A frequent interview question that reveals whether you understand Selenium's underlying browser architecture.</p>
+<div class="info-box orange">
+<span class="ib-icon">💡</span>
+<div><strong>Interview Answer:</strong>
+1. <strong>Uniqueness:</strong> Browser window handles are globally unique alpha-numeric process IDs; duplicates are architecturally impossible. A Set matches this distinct criteria perfectly.
+2. <strong>Ordering:</strong> Operating systems and browser engines launch processes asynchronously. There is no guaranteed temporal order of handles, which aligns with <code>Set</code> instead of index-ordered lists [3].
+</div>
+</div>
+<div class="code-wrap">
+<div class="code-header"><div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><span class="code-lang">☕ Java Implementation: Printing Handles</span></div>
+<pre class="code-pre"><span class="cls">WebDriver</span> driver <span class="op">=</span> <span class="kw">new</span> <span class="cls">ChromeDriver</span>();
+driver.<span class="fn">get</span>(<span class="str">"https://example.com"</span>);
+<span class="cmt">// Retrieve original handle reference</span>
+<span class="cls">String</span> firstTab <span class="op">=</span> driver.<span class="fn">getWindowHandle</span>();
+<span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"First page handle: "</span> <span class="op">+</span> firstTab);
+<span class="cmt">// Click button that launches a new window</span>
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"new-tab-btn"</span>)).<span class="fn">click</span>();
+<span class="cmt">// Retrieve all handles</span>
+<span class="cls">Set</span><<span class="cls">String</span>> handles <span class="op">=</span> driver.<span class="fn">getWindowHandles</span>(); [3]
+<span class="kw">for</span> (<span class="cls">String</span> handle : handles) {
+<span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Found handle: "</span> <span class="op">+</span> handle);
+}
+driver.<span class="fn">quit</span>();</pre>
+</div>
+</div>
+<!-- ══════════════ TAB 3: SWITCHING WINDOWS ══════════════ -->
+<div class="tab-content" id="tab-switching">
+<div class="section-title"><span class="dot"></span> How to Switch Contexts</div>
+<p class="section-sub">To execute commands inside an external window, you must loop through handles and pass target handles directly to the switcher interface.</p>
+<div class="code-wrap">
+<div class="code-header"><div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><span class="code-lang">☕ The Switching Loop Pattern</span></div>
+<pre class="code-pre"><span class="cmt">// Store the initial window context [1]</span>
+<span class="cls">String</span> parentWindow <span class="op">=</span> driver.<span class="fn">getWindowHandle</span>();
+<span class="cmt">// Trigger tab event</span>
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"launch-popup"</span>)).<span class="fn">click</span>();
+<span class="cmt">// Iterate to locate child handle</span>
+<span class="cls">Set</span><<span class="cls">String</span>> allWindows <span class="op">=</span> driver.<span class="fn">getWindowHandles</span>(); [3]
+<span class="kw">for</span> (<span class="cls">String</span> handle : allWindows) {
+<span class="kw">if</span> (<span class="op">!</span>handle.<span class="fn">equals</span>(parentWindow)) {
+driver.<span class="fn">switchTo</span>().<span class="fn">window</span>(handle); <span class="cmt">// Divert context [1]</span>
+<span class="kw">break</span>;
+}
+}
+<span class="cmt">// Now executed on the child context</span>
+<span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Child Page Title: "</span> <span class="op">+</span> driver.<span class="fn">getTitle</span>());
+driver.<span class="fn">close</span>(); <span class="cmt">// Terminate the child context tab ONLY [1]</span>
+<span class="cmt">// CRITICAL step: Switch back to parent context [1]</span>
+driver.<span class="fn">switchTo</span>().<span class="fn">window</span>(parentWindow); [1]</pre>
+</div>
+<div class="section-title" style="font-size:1rem;margin-top:20px"><span class="dot"></span> Synchronization: Waiting for New Windows</div>
+<p class="section-sub">New tabs may take a few seconds to render. Instantly fetching handles can create race conditions.</p>
+<div class="info-box orange">
+<span class="ib-icon">⏳</span>
+<div><strong>Explicit Wait Strategy:</strong> Always verify that the expected number of windows has initialized before checking your handle set. Use <code>ExpectedConditions.numberOfWindowsToBe(n)</code>.</div>
+</div>
+<div class="code-wrap">
+<div class="code-header"><div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><span class="code-lang">☕ Explicit Waiting Demo</span></div>
+<pre class="code-pre"><span class="cls">WebDriverWait</span> wait <span class="op">=</span> <span class="kw">new</span> <span class="cls">WebDriverWait</span>(driver, <span class="cls">Duration</span>.<span class="fn">ofSeconds</span>(<span class="num">10</span>));
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"delayed-tab-btn"</span>)).<span class="fn">click</span>();
+<span class="cmt">// Block execution until 2 windows are fully loaded in memory</span>
+wait.<span class="fn">until</span>(<span class="cls">ExpectedConditions</span>.<span class="fn">numberOfWindowsToBe</span>(<span class="num">2</span>));
+<span class="cmt">// Switch context with confidence</span>
+<span class="cmt">// ... switching loop here ...</span></pre>
+</div>
+<div class="section-title" style="font-size:1rem;margin-top:20px"><span class="dot"></span> Selenium 4 Upgrade: Creating New Windows/Tabs Directly</div>
+<p class="section-sub">Previously, opening a new tab required complex JavaScript workarounds. Selenium 4 introduces helper methods to open tabs and windows cleanly.</p>
+<table class="compare-table">
+<thead><tr><th>Command</th><th>Target Action</th><th>Context focus shift?</th></tr></thead>
+<tbody>
+<tr><td class="mono">driver.switchTo().newWindow(WindowType.TAB)</td><td>Opens a blank tab in the active window</td><td><strong>Yes</strong> (implicitly shifts pointer to new tab)</td></tr>
+<tr><td class="mono">driver.switchTo().newWindow(WindowType.WINDOW)</td><td>Opens a blank browser window instance</td><td><strong>Yes</strong> (implicitly shifts pointer to new window)</td></tr>
+</tbody>
+</table>
+</div>
+<!-- ══════════════ TAB 4: EXECUTION FLOW ══════════════ -->
+<div class="tab-content" id="tab-flow">
+<div class="section-title"><span class="dot"></span> Window Switching Execution Pipeline</div>
+<p class="section-sub">Observe how the WebDriver process routes command pointers across parallel browser processes.</p>
+<div class="flow-pipe" id="switching-flow">
+<div class="fp-row"><div class="fp-box" id="fstep1"><div class="fp-icon">🏠</div><div class="fp-info"><div class="fp-label">Step 1</div><div class="fp-title">Store parent context GUID handle (Home base)</div></div></div></div>
+<div class="fp-arrow" id="farrow1">↓</div>
+<div class="fp-row"><div class="fp-box" id="fstep2"><div class="fp-icon">🖱️</div><div class="fp-info"><div class="fp-label">Step 2</div><div class="fp-title">Trigger click event that opens a secondary tab</div></div></div></div>
+<div class="fp-arrow" id="farrow2">↓</div>
+<div class="fp-row"><div class="fp-box" id="fstep3"><div class="fp-icon">⏳</div><div class="fp-info"><div class="fp-label">Step 3</div><div class="fp-title">Explicitly wait for window handle count to equal 2</div></div></div></div>
+<div class="fp-arrow" id="farrow3">↓</div>
+<div class="fp-row"><div class="fp-box" id="fstep4"><div class="fp-icon">🔀</div><div class="fp-info"><div class="fp-label">Step 4</div><div class="fp-title">Loop handles, switch driver context to target tab</div></div></div></div>
+<div class="fp-arrow" id="farrow4">↓</div>
+<div class="fp-row"><div class="fp-box" id="fstep5"><div class="fp-icon">❌</div><div class="fp-info"><div class="fp-label">Step 5</div><div class="fp-title">Perform child tasks, close tab, and switch back to parent</div></div></div></div>
+</div>
+<div style="display:flex;gap:10px;margin-top:4px;margin-bottom:24px">
+<button class="btn-sim" id="btn-animate-flow" onclick="startFlowAnimation()">▶ Animate Execution Flow</button>
+<button class="btn-reset-sim" onclick="clearFlowAnimation()">↺ Reset</button>
+</div>
+<div class="info-box blue">
+<span class="ib-icon">🚨</span>
+<div><strong>The Close vs Quit distinction:</strong> Always remember that <code>driver.close()</code> terminates only the tab or window *currently focused* by WebDriver. In contrast, <code>driver.quit()</code> terminates the entire driver process and closes *all* open tabs and windows [1].</div>
+</div>
+</div>
+<!-- ══════════════ TAB 5: PLAYGROUND ══════════════ -->
+<div class="tab-content" id="tab-playground">
+<div class="section-title"><span class="dot"></span> Live Windows &amp; Tabs Playground</div>
+<p class="section-sub">Simulate complex window processes in our interactive mock browser environment. Monitor handles and context switching live.</p>
+<div class="browser-sim-wrap">
+<div class="browser-sim-header">
+<span>🖥️ Interactive Selenium Context Simulator</span>
+<span style="font-size:0.75rem; color:var(--accent2); font-weight:700">Driver Context Focus Pointer</span>
+</div>
+<div class="browser-sim-body">
+<div class="sim-controls">
+<button class="btn-run-all" id="btn-click-tab" onclick="launchSimTab()">1. Trigger Target Action (Open Tab)</button>
+<button class="btn-run-all" id="btn-click-window" style="background:var(--accent5)" onclick="launchSimWindow()">1. Trigger Target Action (Open Popup)</button>
+<button class="btn-reset-sim" onclick="resetSandbox()">↺ Reset Workspace</button>
+</div>
+<div class="sim-controls" style="border-top:1px solid var(--border); padding-top:14px; margin-top:10px;">
+<button class="btn-sim" id="btn-sim-handles" onclick="runSimHandles()">getWindowHandles()</button>
+<button class="btn-sim" id="btn-sim-switch-child" disabled onclick="runSimSwitchChild()">switchTo().window(Child)</button>
+<button class="btn-sim" id="btn-sim-switch-parent" disabled onclick="runSimSwitchParent()">switchTo().window(Parent)</button>
+<button class="btn-sim" id="btn-sim-close" style="background:var(--accent4)" disabled onclick="runSimClose()">driver.close()</button>
+</div>
+<div class="result-pills" id="sandbox-pills-row"></div>
+<!-- FAKE BROWSER OS WRAPPER -->
+<div class="fake-browser" id="browser-sandbox" style="min-height:300px;">
+<!-- Browser Tabs Bar -->
+<div class="tab-headers-row" id="sim-tabs-row">
+<div class="tab-header-item active" id="tab-h-parent" onclick="switchSimTabUI('parent')">
+<span>🌐 Parent Workspace</span>
+</div>
+</div>
+<div class="fb-titlebar">
+<div class="fb-dots"><span class="fb-dot red"></span><span class="fb-dot yel"></span><span class="fb-dot grn"></span></div>
+<div class="fb-url" id="sim-browser-url">https://enterprise-app.com/dashboard</div>
+</div>
+<!-- Browser viewport content area -->
+<div class="fb-content" style="position:relative; overflow:hidden;">
+<!-- Active Pointer indicator -->
+<div id="active-pointer-indicator" style="position:absolute; top:8px; right:12px; background:var(--accent3); color:#000; font-size:0.7rem; font-weight:700; padding:4px 8px; border-radius:4px; z-index:99;">
+DRIVER FOCUS: PARENT_GUID
+</div>
+code
+Code
+<!-- Parent Tab Viewport -->
+ <div id="viewport-parent" style="display:block;">
+    <h3 class="fb-page-title">⚙️ HR Transaction System</h3>
+    <p style="font-size:0.85rem; color:var(--text2); margin-top:-14px; margin-bottom:12px;">Trigger mock automation flows to launch separate windows.</p>
+    <div style="background:var(--surface); border:1px solid var(--border); padding:12px; border-radius:8px;">
+       <span style="font-size:0.72rem; font-weight:700; color:var(--accent3)">HR DOM STATE MONITOR:</span>
+       <div style="font-size:0.8rem; font-family:var(--font-mono); margin-top:4px;" id="parent-dom-state">Parent Form State: Idle. Waiting for interactions...</div>
+    </div>
+ </div>
+
+ <!-- Child PDF Tab Viewport -->
+ <div id="viewport-pdf" style="display:none;">
+    <h3 class="fb-page-title">📄 PDF Invoice Viewer</h3>
+    <p style="font-size:0.85rem; color:var(--accent3)">File Reference: TAX_INV_2026.pdf</p>
+    <div style="border:1px dashed var(--border); padding:20px; text-align:center; font-size:0.8rem; color:var(--text2);">
+       [Simulated binary tax invoice data stream]
+    </div>
+ </div>
+
+ <!-- Pop-up Window element -->
+ <div class="popup-box-sim" id="viewport-popup">
+    <div class="popup-header-sim">
+       <span>🔐 OAuth Authentication</span>
+       <span style="color:var(--accent4); font-weight:bold; cursor:pointer;" onclick="closePopupSimUI()">✕</span>
+    </div>
+    <div class="popup-body-sim">
+       <p style="font-size:0.75rem; margin-bottom:8px;">Authenticate securely to HR systems:</p>
+       <input type="text" placeholder="Workspace PIN..." readonly style="width:100%; padding:6px; font-size:0.7rem; background:var(--bg); border:1px solid var(--border); border-radius:4px; margin-bottom:8px;" value="CLEARANCE-SECURE-KEY-2026">
+       <button class="fb-btn" style="padding:4px 12px; font-size:0.75rem; width:100%;">Authorize Access</button>
+    </div>
+ </div>
+</div>
+</div>
+<!-- Command logs -->
+<div class="cmd-log">
+<div class="cmd-log-bar">📋 Real-Time Code Execution Monitor</div>
+<div class="cmd-log-body" id="sandbox-log-box" style="min-height:100px;">
+<span class="cmt">// Trigger parent target actions above to initiate simulations...</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- ══════════════ TAB 6: COMMON ERRORS ══════════════ -->
+<div class="tab-content" id="tab-errors">
+<div class="section-title"><span class="dot"></span> Common Multi-Window Errors</div>
+<p class="section-sub">These four common errors occur during window automation. Understanding these issues will save hours of pipeline debugging.</p>
+<div class="err-sim-btns">
+<button class="err-btn active" onclick="showErrorPanel('nosuchwindow',this)">NoSuchWindowException</button>
+<button class="err-btn" onclick="showErrorPanel('nosuchelement',this)">NoSuchElementException</button>
+<button class="err-btn" onclick="showErrorPanel('stale',this)">Dangling Handle</button>
+<button class="err-btn" onclick="showErrorPanel('timeout',this)">TimeoutException</button>
+</div>
+<div class="err-panel active" id="err-nosuchwindow">
+<div class="err-hdr">🔴 Exception: NoSuchWindowException</div>
+<div class="err-body">
+<h4>What happened?</h4>
+<p>You attempted to transition driver focus to a window handle that was closed by user interaction or has already been terminated.</p>
+<div class="err-msg">org.openqa.selenium.NoSuchWindowException: no such window: target window already closed
+(Session info: chrome=121.0.0)</div>
+<div class="code-diff">
+<div class="diff-wrong"><div class="diff-lbl">❌ Wrong (Switching to closed container)</div><div class="diff-code">driver.<span class="fn">switchTo</span>().<span class="fn">window</span>(childHandle);
+driver.<span class="fn">close</span>(); <span class="cmt">// childHandle is terminated [1]</span>
+<span class="cmt">// Accessing window attributes after closing it fails!</span>
+<span class="cls">System</span>.out.<span class="fn">println</span>(driver.<span class="fn">getTitle</span>());</div></div>
+<div class="diff-right"><div class="diff-lbl">✅ Correct (Returning to base context)</div><div class="diff-code">driver.<span class="fn">switchTo</span>().<span class="fn">window</span>(childHandle);
+driver.<span class="fn">close</span>(); <span class="cmt">// close child [1]</span>
+<span class="cmt">// Point context to parent before running queries [1]</span>
+driver.<span class="fn">switchTo</span>().<span class="fn">window</span>(parentHandle); [1]
+<span class="cls">System</span>.out.<span class="fn">println</span>(driver.<span class="fn">getTitle</span>());</div></div>
+</div>
+<div class="fix-tag">✅ Fix: Always point the focus context pointer back to parentHandle right after calling driver.close() [1].</div>
+</div>
+</div>
+<div class="err-panel" id="err-nosuchelement">
+<div class="err-hdr">🔴 Exception: NoSuchElementException (DOM Mismatch)</div>
+<div class="err-body">
+<h4>What happened?</h4>
+<p>You clicked a button that successfully opened a new tab, but immediately attempted to locate elements on that new tab without switching context. Selenium continued looking in the old parent DOM and threw an exception.</p>
+<div class="err-msg">org.openqa.selenium.NoSuchElementException: no such element: Unable to locate element: {"method":"id","selector":"invoice-pdf-container"}</div>
+<div class="code-diff">
+<div class="diff-wrong"><div class="diff-lbl">❌ Wrong (Missing switchTo execution)</div><div class="diff-code">driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"view-invoice"</span>)).<span class="fn">click</span>();
+<span class="cmt">// Element is on tab 2, but driver context is still on tab 1!</span>
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"invoice-pdf-container"</span>));</div></div>
+<div class="diff-right"><div class="diff-lbl">✅ Correct (Explicit SwitchContext)</div><div class="diff-code">driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"view-invoice"</span>)).<span class="fn">click</span>();
+wait.<span class="fn">until</span>(<span class="cls">ExpectedConditions</span>.<span class="fn">numberOfWindowsToBe</span>(<span class="num">2</span>));
+<span class="cmt">// Switch context to target tab first</span>
+<span class="kw">for</span>(<span class="cls">String</span> handle : driver.<span class="fn">getWindowHandles</span>()) { [3]
+driver.<span class="fn">switchTo</span>().<span class="fn">window</span>(handle);
+}
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"invoice-pdf-container"</span>));</div></div>
+</div>
+<div class="fix-tag">✅ Fix: Shift focus context to the target tab before interacting with its elements.</div>
+</div>
+</div>
+<div class="err-panel" id="err-stale">
+<div class="err-hdr">🔴 Exception: Dangling Handle (Switch lock)</div>
+<div class="err-body">
+<h4>What happened?</h4>
+<p>You closed the child window successfully, but forgot to switch driver focus back to the parent. The browser process is terminated, but your driver pointer is left dangling. This throws exceptions on subsequent actions.</p>
+<div class="err-msg">org.openqa.selenium.NoSuchWindowException: target window already closed
+(Focus is pointed at a defunct tab handle process)</div>
+<div class="code-diff">
+<div class="diff-wrong"><div class="diff-lbl">❌ Wrong (Dangling context pointer)</div><div class="diff-code">driver.<span class="fn">switchTo</span>().<span class="fn">window</span>(child);
+driver.<span class="fn">close</span>(); [1]
+<span class="cmt">// Driver still points to the closed child window!</span>
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"parent-home-button"</span>)).<span class="fn">click</span>();</div></div>
+<div class="diff-right"><div class="diff-lbl">✅ Correct (Focus restored home)</div><div class="diff-code">driver.<span class="fn">switchTo</span>().<span class="fn">window</span>(child);
+driver.<span class="fn">close</span>(); [1]
+<span class="cmt">// Restore focus context to home parent window handle [1]</span>
+driver.<span class="fn">switchTo</span>().<span class="fn">window</span>(parent); [1]
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"parent-home-button"</span>)).<span class="fn">click</span>();</div></div>
+</div>
+<div class="fix-tag">✅ Fix: Ensure you switch focus context back to your parent handle right after closing any child windows or tabs [1].</div>
+</div>
+</div>
+<div class="err-panel" id="err-timeout">
+<div class="err-hdr">🔴 Exception: TimeoutException (Race condition)</div>
+<div class="err-body">
+<h4>What happened?</h4>
+<p>Your automation click takes some time to open a new tab due to server-side PDF generation or OAuth latency. Attempting to fetch a handle or switch context instantly causes your scripts to fail.</p>
+<div class="err-msg">org.openqa.selenium.TimeoutException: Expected condition failed: waiting for number of windows to be 2 (tried for 10 second(s))</div>
+<div class="code-diff">
+<div class="diff-wrong"><div class="diff-lbl">❌ Wrong (No synchronization check)</div><div class="diff-code">driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"generate-invoice"</span>)).<span class="fn">click</span>();
+<span class="cmt">// Tab takes 3 seconds to render. This will switch to parent again</span>
+<span class="cls">Set</span>&lt;<span class="cls">String</span>&gt; currentSet <span class="op">=</span> driver.<span class="fn">getWindowHandles</span>(); [3]</div></div>
+<div class="diff-right"><div class="diff-lbl">✅ Correct (Explicit condition block)</div><div class="diff-code">driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"generate-invoice"</span>)).<span class="fn">click</span>();
+<span class="cls">WebDriverWait</span> wait <span class="op">=</span> <span class="kw">new</span> <span class="cls">WebDriverWait</span>(driver, <span class="cls">Duration</span>.<span class="fn">ofSeconds</span>(<span class="num">10</span>));
+<span class="cmt">// Synchronize on window count</span>
+wait.<span class="fn">until</span>(<span class="cls">ExpectedConditions</span>.<span class="fn">numberOfWindowsToBe</span>(<span class="num">2</span>));
+<span class="cls">Set</span>&lt;<span class="cls">String</span>&gt; finalSet <span class="op">=</span> driver.<span class="fn">getWindowHandles</span>(); [3]</div></div>
+</div>
+<div class="fix-tag">✅ Fix: Always use <code>ExpectedConditions.numberOfWindowsToBe(n)</code> to synchronize window count states before switching contexts.</div>
+</div>
+</div>
+</div>
+<!-- ══════════════ TAB 7: QUIZ ══════════════ -->
+<div class="tab-content" id="tab-quiz">
+<div class="section-title"><span class="dot"></span> Quick Check</div>
+<p class="section-sub">Validate your understanding of multi-window Selenium architectures across these 8 questions.</p>
+<div class="quiz-container">
+<div class="quiz-block">
+<div class="quiz-num">Question 1 of 8</div>
+<div class="quiz-q">What is the return type of the <span class="quiz-code">driver.getWindowHandles()</span> method?</div>
+<div class="quiz-opts">
+<div class="quiz-opt" onclick="answerQ(1,this,false)">⬜ List&lt;String&gt;</div>
+<div class="quiz-opt" onclick="answerQ(1,this,true)">⬜ Set&lt;String&gt; [3]</div>
+<div class="quiz-opt" onclick="answerQ(1,this,false)">⬜ Map&lt;String, String&gt;</div>
+<div class="quiz-opt" onclick="answerQ(1,this,false)">⬜ ArrayList&lt;String&gt;</div>
+</div>
+<div class="quiz-feedback" id="qf1"></div>
+</div>
+<div class="quiz-block">
+<div class="quiz-num">Question 2 of 8</div>
+<div class="quiz-q">Why does <span class="quiz-code">getWindowHandles()</span> use a Set instead of a List to store window handles?</div>
+<div class="quiz-opts">
+<div class="quiz-opt" onclick="answerQ(2,this,false)">⬜ Lists are slower to iterate in Java</div>
+<div class="quiz-opt" onclick="answerQ(2,this,false)">⬜ Sets are thread-safe by default</div>
+<div class="quiz-opt" onclick="answerQ(2,this,true)">⬜ Window handles are unique alpha-numeric IDs with no guaranteed order of initialization [3]</div>
+<div class="quiz-opt" onclick="answerQ(2,this,false)">⬜ Set handles are automatically ordered alphabetically</div>
+</div>
+<div class="quiz-feedback" id="qf2"></div>
+</div>
+<div class="quiz-block">
+<div class="quiz-num">Question 3 of 8</div>
+<div class="quiz-q">What happens if you click a button that opens a new tab and immediately call <span class="quiz-code">driver.findElement()</span>?</div>
+<div class="quiz-opts">
+<div class="quiz-opt" onclick="answerQ(3,this,false)">⬜ Selenium automatically switches focus to the newly opened tab</div>
+<div class="quiz-opt" onclick="answerQ(3,this,true)">⬜ Selenium searches the original parent page DOM and will throw an exception if the element is not found</div>
+<div class="quiz-opt" onclick="answerQ(3,this,false)">⬜ Selenium pauses execution indefinitely</div>
+<div class="quiz-opt" onclick="answerQ(3,this,false)">⬜ The driver session automatically switches contexts</div>
+</div>
+<div class="quiz-feedback" id="qf3"></div>
+</div>
+<div class="quiz-block">
+<div class="quiz-num">Question 4 of 8</div>
+<div class="quiz-q">What is the difference between <span class="quiz-code">driver.close()</span> and <span class="quiz-code">driver.quit()</span>?</div>
+<div class="quiz-opts">
+<div class="quiz-opt" onclick="answerQ(4,this,true)">⬜ close() closes the currently focused window/tab; quit() closes all windows/tabs and kills the driver process [1]</div>
+<div class="quiz-opt" onclick="answerQ(4,this,false)">⬜ close() is for tabs; quit() is only for popups</div>
+<div class="quiz-opt" onclick="answerQ(4,this,false)">⬜ quit() closed the parent page; close() closes child frames</div>
+<div class="quiz-opt" onclick="answerQ(4,this,false)">⬜ There is no functional difference</div>
+</div>
+<div class="quiz-feedback" id="qf4"></div>
+</div>
+<div class="quiz-block">
+<div class="quiz-num">Question 5 of 8</div>
+<div class="quiz-q">What is the correct way to switch WebDriver's execution focus to a target handle?</div>
+<div class="quiz-opts">
+<div class="quiz-opt" onclick="answerQ(5,this,false)">⬜ <span class="quiz-code">driver.switchTo().frame(handle)</span></div>
+<div class="quiz-opt" onclick="answerQ(5,this,true)">⬜ <span class="quiz-code">driver.switchTo().window(handle)</span> [1]</div>
+<div class="quiz-opt" onclick="answerQ(5,this,false)">⬜ <span class="quiz-code">driver.switchTo().target(handle)</span></div>
+<div class="quiz-opt" onclick="answerQ(5,this,false)">⬜ <span class="quiz-code">driver.setFocus(handle)</span></div>
+</div>
+<div class="quiz-feedback" id="qf5"></div>
+</div>
+<div class="quiz-block">
+<div class="quiz-num">Question 6 of 8</div>
+<div class="quiz-q">Which Explicit Wait condition should be used to synchronize window creation before fetching handles?</div>
+<div class="quiz-opts">
+<div class="quiz-opt" onclick="answerQ(6,this,false)">⬜ <span class="quiz-code">ExpectedConditions.visibilityOfElement()</span></div>
+<div class="quiz-opt" onclick="answerQ(6,this,true)">⬜ <span class="quiz-code">ExpectedConditions.numberOfWindowsToBe(n)</span></div>
+<div class="quiz-opt" onclick="answerQ(6,this,false)">⬜ <span class="quiz-code">ExpectedConditions.windowCountEquals()</span></div>
+<div class="quiz-opt" onclick="answerQ(6,this,false)">⬜ <span class="quiz-code">ExpectedConditions.tabIsPresent()</span></div>
+</div>
+<div class="quiz-feedback" id="qf6"></div>
+</div>
+<div class="quiz-block">
+<div class="quiz-num">Question 7 of 8</div>
+<div class="quiz-q">Which Selenium 4 feature allows opening a clean tab and switching focus context to it automatically?</div>
+<div class="quiz-opts">
+<div class="quiz-opt" onclick="answerQ(7,this,false)">⬜ <span class="quiz-code">driver.openNewTab()</span></div>
+<div class="quiz-opt" onclick="answerQ(7,this,false)">⬜ <span class="quiz-code">driver.switchTo().tab()</span></div>
+<div class="quiz-opt" onclick="answerQ(7,this,true)">⬜ <span class="quiz-code">driver.switchTo().newWindow(WindowType.TAB)</span></div>
+<div class="quiz-opt" onclick="answerQ(7,this,false)">⬜ <span class="quiz-code">driver.switchTo().activeTab()</span></div>
+</div>
+<div class="quiz-feedback" id="qf7"></div>
+</div>
+<div class="quiz-block">
+<div class="quiz-num">Question 8 of 8</div>
+<div class="quiz-q">What happens if you run <span class="quiz-code">driver.close()</span> and then immediately call <span class="quiz-code">driver.getTitle()</span> without switching window handles?</div>
+<div class="quiz-opts">
+<div class="quiz-opt" onclick="answerQ(8,this,false)">⬜ It automatically switches context back to the parent window and returns its title</div>
+<div class="quiz-opt" onclick="answerQ(8,this,true)">⬜ It throws a <span class="quiz-code">NoSuchWindowException</span> because the active window was terminated [1]</div>
+<div class="quiz-opt" onclick="answerQ(8,this,false)">⬜ It returns a null string</div>
+<div class="quiz-opt" onclick="answerQ(8,this,false)">⬜ The browser crashes with a hardware exception</div>
+</div>
+<div class="quiz-feedback" id="qf8"></div>
+</div>
+</div>
+<div class="score-box" id="score-box">
+<div class="score-num" id="score-num">0/8</div>
+<div class="score-label" id="score-lbl"></div>
+<button class="btn-retake" onclick="retakeQuiz()">↺ Retake Quiz</button>
+</div>
+</div>
+</div><!-- /tabs-wrapper -->
+<div class="course-nav">
+<div class="course-nav-left">
+<a href="w3_t4_alerts.html">← Previous</a>
+<a href="../index.html">🏠 Home</a>
+</div>
+<div class="course-nav-right">
+<a href="w3_t6_iFrames.html">Next →</a>
+</div>
+</div>
+</div><!-- /container -->
+<script>
+/* ══ THEME ══════════════════════════════════════════════════ */
+function toggleTheme(){
+var h=document.documentElement,b=document.getElementById('themeToggle');
+h.dataset.theme=h.dataset.theme==='dark'?'light':'dark';
+b.textContent=h.dataset.theme==='dark'?'☀ Light':'🌙 Dark';
+}
+
+/* ══ TABS ════════════════════════════════════════════════════ */
+function switchTab(id,btn){
+document.querySelectorAll('.tab-content').forEach(function(t){t.classList.remove('active');});
+document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
+document.getElementById('tab-'+id).classList.add('active');
+btn.classList.add('active');
+}
+
+/* ══ PIPELINE ANIMATIONS ═══════════════════════════════════ */
+var _flowTimer=null, _flowRunning=false;
+function startFlowAnimation(){
+if(_flowRunning) return;
+clearFlowAnimation();
+_flowRunning=true;
+var btn=document.getElementById('btn-animate-flow');
+btn.disabled=true; btn.textContent='⏸ Animating...';
+var boxes=['fstep1','fstep2','fstep3','fstep4','fstep5'], arrows=['farrow1','farrow2','farrow3','farrow4'];
+var d=0;
+boxes.forEach(function(id,i){
+setTimeout(function(){
+document.getElementById(id).classList.add('active');
+if(i<arrows.length) document.getElementById(arrows[i]).classList.add('lit');
+},d);
+d+=750;
+setTimeout(function(){
+if(i>0) document.getElementById(boxes[i-1]).classList.replace('active','done');
+},d-200);
+});
+setTimeout(function(){
+document.getElementById('fstep5').classList.replace('active','done');
+btn.disabled=false; btn.textContent='▶ Animate Execution Flow'; _flowRunning=false;
+},d+200);
+}
+function clearFlowAnimation(){
+if(_flowTimer) clearTimeout(_flowTimer);
+['fstep1','fstep2','fstep3','fstep4','fstep5'].forEach(function(id){
+document.getElementById(id).classList.remove('active','done');
+});
+['farrow1','farrow2','farrow3','farrow4'].forEach(function(id){
+document.getElementById(id).classList.remove('lit');
+});
+var btn=document.getElementById('btn-animate-flow');
+btn.disabled=false; btn.innerHTML='▶ Animate Execution Flow'; _flowRunning=false;
+}
+
+/* ══ INTERACTIVE PLAYGROUND MECHANICS ═════════════════════ */
+var simState = {
+parentHandle: "PARENT-GUID-7X8F",
+childTabHandle: "TAB-GUID-4C3D",
+childPopupHandle: "POPUP-GUID-9A1B",
+currentTabUI: 'parent', // 'parent' or 'pdf'
+popupVisible: false,
+driverFocus: "PARENT-GUID-7X8F",
+tabsList: ['parent'], // active simulation tabs
+simHandlesSet: false
+};
+
+function logSandbox(html){
+var b=document.getElementById('sandbox-log-box');
+b.innerHTML+=html+'\n';b.scrollTop=b.scrollHeight;
+}
+
+function clearLogSandbox(){
+document.getElementById('sandbox-log-box').innerHTML='';
+}
+
+function renderTabsUI() {
+var row = document.getElementById('sim-tabs-row');
+row.innerHTML = '';
+simState.tabsList.forEach(function(tab) {
+var activeClass = simState.currentTabUI === tab ? 'active' : '';
+var title = tab === 'parent' ? '🌐 Parent Workspace' : '📄 TAX_INV_2026.pdf';
+var closeBtn = tab === 'pdf' ? '<span class="close-tab-x" onclick="event.stopPropagation(); closeTabByUI()">✕</span>' : '';
+row.innerHTML += '<div class="tab-header-item ' + activeClass + '" onclick="switchSimTabUI(\'' + tab + '\')">' +
+'<span>' + title + '</span>' + closeBtn + '</div>';
+});
+}
+
+function updateActivePointerUI() {
+var el = document.getElementById('active-pointer-indicator');
+el.textContent = "DRIVER FOCUS: " + simState.driverFocus;
+if(simState.driverFocus === simState.parentHandle) {
+el.style.background = 'var(--accent3)';
+} else if (simState.driverFocus === simState.childTabHandle) {
+el.style.background = 'var(--accent2)';
+} else if (simState.driverFocus === simState.childPopupHandle) {
+el.style.background = 'var(--accent5)';
+} else {
+el.style.background = 'var(--accent4)';
+el.textContent = "DRIVER FOCUS: NULL (Dangling HandleException!)";
+}
+}
+
+function switchSimTabUI(tab) {
+if (tab === 'parent') {
+simState.currentTabUI = 'parent';
+document.getElementById('viewport-parent').style.display = 'block';
+document.getElementById('viewport-pdf').style.display = 'none';
+document.getElementById('sim-browser-url').textContent = 'https://enterprise-app.com/dashboard';
+} else if (tab === 'pdf') {
+simState.currentTabUI = 'pdf';
+document.getElementById('viewport-parent').style.display = 'none';
+document.getElementById('viewport-pdf').style.display = 'block';
+document.getElementById('sim-browser-url').textContent = 'https://enterprise-app.com/static/TAX_INV_2026.pdf';
+}
+renderTabsUI();
+}
+
+function closeTabByUI() {
+simState.tabsList = ['parent'];
+if(simState.currentTabUI === 'pdf') {
+switchSimTabUI('parent');
+}
+renderTabsUI();
+logSandbox('<span class="c-dim">// User manually closed the PDF tab from the tab headers.</span>');
+}
+
+function closePopupSimUI() {
+document.getElementById('viewport-popup').style.display = 'none';
+simState.popupVisible = false;
+logSandbox('<span class="c-dim">// User manually dismissed the secure OAuth Popup window.</span>');
+}
+
+function addSandboxPill(html,type){
+var el=document.createElement('div');el.className='rpill rpill-'+type;el.innerHTML=html;
+document.getElementById('sandbox-pills-row').appendChild(el);
+}
+
+/* ACTIONS */
+function launchSimTab() {
+if (simState.tabsList.includes('pdf')) {
+alert("Dynamic PDF tab is already open!");
+return;
+}
+simState.tabsList.push('pdf');
+renderTabsUI();
+logSandbox('<span class="c-info">$ driver.findElement(By.id("view-invoice-btn")).click();</span>');
+logSandbox('<span class="c-ok">→ SUCCESS: PDF Invoice Tab launched asynchronously inside the browser.</span>');
+addSandboxPill('✓ New Tab opened','success');
+
+// enable buttons
+document.getElementById('btn-sim-switch-child').disabled = false;
+}
+
+function launchSimWindow() {
+document.getElementById('viewport-popup').style.display = 'block';
+simState.popupVisible = true;
+logSandbox('<span class="c-info">$ driver.findElement(By.id("social-oauth-btn")).click();</span>');
+logSandbox('<span class="c-ok">→ SUCCESS: Popup Window launched for OAuth flow.</span>');
+addSandboxPill('✓ New Window opened','success');
+
+// enable buttons
+document.getElementById('btn-sim-switch-child').disabled = false;
+}
+
+function runSimHandles() {
+var handles = [simState.parentHandle];
+if(simState.tabsList.includes('pdf')) handles.push(simState.childTabHandle);
+if(simState.popupVisible) handles.push(simState.childPopupHandle);
+
+logSandbox('<span class="c-sel">Set&lt;String&gt; windowSet = driver.getWindowHandles();</span>'); [3]
+logSandbox('<span class="c-ok">→ SUCCESS: Returned set: [' + handles.join(', ') + ']</span>');
+addSandboxPill('✓ getWindowHandles() fetched','info');
+}
+
+function runSimSwitchChild() {
+if(simState.tabsList.includes('pdf') && simState.driverFocus !== simState.childTabHandle) {
+simState.driverFocus = simState.childTabHandle;
+switchSimTabUI('pdf');
+logSandbox('<span class="c-sel">driver.switchTo().window("' + simState.childTabHandle + '");</span>'); [1]
+logSandbox('<span class="c-ok">→ SUCCESS: Context focused on child PDF tab workspace.</span>');
+addSandboxPill('✓ Focus -> PDF Tab','success');
+} else if (simState.popupVisible && simState.driverFocus !== simState.childPopupHandle) {
+simState.driverFocus = simState.childPopupHandle;
+logSandbox('<span class="c-sel">driver.switchTo().window("' + simState.childPopupHandle + '");</span>'); [1]
+logSandbox('<span class="c-ok">→ SUCCESS: Context focused on secure pop-up process.</span>');
+addSandboxPill('✓ Focus -> OAuth Window','success');
+} else {
+logSandbox('<span class="c-dim">// Pointer context already focused on an active child container.</span>');
+}
+updateActivePointerUI();
+document.getElementById('btn-sim-switch-parent').disabled = false;
+document.getElementById('btn-sim-close').disabled = false;
+}
+
+function runSimSwitchParent() {
+simState.driverFocus = simState.parentHandle;
+switchSimTabUI('parent');
+logSandbox('<span class="c-sel">driver.switchTo().window("' + simState.parentHandle + '");</span>'); [1]
+logSandbox('<span class="c-ok">→ SUCCESS: Focus pointer returned to HR Transaction workspace.</span>');
+addSandboxPill('✓ Focus -> Parent Page','success');
+updateActivePointerUI();
+}
+
+function runSimClose() {
+if (simState.driverFocus === simState.parentHandle) {
+logSandbox('<span class="c-info">$ driver.close();</span>'); [1]
+logSandbox('<span class="c-ok">→ SUCCESS: Parent window closed. Process terminated.</span>');
+addSandboxPill('✓ Parent Closed','warn');
+resetSandbox();
+return;
+}
+
+if (simState.driverFocus === simState.childTabHandle) {
+simState.tabsList = ['parent'];
+renderTabsUI();
+switchSimTabUI('parent');
+logSandbox('<span class="c-sel">driver.close(); // Closed active PDF tab handle</span>'); [1]
+logSandbox('<span class="c-ok">→ WARNING: Closed PDF Tab. Context pointer is now Defunct! You must switch back to parent.</span>'); [1]
+addSandboxPill('✓ Child Tab closed','warn');
+simState.driverFocus = "DEFUNCT_HANDLE";
+} else if (simState.driverFocus === simState.childPopupHandle) {
+document.getElementById('viewport-popup').style.display = 'none';
+simState.popupVisible = false;
+logSandbox('<span class="c-sel">driver.close(); // Closed active OAuth Popup handle</span>'); [1]
+logSandbox('<span class="c-ok">→ WARNING: Closed OAuth Window. Context pointer is now Defunct! You must switch back to parent.</span>'); [1]
+addSandboxPill('✓ Popup closed','warn');
+simState.driverFocus = "DEFUNCT_HANDLE";
+}
+
+updateActivePointerUI();
+document.getElementById('btn-sim-close').disabled = true;
+}
+
+function resetSandbox() {
+simState = {
+parentHandle: "PARENT-GUID-7X8F",
+childTabHandle: "TAB-GUID-4C3D",
+childPopupHandle: "POPUP-GUID-9A1B",
+currentTabUI: 'parent',
+popupVisible: false,
+driverFocus: "PARENT-GUID-7X8F",
+tabsList: ['parent'],
+simHandlesSet: false
+};
+document.getElementById('viewport-popup').style.display = 'none';
+document.getElementById('viewport-parent').style.display = 'block';
+document.getElementById('viewport-pdf').style.display = 'none';
+document.getElementById('sim-browser-url').textContent = 'https://enterprise-app.com/dashboard';
+document.getElementById('sandbox-pills-row').innerHTML = '';
+document.getElementById('sandbox-log-box').innerHTML = '<span class="cmt">// Sandbox context variables reset to default values.</span>';
+renderTabsUI();
+updateActivePointerUI();
+
+document.getElementById('btn-sim-switch-child').disabled = true;
+document.getElementById('btn-sim-switch-parent').disabled = true;
+document.getElementById('btn-sim-close').disabled = true;
+}
+
+/* ══ ERROR PANEL SWITCHER ═══════════════════════════════════ */
+function showErrorPanel(id,btn){
+document.querySelectorAll('.err-panel').forEach(function(p){p.classList.remove('active');});
+document.querySelectorAll('.err-btn').forEach(function(b){b.classList.remove('active');});
+document.getElementById('err-'+id).classList.add('active');btn.classList.add('active');
+}
+
+/* ══ QUIZ GRADER ════════════════════════════════════════════ */
+var quizExp={
+1:{c:'✅ Correct! driver.getWindowHandles() returns a Set of unique String processes because window handles are architecturally unique alphanumeric GUIDs with no guaranteed order of execution [3].',
+w:'❌ Incorrect. Sets are used to guarantee the uniqueness of window handle GUIDs and reflect the unordered async nature of browser context layers [3].'},
+2:{c:'✅ Correct! Set is specifically chosen because window handles are unique alphanumeric GUIDs and are managed asynchronously by the browser process engine without ordered positions [3].',
+w:'❌ Not quite. Sets ensure that handle unique process values have no duplicates, conforming to OS asynchronous thread rendering loops [3].'},
+3:{c:'✅ Correct! WebDrivers do not mimic human visual shifts. Your active pointer remains bound to the original page DOM structure until switching occurs.',
+w:'❌ Incorrect. Selenium does not switch tabs automatically. Attempting DOM operations without switching first will throw a NoSuchElementException.'},
+4:{c:'✅ Correct! driver.close() terminates ONLY the window/tab that currently holds driver context focus; driver.quit() terminates the entire session and kills all background processes [1].',
+w:'❌ Incorrect. close() acts on the specific focused frame [1]; quit() terminates the complete active chromedriver process tree.'},
+5:{c:'✅ Correct! driver.switchTo().window(handle) switches execution focus to the targeted window or tab [1].',
+w:'❌ Incorrect. Window targets require switching context to the targeted window handle specifically [1].'},
+6:{c:'✅ Correct! ExpectedConditions.numberOfWindowsToBe(n) is the standard wait pattern used to verify that tabs/windows have fully loaded in system memory before fetching handle sets.',
+w:'❌ Incorrect. Synchronizing multi-window handle states requires waiting for total count changes first.'},
+7:{c:'✅ Correct! Selenium 4 introduces driver.switchTo().newWindow(WindowType.TAB) which opens a fresh isolated tab and switches context focus automatically.',
+w:'❌ Incorrect. Only the switchTo().newWindow API provides direct focus switches on clean containers.'},
+8:{c:'✅ Correct! Once driver.close() terminates the active window tab, the driver loses its focus reference, resulting in a NoSuchWindowException if operations are called [1].',
+w:'❌ Incorrect. Restoring context requires explicitly switching focus back to parentHandle right after closing the active handle [1].'}
+};
+
+var qAns={},qCorrect=0;
+function answerQ(n,el,correct){
+if(qAns[n]!==undefined)return;
+qAns[n]=correct; if(correct) qCorrect++;
+el.closest('.quiz-opts').querySelectorAll('.quiz-opt').forEach(function(o){o.classList.add('disabled');});
+el.classList.add(correct?'correct':'wrong');
+var fb=document.getElementById('qf'+n);
+fb.innerHTML=correct?quizExp[n].c:quizExp[n].w;
+fb.className='quiz-feedback show '+(correct?'correct':'wrong');
+if(Object.keys(qAns).length===8)setTimeout(showScore,500);
+}
+
+function showScore(){
+var box=document.getElementById('score-box'),num=document.getElementById('score-num'),lbl=document.getElementById('score-lbl');
+num.textContent=qCorrect+'/8';
+num.style.color=qCorrect===8?'var(--accent3)':qCorrect>=5?'var(--accent)':'var(--accent4)';
+lbl.textContent=qCorrect===8?'🎉 Perfect! You have mastered the architectures of Selenium multi-window testing loops.':
+qCorrect>=5?'👍 Good progress! Review the questions you missed to master these concepts.':'📖 Revisit the Window Handles and Switching Context tabs to clarify these processes.';
+box.classList.add('show');
+}
+
+function retakeQuiz(){
+qAns={};qCorrect=0;
+document.getElementById('score-box').classList.remove('show');
+document.querySelectorAll('.quiz-opt').forEach(function(o){o.className='quiz-opt';});
+document.querySelectorAll('.quiz-feedback').forEach(function(f){f.className='quiz-feedback';f.innerHTML='';});
+}
+</script>
+</body>
+</html>

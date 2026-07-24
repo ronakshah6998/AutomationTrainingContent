@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html data-theme="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Selenium Waits — Java Guide</title>
+<style>
+/* ── TOKENS ─────────────────────────────────────────────── */
+:root {
+  --bg:#0d1117; --surface:#161b22; --surface2:#1f2937; --border:#30363d;
+  --accent:#f89820; --accent2:#4fa3e0; --accent3:#58d68d; --accent4:#e74c3c; --accent5:#c678dd;
+  --text:#e6edf3; --text2:#8b949e; --text3:#c9d1d9;
+  --tab-bg:#161b22; --tab-active:#1f2937; --code-bg:#0d1117;
+  --radius:10px; --font-mono:'Courier New',Courier,monospace;
+  --sel:#43b02a;
+}
+[data-theme="light"]{
+  --bg:#f0f4f8; --surface:#ffffff; --surface2:#e8eef5; --border:#d1d9e0;
+  --text:#1a202c; --text2:#4a5568; --text3:#2d3748;
+  --tab-bg:#e8eef5; --tab-active:#ffffff; --code-bg:#e2e8f0;
+}
+[data-theme="light"] pre,[data-theme="light"] .code-pre{color:#1a202c;background:#e2e8f0;}
+[data-theme="light"] .quiz-code,[data-theme="light"] .card code,
+[data-theme="light"] .info-box code,[data-theme="light"] code{background:#dde4ee;color:var(--text);border:1px solid var(--border);}
+[data-theme="light"] .kw{color:#7c3aed;}[data-theme="light"] .cls{color:#b45309;}
+[data-theme="light"] .fn{color:#1d4ed8;}[data-theme="light"] .str{color:#15803d;}
+[data-theme="light"] .cmt{color:#6b7280;}[data-theme="light"] .num{color:#c2410c;}
+[data-theme="light"] .op{color:#0369a1;}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);
+  min-height:100vh;transition:background .3s,color .3s;line-height:1.65;
+  user-select:none;-webkit-user-select:none;}
+
+/* ── WATERMARK ─────────────────────────────────────────── */
+/* ── HEADER ─────────────────────────────────────────────── */
+header{background:var(--surface);border-bottom:1px solid var(--border);
+  padding:0 32px;display:flex;align-items:center;justify-content:space-between;
+  height:62px;position:sticky;top:0;z-index:100;box-shadow:0 1px 0 var(--border);}
+.logo{display:flex;align-items:center;gap:10px;font-size:1.05rem;font-weight:700;}
+.logo-icon{width:32px;height:32px;border-radius:8px;
+  background:linear-gradient(135deg,#43b02a,#26890c);
+  display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:#fff;}
+.hdr-badge{font-size:.68rem;font-weight:600;padding:2px 8px;border-radius:20px;
+  background:var(--accent2);color:#000;text-transform:uppercase;letter-spacing:.5px;}
+#themeToggle{background:var(--surface2);border:1px solid var(--border);color:var(--text);
+  border-radius:8px;padding:6px 14px;cursor:pointer;font-size:.85rem;transition:all .2s;}
+#themeToggle:hover{border-color:var(--accent);color:var(--accent);}
+
+/* ── LAYOUT ─────────────────────────────────────────────── */
+.container{max-width:1100px;margin:0 auto;padding:32px 20px 80px;}
+
+/* ── HERO ───────────────────────────────────────────────── */
+.hero{background:linear-gradient(135deg,var(--surface),var(--surface2));
+  border:1px solid var(--border);border-radius:14px;padding:36px 40px;
+  margin-bottom:28px;display:flex;align-items:center;gap:28px;
+  position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:240px;height:240px;
+  border-radius:50%;background:radial-gradient(circle,rgba(79,163,224,.14) 0%,transparent 70%);
+  pointer-events:none;}
+.hero-icon{font-size:64px;flex-shrink:0;filter:drop-shadow(0 4px 16px rgba(79,163,224,.4));}
+.hero-text h1{font-size:1.75rem;font-weight:800;line-height:1.2;}
+.hero-text h1 span{color:var(--accent2);}
+.hero-text p{color:var(--text2);margin-top:8px;font-size:.95rem;}
+.hero-pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;}
+.pill{padding:4px 12px;border-radius:20px;font-size:.78rem;font-weight:600;
+  border:1px solid;display:flex;align-items:center;gap:5px;}
+.pill-orange{color:var(--accent);border-color:rgba(248,152,32,.35);background:rgba(248,152,32,.08);}
+.pill-blue{color:var(--accent2);border-color:rgba(79,163,224,.35);background:rgba(79,163,224,.08);}
+.pill-green{color:var(--accent3);border-color:rgba(88,214,141,.35);background:rgba(88,214,141,.08);}
+.pill-purple{color:var(--accent5);border-color:rgba(198,120,221,.35);background:rgba(198,120,221,.08);}
+
+/* ── BREADCRUMB ROW ─────────────────────────────────────── */
+.breadcrumb-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.breadcrumb{display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--text2);}
+.breadcrumb span{color:var(--accent2);font-weight:600;}
+.watermark{font-size:.7rem;color:var(--text2);opacity:.52;letter-spacing:.3px;
+  white-space:nowrap;font-weight:500;}
+
+/* ── TABS ───────────────────────────────────────────────── */
+.tabs-wrapper{background:var(--tab-bg);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.tab-nav{display:flex;overflow-x:auto;border-bottom:1px solid var(--border);scrollbar-width:none;}
+.tab-nav::-webkit-scrollbar{display:none;}
+.tab-btn{flex-shrink:0;padding:13px 22px;background:none;border:none;color:var(--text2);
+  font-size:.83rem;font-weight:600;cursor:pointer;position:relative;transition:color .2s;
+  display:flex;align-items:center;gap:6px;}
+.tab-btn:hover{color:var(--text);}
+.tab-btn.active{color:var(--accent2);background:var(--tab-active);}
+.tab-btn.active::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+  background:var(--accent2);border-radius:2px 2px 0 0;}
+.tab-content{display:none;padding:32px;}
+.tab-content.active{display:block;animation:fadeIn .25s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ── SECTION HEADINGS ───────────────────────────────────── */
+.section-title{font-size:1.2rem;font-weight:800;margin-bottom:6px;display:flex;align-items:center;gap:9px;}
+.section-title .dot{width:10px;height:10px;border-radius:50%;background:var(--accent2);}
+.section-sub{color:var(--text2);font-size:.9rem;margin-bottom:22px;}
+.section-label{font-size:.72rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin:18px 0 10px;}
+
+/* ── INFO BOX ───────────────────────────────────────────── */
+.info-box{border-radius:var(--radius);padding:16px 20px;font-size:.875rem;
+  margin-bottom:20px;border-left:4px solid;display:flex;gap:12px;align-items:flex-start;}
+.info-box .ib-icon{font-size:1.2rem;flex-shrink:0;margin-top:1px;}
+.info-box.blue{background:rgba(79,163,224,.1);border-color:var(--accent2);}
+.info-box.orange{background:rgba(248,152,32,.1);border-color:var(--accent);}
+.info-box.green{background:rgba(88,214,141,.1);border-color:var(--accent3);}
+.info-box.red{background:rgba(231,76,60,.1);border-color:var(--accent4);}
+.info-box code{font-family:var(--font-mono);font-size:.82rem;background:var(--code-bg);
+  padding:1px 6px;border-radius:4px;color:var(--accent3);border:1px solid var(--border);}
+
+/* ── CODE BLOCK ─────────────────────────────────────────── */
+.code-wrap{background:var(--code-bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin:16px 0;}
+.code-header{display:flex;align-items:center;justify-content:space-between;
+  padding:10px 16px;border-bottom:1px solid var(--border);background:rgba(255,255,255,.03);}
+.code-lang{font-size:.75rem;color:var(--text2);font-weight:600;}
+.code-dots{display:flex;gap:5px;}
+.code-dots span{width:11px;height:11px;border-radius:50%;}
+.code-dots .r{background:#ff5f57;}.code-dots .y{background:#ffbd2e;}.code-dots .g{background:#28c840;}
+.code-pre{padding:20px;overflow-x:auto;font-family:var(--font-mono);font-size:.85rem;line-height:1.75;color:#abb2bf;white-space:pre;}
+.kw{color:#c678dd;font-weight:600;}.cls{color:#e5c07b;}.fn{color:#61afef;}
+.str{color:#98c379;}.cmt{color:#5c6370;font-style:italic;}.num{color:#d19a66;}.op{color:#56b6c2;}
+
+/* ── INLINE BADGE TAGS ──────────────────────────────────── */
+.itag{display:inline-flex;align-items:center;font-size:.68rem;font-weight:700;
+  padding:2px 9px;border-radius:20px;text-transform:uppercase;letter-spacing:.4px;
+  margin-left:8px;vertical-align:middle;}
+.itag-warn{background:rgba(248,152,32,.15);color:var(--accent);}
+.itag-good{background:rgba(88,214,141,.15);color:var(--accent3);}
+
+/* ── SIM CONTROLS ───────────────────────────────────────── */
+.sim-controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;}
+.btn-sim{background:linear-gradient(135deg,var(--accent2),#2980b9);color:#fff;border:none;
+  border-radius:8px;padding:10px 24px;font-weight:800;font-size:.875rem;cursor:pointer;
+  transition:opacity .2s,transform .2s;}
+.btn-sim:hover{opacity:.88;transform:translateY(-1px);}
+.btn-sim:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.btn-sim-warn{background:linear-gradient(135deg,var(--accent),#c47800);color:#000;border:none;
+  border-radius:8px;padding:10px 24px;font-weight:800;font-size:.875rem;cursor:pointer;
+  transition:opacity .2s,transform .2s;}
+.btn-sim-warn:hover{opacity:.88;transform:translateY(-1px);}
+.btn-sim-danger{background:linear-gradient(135deg,var(--accent4),#b52a1e);color:#fff;border:none;
+  border-radius:8px;padding:10px 24px;font-weight:800;font-size:.875rem;cursor:pointer;
+  transition:opacity .2s,transform .2s;}
+.btn-sim-danger:hover{opacity:.88;transform:translateY(-1px);}
+.btn-reset-sim{background:none;border:1px solid var(--border);color:var(--text2);
+  border-radius:8px;padding:10px 18px;font-size:.875rem;cursor:pointer;transition:all .2s;}
+.btn-reset-sim:hover{border-color:var(--text2);color:var(--text);}
+
+/* ── RESULT PILLS ───────────────────────────────────────── */
+.result-pills{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px;min-height:34px;}
+.rpill{display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:10px;
+  font-size:.875rem;font-weight:600;border:1px solid;animation:fadeIn .2s;min-height:42px;}
+.rpill-neutral{background:var(--surface2);border-color:var(--border);color:var(--text2);}
+.rpill-success{background:rgba(88,214,141,.12);border-color:rgba(88,214,141,.4);color:var(--accent3);}
+.rpill-error{background:rgba(231,76,60,.12);border-color:rgba(231,76,60,.4);color:var(--accent4);}
+.rpill-warn{background:rgba(248,152,32,.12);border-color:rgba(248,152,32,.4);color:var(--accent);}
+
+/* ── SLIDER ROW ─────────────────────────────────────────── */
+.slider-row{display:flex;align-items:center;gap:12px;margin:10px 0;padding:10px 0;
+  border-bottom:1px solid var(--border);}
+.slider-row:last-of-type{border-bottom:none;}
+.slider-row label{font-size:.82rem;color:var(--text2);font-weight:600;min-width:155px;flex-shrink:0;}
+.slider-row input[type=range]{flex:1;accent-color:var(--accent2);cursor:pointer;}
+.slider-val{font-size:.88rem;font-weight:800;color:var(--text);min-width:36px;text-align:right;}
+
+/* ── FAKE PAGE / BROWSER AREA ───────────────────────────── */
+.fake-browser{background:var(--code-bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin:16px 0;}
+.fb-titlebar{background:#1a1d23;padding:10px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);}
+.fb-dots{display:flex;gap:5px;}
+.fb-dot{width:11px;height:11px;border-radius:50%;}
+.fb-dot.red{background:#ff5f57;}.fb-dot.yel{background:#ffbd2e;}.fb-dot.grn{background:#28c840;}
+.fb-url{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:5px;
+  padding:4px 10px;font-size:.76rem;color:var(--text2);font-family:var(--font-mono);}
+.page-area-inner{position:relative;min-height:90px;display:flex;align-items:center;
+  justify-content:center;padding:28px 24px;}
+#page-bar{position:absolute;top:0;left:0;height:3px;background:var(--accent2);
+  transition:width .1s linear;border-radius:0;width:0;}
+
+/* ── TIMELINE TRACK ─────────────────────────────────────── */
+.tl-track{height:7px;background:var(--surface2);border-radius:4px;overflow:hidden;
+  border:1px solid var(--border);margin:8px 0;}
+.tl-fill{height:100%;width:0;border-radius:4px;transition:width .06s linear;}
+.tl-meta{display:flex;justify-content:space-between;font-size:.78rem;color:var(--text2);font-weight:600;}
+
+/* ── EC ROWS (Expected Conditions) ─────────────────────── */
+.ec-row{display:flex;align-items:stretch;background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--radius);margin-bottom:8px;cursor:pointer;transition:all .2s;overflow:hidden;}
+.ec-row:hover{border-color:var(--accent2);background:rgba(79,163,224,.06);}
+.ec-row.ec-active{border-color:var(--accent2);background:rgba(79,163,224,.08);}
+.ec-left{flex:1;padding:12px 16px;}
+.ec-method{font-family:var(--font-mono);font-size:.84rem;font-weight:700;color:var(--accent3);margin-bottom:4px;}
+.ec-row:hover .ec-method,.ec-row.ec-active .ec-method{color:var(--accent2);}
+.ec-hint{font-size:.79rem;color:var(--text2);}
+.ec-arrow{padding:12px 16px;font-size:1.1rem;color:var(--text2);display:flex;align-items:center;}
+.ec-row:hover .ec-arrow,.ec-row.ec-active .ec-arrow{color:var(--accent2);}
+
+/* ── PRO / CON LIST ─────────────────────────────────────── */
+.pro-con-list{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+.pro-con-row{display:flex;align-items:flex-start;gap:12px;padding:11px 16px;
+  font-size:.845rem;color:var(--text3);line-height:1.6;border-bottom:1px solid var(--border);}
+.pro-con-row:last-child{border-bottom:none;}
+.pro-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px;}
+.dot-ok{background:var(--accent3);}
+.dot-bad{background:var(--accent4);}
+
+/* ── COMPARE PAIR ───────────────────────────────────────── */
+.compare-pair{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0 24px;}
+.cmp-card{background:var(--surface2);border:2px solid var(--border);border-radius:var(--radius);padding:20px;}
+.cmp-card.implicit-card{border-top:3px solid var(--accent);}
+.cmp-card.explicit-card{border-top:3px solid var(--accent3);}
+.cmp-title{font-size:1rem;font-weight:800;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.cmp-row{display:flex;justify-content:space-between;align-items:flex-start;padding:8px 0;
+  border-bottom:1px solid var(--border);font-size:.84rem;}
+.cmp-row:last-child{border-bottom:none;}
+.cmp-row .cmp-label{color:var(--text2);}
+.cmp-row .cmp-val{font-weight:700;text-align:right;max-width:60%;}
+.cmp-method{font-family:var(--font-mono);font-size:.78rem;background:var(--code-bg);
+  border:1px solid var(--border);border-radius:6px;padding:8px 12px;
+  color:#abb2bf;margin-bottom:14px;line-height:1.6;}
+
+/* ── PULSE ──────────────────────────────────────────────── */
+.pulse{animation:pulse-anim .8s ease-in-out infinite;}
+@keyframes pulse-anim{0%,100%{opacity:1}50%{opacity:.45}}
+
+/* ── COMPARE TABLE ──────────────────────────────────────── */
+.compare-table{width:100%;border-collapse:collapse;font-size:.875rem;margin:16px 0;}
+.compare-table th{text-align:left;padding:10px 16px;background:var(--surface2);color:var(--text2);
+  font-weight:700;font-size:.78rem;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);}
+.compare-table td{padding:11px 16px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.compare-table tr:last-child td{border-bottom:none;}
+.compare-table tr:hover td{background:rgba(255,255,255,.02);}
+.mono{font-family:var(--font-mono);font-size:.82rem;color:var(--accent3);}
+
+/* ── COURSE NAV ─────────────────────────────────────────── */
+.course-nav{
+    position:sticky;
+    bottom:0;
+    background:var(--surface, var(--bg-primary));
+    z-index:999;
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:12px;
+
+    margin-top:18px;
+    padding:14px 20px 12px;
+
+    border-top:.5px solid var(--border);
+}
+
+.course-nav-left,
+.course-nav-right{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.course-nav a{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+
+    text-decoration:none;
+
+    padding:7px 15px;          /* Increased slightly */
+
+    border:.5px solid var(--border);
+    border-radius:8px;
+
+    color:var(--text);
+    background:var(--surface2);
+
+    font-size:.86rem;          /* Slightly larger than 12px */
+    font-weight:600;
+    line-height:1.25;
+
+    transition:all .2s ease;
+}
+
+.course-nav a:hover{
+    border-color:var(--accent2);
+}
+
+.course-topic{
+    font-size:.8rem;
+    color:var(--text2);
+}
+
+/* ── RESPONSIVE ─────────────────────────────────────────── */
+@media(max-width:700px){
+  .hero{flex-direction:column;padding:24px 20px;}
+  .tab-btn{padding:12px 14px;font-size:.79rem;}
+  .tab-content{padding:20px 16px;}
+  .hero-text h1{font-size:1.35rem;}
+  .compare-pair{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">
+    <div class="logo-icon">Se</div>
+    Selenium Training
+  </div>
+  <button id="themeToggle" onclick="toggleTheme()">🌙 Dark</button>
+</header>
+
+<div class="container">
+  <div class="breadcrumb-row">
+    <div class="breadcrumb">
+      Automation Series <span style="color:var(--border)">›</span> Week 2 <span style="color:var(--border)">›</span> <span>Selenium Waits</span>
+    </div>
+    <span class="watermark">Ronak Shah — Automation Training Content</span>
+  </div>
+
+  <div class="hero">
+    <div class="hero-icon">⏱️</div>
+    <div class="hero-text">
+      <h1>Selenium <span>Waits</span> — Java Guide</h1>
+      <p>All code is in Java. Understand implicit vs explicit wait with a live interactive simulator and side-by-side comparison.</p>
+      <div class="hero-pills">
+        <span class="pill pill-blue">▶ Live Demo</span>
+        <span class="pill pill-orange">◷ Implicit Wait</span>
+        <span class="pill pill-green">◎ Explicit Wait</span>
+        <span class="pill pill-purple">⇄ Compare</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="tabs-wrapper">
+    <div class="tab-nav">
+      <button class="tab-btn active" onclick="switchTab('demo',this)"><span>▶</span> Live Demo</button>
+      <button class="tab-btn" onclick="switchTab('implicit',this)"><span>◷</span> Implicit</button>
+      <button class="tab-btn" onclick="switchTab('explicit',this)"><span>◎</span> Explicit</button>
+      <button class="tab-btn" onclick="switchTab('compare',this)"><span>⇄</span> Compare</button>
+    </div>
+
+    <!-- ═══════════════ DEMO TAB ═══════════════ -->
+    <div class="tab-content active" id="tab-demo">
+      <div class="section-title"><span class="dot"></span> Wait Strategy Simulator</div>
+      <p class="section-sub">Configure how long the button takes to appear, then choose a wait strategy to see exactly how each one behaves.</p>
+
+      <div class="section-label">Scenario setup</div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;margin-bottom:18px;">
+        <div class="slider-row">
+          <label>Button appears after</label>
+          <input id="appear-delay" max="6" min="1"
+            oninput="document.getElementById('delay-val').textContent=this.value+'s'"
+            step="1" type="range" value="3"/>
+          <span class="slider-val" id="delay-val">3s</span>
+        </div>
+      </div>
+
+      <div class="section-label">Simulated page</div>
+      <div class="fake-browser">
+        <div class="fb-titlebar">
+          <div class="fb-dots"><div class="fb-dot red"></div><div class="fb-dot yel"></div><div class="fb-dot grn"></div></div>
+          <div class="fb-url">https://demo-app.example.com/form</div>
+        </div>
+        <div class="page-area-inner" id="page-area">
+          <div id="page-bar"></div>
+          <span id="loading-msg" style="color:var(--text2);font-size:.88rem;font-weight:600;">Page loading…</span>
+          <div id="fake-btn" style="display:none;padding:10px 26px;border-radius:8px;background:var(--accent2);color:#fff;font-weight:800;font-size:.9rem;cursor:default;">Submit</div>
+        </div>
+      </div>
+
+      <div class="section-label">Choose a wait strategy</div>
+      <div class="sim-controls">
+        <button class="btn-sim-danger" onclick="runDemo('no-wait')">No wait</button>
+        <button class="btn-sim-warn" onclick="runDemo('implicit')">Implicit (5s)</button>
+        <button class="btn-sim" onclick="runDemo('explicit')">Explicit wait</button>
+        <button class="btn-reset-sim" onclick="resetDemo()" style="margin-left:auto">↺ Reset</button>
+      </div>
+
+      <div class="rpill rpill-neutral" id="demo-result">
+        <span id="pill-icon">—</span>
+        <span id="result-text">Select a strategy above to run the simulation.</span>
+      </div>
+
+      <div id="tl-wrap" style="display:none;margin-top:16px;">
+        <div class="section-label" style="margin-top:0">Elapsed time</div>
+        <div class="tl-track"><div class="tl-fill" id="tl-fill" style="background:var(--accent2)"></div></div>
+        <div class="tl-meta"><span id="tl-elapsed">0.0s</span><span id="tl-max"></span></div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ IMPLICIT TAB ═══════════════ -->
+    <div class="tab-content" id="tab-implicit">
+      <div class="section-title"><span class="dot"></span> What is Implicit Wait? <span class="itag itag-warn">global setting</span></div>
+      <p class="section-sub">A single line that applies a waiting behaviour to every element lookup in your test session.</p>
+
+      <div class="info-box orange">
+        <span class="ib-icon">◷</span>
+        <div>You tell Selenium: <strong>"If you can't find an element right now, keep trying for up to N seconds before giving up."</strong> You write this once, and it applies to every single element lookup in your test.</div>
+      </div>
+
+      <div class="code-wrap">
+        <div class="code-header">
+          <div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+          <span class="code-lang">☕ Implicit Wait — Java</span>
+        </div>
+        <pre class="code-pre"><span class="cmt">// Step 1: Create driver</span>
+<span class="cls">WebDriver</span> driver = <span class="kw">new</span> <span class="cls">ChromeDriver</span>();
+
+<span class="cmt">// Step 2: Set the wait — write this ONCE</span>
+driver.<span class="fn">manage</span>().<span class="fn">timeouts</span>()
+    .<span class="fn">implicitlyWait</span>(<span class="cls">Duration</span>.<span class="fn">ofSeconds</span>(<span class="num">10</span>));
+
+<span class="cmt">// Step 3: Now use driver normally</span>
+<span class="cmt">// Selenium will auto-wait up to 10s for each element</span>
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"username"</span>))
+    .<span class="fn">sendKeys</span>(<span class="str">"admin@test.com"</span>);
+
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"password"</span>))
+    .<span class="fn">sendKeys</span>(<span class="str">"Pass@123"</span>);
+
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"loginBtn"</span>))
+    .<span class="fn">click</span>();</pre>
+      </div>
+
+      <div class="section-title" style="font-size:1rem;margin-top:8px"><span class="dot"></span> Try it — what happens when timing changes?</div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;margin:14px 0 20px;">
+        <div class="slider-row">
+          <label>Timeout set to</label>
+          <input id="imp-timeout" max="15" min="1"
+            oninput="document.getElementById('imp-tv').textContent=this.value+'s';updateImplicit()"
+            step="1" type="range" value="10"/>
+          <span class="slider-val" id="imp-tv">10s</span>
+        </div>
+        <div class="slider-row">
+          <label>Element appears at</label>
+          <input id="imp-appear" max="15" min="0"
+            oninput="document.getElementById('imp-av').textContent=this.value+'s';updateImplicit()"
+            step="1" type="range" value="4"/>
+          <span class="slider-val" id="imp-av">4s</span>
+        </div>
+        <div style="margin-top:12px">
+          <div class="rpill rpill-success" id="imp-result">
+            <span id="imp-icon">✓</span>
+            <span id="imp-text">Element at 4s — within 10s timeout. Test passes.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-title" style="font-size:1rem"><span class="dot"></span> Pros and Cons</div>
+      <div class="pro-con-list" style="margin-top:12px">
+        <div class="pro-con-row"><div class="pro-dot dot-ok"></div><span>Very simple — one line of code, works everywhere</span></div>
+        <div class="pro-con-row"><div class="pro-dot dot-ok"></div><span>No need to repeat wait code for each element</span></div>
+        <div class="pro-con-row"><div class="pro-dot dot-bad"></div><span>Only checks if element EXISTS in page — not if it is visible or clickable</span></div>
+        <div class="pro-con-row"><div class="pro-dot dot-bad"></div><span>Can find a disabled button and try to click it — test crashes</span></div>
+        <div class="pro-con-row"><div class="pro-dot dot-bad"></div><span>Do NOT mix with explicit wait — causes unpredictable timeouts</span></div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ EXPLICIT TAB ═══════════════ -->
+    <div class="tab-content" id="tab-explicit">
+      <div class="section-title"><span class="dot"></span> What is Explicit Wait? <span class="itag itag-good">recommended</span></div>
+      <p class="section-sub">Fine-grained per-element waiting with full control over what "ready" means for each interaction.</p>
+
+      <div class="info-box green">
+        <span class="ib-icon">◎</span>
+        <div>You tell Selenium: <strong>"Wait for THIS specific condition on THIS specific element — check every 500ms, give up after N seconds."</strong> You are in full control of what "ready" means.</div>
+      </div>
+
+      <div class="code-wrap">
+        <div class="code-header">
+          <div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+          <span class="code-lang">☕ Explicit Wait — Java</span>
+        </div>
+        <pre class="code-pre"><span class="cmt">// Step 1: Create driver</span>
+<span class="cls">WebDriver</span> driver = <span class="kw">new</span> <span class="cls">ChromeDriver</span>();
+
+<span class="cmt">// Step 2: Create a wait object — 10 second limit</span>
+<span class="cls">WebDriverWait</span> wait = <span class="kw">new</span> <span class="cls">WebDriverWait</span>(
+    driver, <span class="cls">Duration</span>.<span class="fn">ofSeconds</span>(<span class="num">10</span>)
+);
+
+<span class="cmt">// Step 3: Use wait.until() with a condition</span>
+<span class="cmt">// "Wait until username field is VISIBLE, then type"</span>
+wait.<span class="fn">until</span>(<span class="cls">ExpectedConditions</span>
+    .<span class="fn">visibilityOfElementLocated</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"username"</span>)))
+    .<span class="fn">sendKeys</span>(<span class="str">"admin@test.com"</span>);
+
+<span class="cmt">// "Wait until login button is CLICKABLE, then click"</span>
+wait.<span class="fn">until</span>(<span class="cls">ExpectedConditions</span>
+    .<span class="fn">elementToBeClickable</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"loginBtn"</span>)))
+    .<span class="fn">click</span>();</pre>
+      </div>
+
+      <div class="section-title" style="font-size:1rem;margin-top:8px"><span class="dot"></span> Common Conditions — click each to see Java code</div>
+
+      <div id="ec-detail" style="display:none;margin:14px 0">
+        <div class="code-wrap" style="margin-bottom:12px">
+          <div class="code-header">
+            <div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+            <span class="code-lang">☕ Java</span>
+          </div>
+          <pre class="code-pre" id="ec-code"></pre>
+        </div>
+        <div class="info-box blue" style="margin-bottom:0">
+          <span class="ib-icon">💡</span>
+          <div id="ec-explain" style="font-size:.84rem"></div>
+        </div>
+      </div>
+
+      <div style="margin-top:14px">
+        <div class="ec-row" onclick="showEC(0)">
+          <div class="ec-left">
+            <div class="ec-method">elementToBeClickable()</div>
+            <div class="ec-hint">Element is visible AND enabled — safe to click</div>
+          </div>
+          <div class="ec-arrow">›</div>
+        </div>
+        <div class="ec-row" onclick="showEC(1)">
+          <div class="ec-left">
+            <div class="ec-method">visibilityOfElementLocated()</div>
+            <div class="ec-hint">Element is in page AND visible to the user</div>
+          </div>
+          <div class="ec-arrow">›</div>
+        </div>
+        <div class="ec-row" onclick="showEC(2)">
+          <div class="ec-left">
+            <div class="ec-method">presenceOfElementLocated()</div>
+            <div class="ec-hint">Element exists in page code — may still be hidden</div>
+          </div>
+          <div class="ec-arrow">›</div>
+        </div>
+        <div class="ec-row" onclick="showEC(3)">
+          <div class="ec-left">
+            <div class="ec-method">textToBePresentInElementLocated()</div>
+            <div class="ec-hint">Wait until element contains a specific text</div>
+          </div>
+          <div class="ec-arrow">›</div>
+        </div>
+        <div class="ec-row" onclick="showEC(4)">
+          <div class="ec-left">
+            <div class="ec-method">alertIsPresent()</div>
+            <div class="ec-hint">A browser popup/alert has appeared</div>
+          </div>
+          <div class="ec-arrow">›</div>
+        </div>
+      </div>
+
+      <div class="section-title" style="font-size:1rem;margin-top:24px"><span class="dot"></span> Pros and Cons</div>
+      <div class="pro-con-list" style="margin-top:12px">
+        <div class="pro-con-row"><div class="pro-dot dot-ok"></div><span>Waits for the exact right condition — visible, clickable, text loaded</span></div>
+        <div class="pro-con-row"><div class="pro-dot dot-ok"></div><span>Code reads like plain English — easy to understand</span></div>
+        <div class="pro-con-row"><div class="pro-dot dot-ok"></div><span>Can use different timeouts for different steps</span></div>
+        <div class="pro-con-row"><div class="pro-dot dot-bad"></div><span>Slightly more code to write compared to implicit</span></div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ COMPARE TAB ═══════════════ -->
+    <div class="tab-content" id="tab-compare">
+      <div class="section-title"><span class="dot"></span> Implicit vs Explicit — Side by Side</div>
+      <p class="section-sub">Key differences that determine which wait strategy to use in your Selenium tests.</p>
+
+      <div class="compare-pair">
+        <div class="cmp-card implicit-card">
+          <div class="cmp-title" style="color:var(--accent)">
+            <span class="itag itag-warn" style="margin-left:0">Implicit wait</span>
+          </div>
+          <div class="cmp-method">driver.manage().timeouts()<br/>.implicitlyWait(...)</div>
+          <div class="cmp-row"><span class="cmp-label">Applies to</span><span class="cmp-val">Entire test session</span></div>
+          <div class="cmp-row"><span class="cmp-label">Checks for</span><span class="cmp-val">Element exists in DOM</span></div>
+          <div class="cmp-row"><span class="cmp-label">Per element</span><span class="cmp-val" style="color:var(--accent4)">No</span></div>
+          <div class="cmp-row"><span class="cmp-label">Use in</span><span class="cmp-val">Simple / beginner tests</span></div>
+        </div>
+        <div class="cmp-card explicit-card">
+          <div class="cmp-title" style="color:var(--accent3)">
+            <span class="itag itag-good" style="margin-left:0">Explicit wait</span>
+          </div>
+          <div class="cmp-method">WebDriverWait +<br/>ExpectedConditions</div>
+          <div class="cmp-row"><span class="cmp-label">Applies to</span><span class="cmp-val">One specific step</span></div>
+          <div class="cmp-row"><span class="cmp-label">Checks for</span><span class="cmp-val">Any condition you choose</span></div>
+          <div class="cmp-row"><span class="cmp-label">Per element</span><span class="cmp-val" style="color:var(--accent3)">Yes</span></div>
+          <div class="cmp-row"><span class="cmp-label">Use in</span><span class="cmp-val" style="color:var(--accent3)">All real projects</span></div>
+        </div>
+      </div>
+
+      <div class="info-box red">
+        <span class="ib-icon">🚫</span>
+        <div><strong>Golden rule:</strong> Never use implicit and explicit wait together in the same test. Selenium merges the timeouts in unexpected ways and your tests become unpredictable.</div>
+      </div>
+
+      <div class="info-box orange">
+        <span class="ib-icon">⚠️</span>
+        <div><strong>What about Thread.sleep()?</strong> Avoid it in real tests. It always waits the full time — even if the element is ready in 0.1 seconds. Use only for quick debugging, never in final code.</div>
+      </div>
+    </div>
+
+  </div><!-- /tabs-wrapper -->
+
+  <div class="course-nav">
+    <div class="course-nav-left">
+      <a href="w2_t1_selenium-webdriver.html">← Previous</a>
+      <a href="../index.html">🏠 Home</a>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+/* ── THEME ─────────────────────────────────────────────── */
+function toggleTheme() {
+  var h = document.documentElement;
+  var btn = document.getElementById('themeToggle');
+  if (h.dataset.theme === 'light') {
+    h.dataset.theme = 'dark';
+    btn.textContent = '☀ Light';
+  } else {
+    h.dataset.theme = 'light';
+    btn.textContent = '🌙 Dark';
+  }
+}
+
+/* ── TABS ───────────────────────────────────────────────── */
+function switchTab(name, el) {
+  document.querySelectorAll('.tab-btn').forEach(function(t){ t.classList.remove('active'); });
+  document.querySelectorAll('.tab-content').forEach(function(p){ p.classList.remove('active'); });
+  el.classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+/* ── EXPECTED CONDITIONS DATA ───────────────────────────── */
+var ecData = [
+  {
+    code: 'WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));\n\n// Wait until the login button is visible AND enabled\nwait.until(ExpectedConditions\n    .elementToBeClickable(By.id("loginBtn")))\n    .click();',
+    explain: 'Use this for any button or link you want to click. It checks two things: (1) the button is visible on screen, and (2) it is not disabled. Only then does it click.'
+  },
+  {
+    code: 'WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));\n\n// Wait until the username field is visible on screen\nWebElement field = wait.until(ExpectedConditions\n    .visibilityOfElementLocated(By.id("username")));\n\nfield.sendKeys("admin@test.com");',
+    explain: 'Use this before typing into a field. The field must be rendered on screen and have a non-zero size. A hidden field would NOT pass this condition.'
+  },
+  {
+    code: 'WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));\n\n// Wait until the element exists anywhere in the page\nWebElement menu = wait.until(ExpectedConditions\n    .presenceOfElementLocated(By.id("sidebar-menu")));',
+    explain: 'Weaker than visibility — only checks if the element exists in the page HTML. It may still be hidden (display:none). Use this when you just need to confirm an element was added to the page.'
+  },
+  {
+    code: 'WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));\n\n// Wait until the dashboard heading shows "Welcome"\nwait.until(ExpectedConditions\n    .textToBePresentInElementLocated(\n        By.id("dashboard-header"), "Welcome"\n    ));\n\nString heading = driver.findElement(\n    By.id("dashboard-header")).getText();',
+    explain: 'Very useful after login — the dashboard div may exist immediately but the text loads via AJAX. This waits until the actual text "Welcome" appears inside the element before you read it.'
+  },
+  {
+    code: 'WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));\n\n// Wait until a browser alert/popup appears\nAlert alert = wait.until(\n    ExpectedConditions.alertIsPresent()\n);\n\n// Now interact with it\nString message = alert.getText();\nalert.accept(); // click OK',
+    explain: 'Use this when your app shows a browser popup after an action. The wait holds until the alert appears, then you can read its message or dismiss it safely.'
+  }
+];
+
+function showEC(idx) {
+  var d = ecData[idx];
+  document.getElementById('ec-code').textContent = d.code;
+  document.getElementById('ec-explain').textContent = d.explain;
+  var box = document.getElementById('ec-detail');
+  box.style.display = 'block';
+  box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  document.querySelectorAll('.ec-row').forEach(function(r, i) {
+    r.classList.toggle('ec-active', i === idx);
+  });
+}
+
+/* ── DEMO SIMULATION ────────────────────────────────────── */
+var demoTimer = null, demoRunning = false;
+
+function setResult(cls, icon, text) {
+  var r = document.getElementById('demo-result');
+  var classMap = {
+    '': 'rpill rpill-neutral',
+    'success': 'rpill rpill-success',
+    'error': 'rpill rpill-error',
+    'waiting': 'rpill rpill-warn'
+  };
+  r.className = classMap[cls] || 'rpill rpill-neutral';
+  document.getElementById('pill-icon').textContent = icon;
+  document.getElementById('result-text').textContent = text;
+}
+
+function resetDemo() {
+  clearInterval(demoTimer); demoRunning = false;
+  var fb = document.getElementById('fake-btn');
+  fb.style.display = 'none';
+  document.getElementById('loading-msg').style.display = 'block';
+  document.getElementById('page-bar').style.width = '0';
+  document.getElementById('tl-wrap').style.display = 'none';
+  document.getElementById('tl-fill').style.width = '0';
+  document.getElementById('demo-result').className = 'rpill rpill-neutral';
+  document.getElementById('pill-icon').textContent = '—';
+  document.getElementById('result-text').textContent = 'Select a strategy above to run the simulation.';
+  document.getElementById('pill-icon').classList.remove('pulse');
+}
+
+function runDemo(mode) {
+  if (demoRunning) return;
+  resetDemo(); demoRunning = true;
+  var appearDelay = parseInt(document.getElementById('appear-delay').value);
+  var maxTime = mode === 'no-wait' ? 0.4 : mode === 'implicit' ? 5 : appearDelay + 1.2;
+  document.getElementById('tl-wrap').style.display = 'block';
+  document.getElementById('tl-max').textContent = maxTime.toFixed(1) + 's max';
+  var messages = {
+    'no-wait': 'No wait — driver.findElement() fires immediately…',
+    'implicit': 'implicitlyWait(5) active — polling DOM every 500ms for up to 5s…',
+    'explicit': 'WebDriverWait active — checking elementToBeClickable() every 500ms…'
+  };
+  setResult('waiting', '…', messages[mode]);
+  document.getElementById('pill-icon').classList.add('pulse');
+  var fill = document.getElementById('tl-fill');
+  fill.style.background = 'var(--accent)';
+  var fb = document.getElementById('fake-btn');
+  var lm = document.getElementById('loading-msg');
+  var elapsed = 0; var step = 50;
+  demoTimer = setInterval(function() {
+    elapsed += step;
+    var pct = Math.min((elapsed / (maxTime * 1000)) * 100, 100);
+    fill.style.width = pct + '%';
+    document.getElementById('tl-elapsed').textContent = (elapsed / 1000).toFixed(1) + 's';
+    document.getElementById('page-bar').style.width = Math.min((elapsed / (appearDelay * 1000)) * 100, 100) + '%';
+    if (elapsed >= appearDelay * 1000 && fb.style.display === 'none') {
+      fb.style.display = 'flex';
+      lm.style.display = 'none';
+    }
+    var done = (mode === 'no-wait' && elapsed >= 400) ||
+               (mode === 'implicit' && elapsed >= 5000) ||
+               (mode === 'explicit' && elapsed >= (appearDelay * 1000 + 400));
+    if (done) {
+      clearInterval(demoTimer); demoRunning = false;
+      document.getElementById('pill-icon').classList.remove('pulse');
+      if (mode === 'no-wait') {
+        fill.style.background = 'var(--accent4)';
+        setResult('error', '✕', 'NoSuchElementException — findElement() gave up immediately. Element was not in DOM yet.');
+      } else if (mode === 'implicit') {
+        fill.style.background = appearDelay <= 5 ? 'var(--accent3)' : 'var(--accent4)';
+        if (appearDelay <= 5) {
+          setResult('success', '✓', 'Element found at ' + appearDelay + 's — within 5s implicit window. Test passed!');
+        } else {
+          setResult('error', '✕', 'TimeoutException — element appeared at ' + appearDelay + 's but implicitlyWait only covers 5s.');
+        }
+      } else {
+        fill.style.background = 'var(--accent3)';
+        setResult('success', '✓', 'elementToBeClickable() passed at ' + appearDelay + 's. Explicit wait succeeded — element clicked!');
+      }
+    }
+  }, step);
+}
+
+/* ── IMPLICIT SLIDER ────────────────────────────────────── */
+function updateImplicit() {
+  var timeout = parseInt(document.getElementById('imp-timeout').value);
+  var appear  = parseInt(document.getElementById('imp-appear').value);
+  var ok = appear <= timeout;
+  document.getElementById('imp-result').className = 'rpill ' + (ok ? 'rpill-success' : 'rpill-error');
+  document.getElementById('imp-icon').textContent  = ok ? '✓' : '✕';
+  document.getElementById('imp-text').textContent  = ok
+    ? 'Element at ' + appear + 's — within ' + timeout + 's timeout. Test passes.'
+    : 'Element at ' + appear + 's — exceeds ' + timeout + 's timeout. TimeoutException thrown!';
+}
+updateImplicit();
+document.getElementById('imp-timeout').addEventListener('input', updateImplicit);
+document.getElementById('imp-appear').addEventListener('input', updateImplicit);
+</script>
+</body>
+</html>

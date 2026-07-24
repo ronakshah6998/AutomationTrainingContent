@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<html data-theme="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Test Execution Control: Priority &amp; Groups in TestNG</title>
+<style>
+/* ── TOKENS ─────────────────────────────────────────────── */
+:root {
+  --bg:#0d1117; --surface:#161b22; --surface2:#1f2937; --border:#30363d;
+  --accent:#f89820; --accent2:#4fa3e0; --accent3:#58d68d; --accent4:#e74c3c; --accent5:#c678dd;
+  --text:#e6edf3; --text2:#8b949e; --text3:#c9d1d9;
+  --tab-bg:#161b22; --tab-active:#1f2937; --code-bg:#0d1117;
+  --radius:10px; --font-mono:'Courier New',Courier,monospace;
+  --sel:#43b02a;
+}
+[data-theme="light"]{
+  --bg:#f0f4f8; --surface:#ffffff; --surface2:#e8eef5; --border:#d1d9e0;
+  --text:#1a202c; --text2:#4a5568; --text3:#2d3748;
+  --tab-bg:#e8eef5; --tab-active:#ffffff; --code-bg:#e2e8f0;
+}
+[data-theme="light"] pre,[data-theme="light"] .code-pre{color:#1a202c;background:#e2e8f0;}
+[data-theme="light"] .quiz-code,[data-theme="light"] .card code,
+[data-theme="light"] .info-box code,[data-theme="light"] code{background:#dde4ee;color:var(--text);border:1px solid var(--border);}
+[data-theme="light"] .kw{color:#7c3aed;}[data-theme="light"] .cls{color:#b45309;}
+[data-theme="light"] .fn{color:#1d4ed8;}[data-theme="light"] .str{color:#15803d;}
+[data-theme="light"] .cmt{color:#6b7280;}[data-theme="light"] .num{color:#c2410c;}
+[data-theme="light"] .xml-tag{color:#be185d;}[data-theme="light"] .xml-attr{color:#b45309;}[data-theme="light"] .xml-val{color:#15803d;}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);
+  min-height:100vh;transition:background .3s,color .3s;line-height:1.65;
+  user-select:none;-webkit-user-select:none;}
+
+/* ── WATERMARK ─────────────────────────────────────────── */
+#watermark{position:fixed;bottom:14px;right:18px;font-size:.7rem;color:var(--text2);
+  opacity:.44;pointer-events:none;z-index:800;letter-spacing:.2px;white-space:nowrap;}
+
+/* ── HEADER ─────────────────────────────────────────────── */
+header{background:var(--surface);border-bottom:1px solid var(--border);
+  padding:0 32px;display:flex;align-items:center;justify-content:space-between;
+  height:62px;position:sticky;top:0;z-index:100;box-shadow:0 1px 0 var(--border);}
+.logo{display:flex;align-items:center;gap:10px;font-size:1.05rem;font-weight:700;}
+.logo-icon{width:32px;height:32px;border-radius:8px;
+  background:linear-gradient(135deg,#43b02a,#26890c);
+  display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:#fff;}
+#themeToggle{background:var(--surface2);border:1px solid var(--border);color:var(--text);
+  border-radius:8px;padding:6px 14px;cursor:pointer;font-size:.85rem;transition:all .2s;}
+#themeToggle:hover{border-color:var(--accent);color:var(--accent);}
+
+/* ── LAYOUT ─────────────────────────────────────────────── */
+.container{max-width:1100px;margin:0 auto;padding:32px 20px 80px;}
+
+/* ── HERO ───────────────────────────────────────────────── */
+.hero{background:linear-gradient(135deg,var(--surface),var(--surface2));
+  border:1px solid var(--border);border-radius:14px;padding:36px 40px;
+  margin-bottom:28px;display:flex;align-items:center;gap:28px;
+  position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:240px;height:240px;
+  border-radius:50%;background:radial-gradient(circle,rgba(79,163,224,.14) 0%,transparent 70%);
+  pointer-events:none;}
+.hero-icon{font-size:64px;flex-shrink:0;filter:drop-shadow(0 4px 16px rgba(79,163,224,.4));}
+.hero-text h1{font-size:1.75rem;font-weight:800;line-height:1.2;}
+.hero-text h1 span{color:var(--accent2);}
+.hero-text p{color:var(--text2);margin-top:8px;font-size:.95rem;}
+.hero-pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;}
+.pill{padding:4px 12px;border-radius:20px;font-size:.78rem;font-weight:600;
+  border:1px solid;display:flex;align-items:center;gap:5px;}
+.pill-orange{color:var(--accent);border-color:rgba(248,152,32,.35);background:rgba(248,152,32,.08);}
+.pill-blue{color:var(--accent2);border-color:rgba(79,163,224,.35);background:rgba(79,163,224,.08);}
+.pill-green{color:var(--accent3);border-color:rgba(88,214,141,.35);background:rgba(88,214,141,.08);}
+.pill-purple{color:var(--accent5);border-color:rgba(198,120,221,.35);background:rgba(198,120,221,.08);}
+.pill-sel{color:var(--sel);border-color:rgba(67,176,42,.35);background:rgba(67,176,42,.08);}
+
+/* ── BREADCRUMB ROW ─────────────────────────────────────── */
+.breadcrumb-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.breadcrumb{display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--text2);}
+.breadcrumb span{color:var(--accent2);font-weight:600;}
+.watermark{font-size:.7rem;color:var(--text2);opacity:.52;letter-spacing:.3px;
+  white-space:nowrap;font-weight:500;}
+
+/* ── TABS ───────────────────────────────────────────────── */
+.tabs-wrapper{background:var(--tab-bg);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.tab-nav{display:flex;overflow-x:auto;border-bottom:1px solid var(--border);scrollbar-width:none;}
+.tab-nav::-webkit-scrollbar{display:none;}
+.tab-btn{flex-shrink:0;padding:13px 18px;background:none;border:none;color:var(--text2);
+  font-size:.83rem;font-weight:600;cursor:pointer;position:relative;transition:color .2s;
+  display:flex;align-items:center;gap:6px;}
+.tab-btn:hover{color:var(--text);}
+.tab-btn.active{color:var(--accent2);background:var(--tab-active);}
+.tab-btn.active::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+  background:var(--accent2);border-radius:2px 2px 0 0;}
+.tab-content{display:none;padding:32px;}
+.tab-content.active{display:block;animation:fadeIn .25s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ── SECTION HEADINGS ───────────────────────────────────── */
+.section-title{font-size:1.2rem;font-weight:800;margin-bottom:6px;display:flex;align-items:center;gap:9px;}
+.section-title .dot{width:10px;height:10px;border-radius:50%;background:var(--accent2);}
+.section-sub{color:var(--text2);font-size:.9rem;margin-bottom:22px;}
+
+/* ── CARDS ──────────────────────────────────────────────── */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px;margin-bottom:28px;}
+.card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);
+  padding:20px;transition:border-color .2s,transform .2s;}
+.card:hover{border-color:var(--accent2);transform:translateY(-2px);}
+.card-icon{font-size:1.6rem;margin-bottom:10px;}
+.card h3{font-size:.95rem;font-weight:700;margin-bottom:6px;}
+.card p{font-size:.83rem;color:var(--text2);line-height:1.55;}
+.card code{font-family:var(--font-mono);font-size:.78rem;background:var(--code-bg);
+  padding:1px 6px;border-radius:4px;color:var(--accent3);border:1px solid var(--border);}
+
+/* ── INFO BOX ───────────────────────────────────────────── */
+.info-box{border-radius:var(--radius);padding:16px 20px;font-size:.875rem;
+  margin-bottom:20px;border-left:4px solid;display:flex;gap:12px;align-items:flex-start;}
+.info-box .ib-icon{font-size:1.2rem;flex-shrink:0;margin-top:1px;}
+.info-box.blue{background:rgba(79,163,224,.1);border-color:var(--accent2);}
+.info-box.orange{background:rgba(248,152,32,.1);border-color:var(--accent);}
+.info-box.green{background:rgba(88,214,141,.1);border-color:var(--accent3);}
+.info-box.red{background:rgba(231,76,60,.1);border-color:var(--accent4);}
+.info-box.sel{background:rgba(67,176,42,.1);border-color:var(--sel);}
+.info-box code{font-family:var(--font-mono);font-size:.82rem;background:var(--code-bg);
+  padding:1px 6px;border-radius:4px;color:var(--accent3);border:1px solid var(--border);}
+
+/* ── CODE BLOCK ─────────────────────────────────────────── */
+.code-wrap{background:var(--code-bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin:16px 0;}
+.code-header{display:flex;align-items:center;justify-content:space-between;
+  padding:10px 16px;border-bottom:1px solid var(--border);background:rgba(255,255,255,.03);}
+.code-lang{font-size:.75rem;color:var(--text2);font-weight:600;}
+.code-dots{display:flex;gap:5px;}
+.code-dots span{width:11px;height:11px;border-radius:50%;}
+.code-dots .r{background:#ff5f57;}.code-dots .y{background:#ffbd2e;}.code-dots .g{background:#28c840;}
+.code-pre{padding:20px;overflow-x:auto;font-family:var(--font-mono);font-size:.85rem;line-height:1.75;color:#abb2bf;white-space:pre;}
+.kw{color:#c678dd;font-weight:600;}.cls{color:#e5c07b;}.fn{color:#61afef;}
+.str{color:#98c379;}.cmt{color:#5c6370;font-style:italic;}.num{color:#d19a66;}.op{color:#56b6c2;}
+.xml-tag{color:#e06c75;}.xml-attr{color:#d19a66;}.xml-val{color:#98c379;}
+
+/* ── ITER STEPS ─────────────────────────────────────────── */
+.iter-steps{display:flex;flex-direction:column;gap:10px;margin:16px 0;}
+.iter-row{display:flex;gap:14px;align-items:flex-start;background:var(--surface2);
+  border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;transition:border-color .2s;}
+.iter-row:hover{border-color:var(--accent2);}
+.iter-num{flex-shrink:0;width:28px;height:28px;border-radius:50%;background:var(--accent2);
+  color:#000;font-weight:800;font-size:.8rem;display:flex;align-items:center;justify-content:center;margin-top:1px;}
+.iter-body h4{font-size:.88rem;font-weight:700;margin-bottom:3px;}
+.iter-body p{font-size:.82rem;color:var(--text2);}
+.iter-body code{font-family:var(--font-mono);font-size:.8rem;background:var(--code-bg);
+  padding:1px 6px;border-radius:4px;color:var(--accent3);border:1px solid var(--border);}
+
+/* ── COMPARE TABLE ──────────────────────────────────────── */
+.compare-table{width:100%;border-collapse:collapse;font-size:.875rem;margin:16px 0;}
+.compare-table th{text-align:left;padding:10px 16px;background:var(--surface2);color:var(--text2);
+  font-weight:700;font-size:.78rem;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);}
+.compare-table td{padding:11px 16px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.compare-table tr:last-child td{border-bottom:none;}
+.compare-table tr:hover td{background:rgba(255,255,255,.02);}
+.mono{font-family:var(--font-mono);font-size:.82rem;color:var(--accent3);}
+
+/* ── ERROR PANEL ─────────────────────────────────────────── */
+.err-sim-btns{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px;}
+.err-btn{padding:8px 18px;border-radius:8px;border:1px solid var(--border);
+  background:var(--surface2);color:var(--text);font-size:.84rem;font-weight:600;
+  cursor:pointer;transition:all .2s;}
+.err-btn:hover{border-color:var(--accent4);color:var(--accent4);}
+.err-btn.active{background:rgba(231,76,60,.15);border-color:var(--accent4);color:var(--accent4);}
+.err-panel{display:none;background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--radius);overflow:hidden;}
+.err-panel.active{display:block;animation:fadeIn .2s ease;}
+.err-hdr{display:flex;align-items:center;gap:10px;padding:12px 18px;
+  background:rgba(231,76,60,.12);border-bottom:1px solid var(--border);
+  font-size:.875rem;font-weight:700;color:var(--accent4);}
+.err-body{padding:20px;}
+.err-body h4{font-size:.9rem;font-weight:700;margin-bottom:8px;}
+.err-body p{font-size:.85rem;color:var(--text2);margin-bottom:12px;}
+.err-msg{font-family:var(--font-mono);font-size:.8rem;background:var(--code-bg);
+  border:1px solid rgba(231,76,60,.3);border-radius:7px;padding:12px 16px;
+  color:#ff6b6b;margin-bottom:14px;white-space:pre;overflow-x:auto;}
+.code-diff{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0;}
+.diff-wrong,.diff-right{border-radius:8px;overflow:hidden;border:1px solid var(--border);}
+.diff-lbl{padding:7px 12px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
+.diff-wrong .diff-lbl{background:rgba(231,76,60,.15);color:var(--accent4);}
+.diff-right .diff-lbl{background:rgba(88,214,141,.15);color:var(--accent3);}
+.diff-code{padding:12px 14px;font-family:var(--font-mono);font-size:.8rem;background:var(--code-bg);line-height:1.7;color:#abb2bf;white-space:pre;}
+.fix-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(88,214,141,.1);
+  border:1px solid rgba(88,214,141,.3);color:var(--accent3);border-radius:6px;
+  padding:5px 12px;font-size:.82rem;font-weight:600;margin-top:4px;}
+
+/* ── QUIZ ───────────────────────────────────────────────── */
+.quiz-container{display:flex;flex-direction:column;gap:24px;}
+.quiz-block{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:22px 24px;}
+.quiz-num{font-size:.72rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;}
+.quiz-q{font-weight:700;font-size:.92rem;margin-bottom:14px;line-height:1.5;}
+.quiz-opts{display:flex;flex-direction:column;gap:9px;}
+.quiz-opt{padding:10px 16px;border-radius:8px;border:1px solid var(--border);
+  background:var(--bg);font-size:.875rem;cursor:pointer;transition:all .2s;
+  display:flex;align-items:flex-start;gap:10px;text-align:left;}
+.quiz-opt:hover:not(.correct):not(.wrong){border-color:var(--accent2);background:rgba(79,163,224,.04);}
+.quiz-opt.correct{border-color:var(--accent3);background:rgba(88,214,141,.1);color:var(--accent3);pointer-events:none;}
+.quiz-opt.wrong{border-color:var(--accent4);background:rgba(231,76,60,.08);color:var(--accent4);pointer-events:none;}
+.quiz-opt.disabled{pointer-events:none;opacity:.5;}
+.quiz-feedback{margin-top:12px;font-size:.845rem;padding:10px 14px;border-radius:7px;display:none;}
+.quiz-feedback.show{display:block;animation:fadeIn .2s;}
+.quiz-feedback.correct{background:rgba(88,214,141,.1);color:var(--accent3);border:1px solid rgba(88,214,141,.25);}
+.quiz-feedback.wrong{background:rgba(231,76,60,.08);color:var(--accent4);border:1px solid rgba(231,76,60,.2);}
+.quiz-code{font-family:var(--font-mono);background:var(--code-bg);padding:1px 7px;
+  border-radius:4px;font-size:.85em;color:var(--text);border:1px solid var(--border);}
+.score-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);
+  padding:28px;text-align:center;display:none;margin-top:24px;}
+.score-box.show{display:block;animation:fadeIn .3s;}
+.score-num{font-size:3rem;font-weight:900;line-height:1;}
+.score-label{color:var(--text2);font-size:.9rem;margin-top:6px;margin-bottom:16px;}
+.btn-retake{background:var(--surface2);border:1px solid var(--border);color:var(--text);
+  border-radius:8px;padding:9px 24px;font-size:.875rem;font-weight:700;cursor:pointer;transition:all .2s;}
+.btn-retake:hover{border-color:var(--accent2);color:var(--accent2);}
+
+/* ── RESPONSIVE ─────────────────────────────────────────── */
+@media(max-width:700px){
+  .hero{flex-direction:column;padding:24px 20px;}
+  .tab-btn{padding:12px 11px;font-size:.77rem;}
+  .tab-content{padding:20px 16px;}
+  .hero-text h1{font-size:1.35rem;}
+  .code-diff{grid-template-columns:1fr;}
+}
+
+.course-nav{
+    position:sticky;
+    bottom:0;
+    background:var(--surface, var(--bg-primary));
+    z-index:999;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:12px;
+    margin-top:18px;
+    padding:14px 20px 12px;
+    border-top:.5px solid var(--border);
+}
+.course-nav-left,
+.course-nav-right{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+.course-nav a{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    text-decoration:none;
+    padding:7px 15px;
+    border:.5px solid var(--border);
+    border-radius:8px;
+    color:var(--text);
+    background:var(--surface2);
+    font-size:.86rem;
+    font-weight:600;
+    line-height:1.25;
+    transition:all .2s ease;
+}
+.course-nav a:hover{
+    border-color:var(--accent2);
+}
+.course-topic{
+    font-size:.8rem;
+    color:var(--text2);
+}
+
+/* ── PLAYGROUND LAYOUT ───────────────────────────────────── */
+.pg-layout{display:grid;grid-template-columns:1.1fr 0.9fr;gap:20px;margin-top:16px;}
+@media(max-width:900px){.pg-layout{grid-template-columns:1fr;}}
+.pg-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;}
+.pg-title{font-size:1rem;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);padding-bottom:8px;}
+.pg-test-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin-bottom:12px;display:flex;flex-direction:column;gap:10px;}
+.pg-test-hdr{display:flex;justify-content:space-between;align-items:center;}
+.pg-method-name{font-family:var(--font-mono);font-size:0.85rem;font-weight:700;color:var(--accent2);}
+.pg-controls-row{display:flex;gap:15px;align-items:center;flex-wrap:wrap;}
+.pg-control-item{display:flex;align-items:center;gap:6px;font-size:0.78rem;}
+.pg-select{background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:3px 6px;font-family:var(--font-mono);font-size:0.75rem;outline:none;}
+.pg-checkbox{cursor:pointer;}
+.pg-btn-run{background:linear-gradient(135deg,var(--accent3),#239b56);color:#fff;border:none;border-radius:6px;padding:8px 16px;font-weight:700;font-size:0.82rem;cursor:pointer;transition:transform 0.2s;}
+.pg-btn-run:hover{transform:translateY(-1px);}
+.pg-btn-run:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+.pg-btn-reset{background:none;border:1px solid var(--border);color:var(--text2);border-radius:6px;padding:8px 16px;font-weight:700;font-size:0.82rem;cursor:pointer;transition:all 0.2s;}
+.pg-btn-reset:hover{border-color:var(--text);color:var(--text);}
+.pg-queue-container{display:flex;flex-direction:column;gap:6px;margin-top:10px;min-height:120px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px;}
+.pg-queue-item{display:flex;align-items:center;justify-content:between;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 12px;font-size:0.8rem;font-family:var(--font-mono);animation:fadeIn 0.2s;}
+.pg-queue-item-meta{display:flex;gap:8px;margin-left:auto;}
+.pg-tag{font-size:0.65rem;font-weight:700;padding:1px 6px;border-radius:4px;text-transform:uppercase;}
+.pg-tag-prio{background:rgba(248,152,32,0.15);color:var(--accent);}
+.pg-tag-grp{background:rgba(79,163,224,0.15);color:var(--accent2);}
+.pg-status-pill{font-size:0.7rem;font-weight:700;padding:2px 8px;border-radius:10px;margin-left:8px;}
+.pg-status-pending{background:rgba(139,148,158,0.15);color:var(--text2);}
+.pg-status-running{background:rgba(79,163,224,0.2);color:var(--accent2);animation:pulse 1s infinite alternate;}
+.pg-status-pass{background:rgba(88,214,141,0.2);color:var(--accent3);}
+@keyframes pulse{from{opacity:0.6;}to{opacity:1;}}
+
+/* ── INTERACTIVE DIAGRAMS ─────────────────────────────────── */
+.diagram-container{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin:18px 0;text-align:center;}
+.diagram-flex{display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:wrap;margin-top:15px;}
+.diag-node{background:var(--surface);border:2px solid var(--border);border-radius:8px;padding:10px 14px;font-family:var(--font-mono);font-size:0.82rem;min-width:110px;transition:all 0.3s;}
+.diag-node.active{border-color:var(--accent2);box-shadow:0 0 10px rgba(79,163,224,0.3);}
+.diag-arrow{color:var(--text2);font-weight:700;font-size:1.1rem;}
+</style>
+</head>
+<body>
+<header>
+<div class="logo">
+<div class="logo-icon">Te</div>
+    TestNG Training
+</div>
+<button id="themeToggle" onclick="toggleTheme()">🌙 Dark</button>
+</header>
+
+<div class="container">
+  <div class="breadcrumb-row">
+    <div class="breadcrumb">
+      Automation Series <span style="color:var(--border)">›</span> Week 4 <span style="color:var(--border)">›</span> <span>TestNG Priorities & Groups</span>
+    </div>
+    <span class="watermark">Ronak Shah — Automation Training Content</span>
+  </div>
+
+<div class="hero">
+<div class="hero-icon">⚙️</div>
+<div class="hero-text">
+<h1>Test Execution Control (<span>Priority &amp; Groups</span>)</h1>
+<p>Master how enterprise projects control execution flow, isolate smoke runs, handle regressions, and control test sequence using TestNG annotations.</p>
+<div class="hero-pills">
+<span class="pill pill-orange">🔢 Test Priority</span>
+<span class="pill pill-blue">🏷️ Custom Groups</span>
+<span class="pill pill-green">🎯 Selective Suites</span>
+<span class="pill pill-purple">▶ Interactive Execution</span>
+</div>
+</div>
+</div>
+
+<div class="tabs-wrapper">
+<div class="tab-nav">
+<button class="tab-btn active" onclick="switchTab('intro',this)"><span>📖</span> Introduction</button>
+<button class="tab-btn" onclick="switchTab('priority',this)"><span>🔢</span> Priorities</button>
+<button class="tab-btn" onclick="switchTab('groups',this)"><span>🏷️</span> Groups</button>
+<button class="tab-btn" onclick="switchTab('playground',this)"><span>▶</span> Live Playground</button>
+<button class="tab-btn" onclick="switchTab('examples',this)"><span>📁</span> Real World Examples</button>
+<button class="tab-btn" onclick="switchTab('mistakes',this)"><span>❌</span> Common Mistakes</button>
+<button class="tab-btn" onclick="switchTab('quiz',this)"><span>🧠</span> Quick Check</button>
+</div>
+
+<!-- ══════════════ TAB 1: INTRODUCTION ══════════════ -->
+<div class="tab-content active" id="tab-intro">
+<div class="section-title"><span class="dot"></span> Test Execution Control in Enterprise Architectures</div>
+<p class="section-sub">Why execution execution management matters and how TestNG resolves ordering limitations natively.</p>
+
+<div class="info-box blue">
+<span class="ib-icon">💡</span>
+<div><strong>The Enterprise Problem:</strong> In a real-world banking dashboard or e-commerce engine, you will easily build 1,000+ automation scripts. Running every single test during every minor pull-request build wastes compute, delays releases, and increases flaky failures. Test Execution Control lets you segment your testing into fast, logically prioritized suites.</div>
+</div>
+
+<div class="section-title" style="font-size:1rem"><span class="dot"></span> Default Execution Sequence (The Alphabetical Trap)</div>
+<p style="font-size:0.88rem;color:var(--text2);margin-bottom:14px">
+By default, TestNG does <strong>not</strong> execute tests in the order they are typed in the editor. Instead, it schedules execution alphabetically based on their method name. Let's see this visual trap below:
+</p>
+
+<!-- Alphabetical execution flow diagram -->
+<div class="diagram-container">
+  <div style="font-size:0.8rem;font-weight:700;color:var(--text2);text-transform:uppercase;margin-bottom:12px">Natural Written Code Order</div>
+  <div class="diagram-flex">
+    <div class="diag-node">1. checkOut()</div>
+    <div class="diag-arrow">→</div>
+    <div class="diag-node">2. loginUser()</div>
+    <div class="diag-arrow">→</div>
+    <div class="diag-node">3. selectItem()</div>
+  </div>
+  <div style="font-size:0.8rem;font-weight:700;color:var(--accent4);text-transform:uppercase;margin-top:20px;margin-bottom:12px">Actual TestNG Execution Order (Alphabetical)</div>
+  <div class="diagram-flex">
+    <div class="diag-node" style="border-color:var(--accent4)">checkOut()</div>
+    <div class="diag-arrow">→</div>
+    <div class="diag-node" style="border-color:var(--accent4)">loginUser()</div>
+    <div class="diag-arrow">→</div>
+    <div class="diag-node" style="border-color:var(--accent4)">selectItem()</div>
+  </div>
+  <p style="font-size:0.78rem;color:var(--text2);margin-top:14px">Result: <code>checkOut()</code> executes first, and immediately throws a <code>NullPointerException</code> or fails because the user is not logged in yet!</p>
+</div>
+
+<div class="section-title" style="font-size:1.1rem;margin-top:24px"><span class="dot"></span> Segmenting Suites: Smoke vs. Sanity vs. Regression</div>
+<p class="section-sub">Enterprise release pipelines depend on highly segregated suites to move fast without losing build quality.</p>
+<div class="cards">
+  <div class="card">
+    <div class="card-icon">🔥</div>
+    <h3>Smoke Testing</h3>
+    <p>Verifies the absolute core critical flows. E.g., Can a user log in to the banking application and check balance? If this fails, the build is rejected instantly.</p>
+  </div>
+  <div class="card">
+    <div class="card-icon">🩺</div>
+    <h3>Sanity Testing</h3>
+    <p>Verifies specific components after a localized hotfix or release update. E.g., Checking if password reset validation works correctly after an identity update.</p>
+  </div>
+  <div class="card">
+    <div class="card-icon">🏋️‍♂️</div>
+    <h3>Regression Testing</h3>
+    <p>The entire system check. Runs hundreds of scenarios to verify that secondary modules did not break. Often run overnight or during stage gates.</p>
+  </div>
+</div>
+
+<div class="section-title" style="font-size:1rem;margin-top:14px"><span class="dot"></span> How Priorities &amp; Groups Solve the Problem</div>
+<p style="font-size:0.88rem;color:var(--text2);margin-bottom:14px">
+TestNG offers two powerful tools to enforce proper operational logic:
+</p>
+<table class="compare-table">
+  <thead>
+    <tr>
+      <th>Feature</th>
+      <th>Priority</th>
+      <th>Groups</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="mono">Primary Scope</td>
+      <td>Controls exact micro-execution order *inside* a test class.</td>
+      <td>Categorizes test cases into broad logical modules for macro selection.</td>
+    </tr>
+    <tr>
+      <td class="mono">Configuration Value</td>
+      <td>Integer numbers: e.g., <code class="quiz-code">priority = 1</code></td>
+      <td>String tags: e.g., <code class="quiz-code">groups = {"smoke", "banking"}</code></td>
+    </tr>
+    <tr>
+      <td class="mono">Execution Filtering</td>
+      <td>Does not filter out tests, only alters order of execution.</td>
+      <td>Allows running or excluding entire chunks of tests via XML config.</td>
+    </tr>
+    <tr>
+      <td class="mono">Common Use Case</td>
+      <td>Simulating workflow dependencies (Login → Book Flight → Assert PDF).</td>
+      <td>Running critical "Smoke" suites on PR merges, "Regression" on release days.</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="info-box green" style="margin-top:20px">
+<span class="ib-icon">✅</span>
+<div><strong>Best Practice Strategy:</strong> Keep priorities local. Do not try to maintain a giant sequence of priorities spanning across multiple classes. For cross-class segmentations, use <strong>Groups</strong> mapped through your <code>testng.xml</code> file.</div>
+</div>
+</div>
+
+<!-- ══════════════ TAB 2: PRIORITIES ══════════════ -->
+<div class="tab-content" id="tab-priority">
+<div class="section-title"><span class="dot"></span> Enforcing Order with Priorities</div>
+<p class="section-sub">Learn how negative, positive, duplicate, and default priority rules shape TestNG execution.</p>
+
+<div class="section-title" style="font-size:1rem"><span class="dot"></span> Priority Sequence Rules</div>
+<div class="iter-steps">
+  <div class="iter-row">
+    <div class="iter-num">1</div>
+    <div class="iter-body">
+      <h4>Default Priority is 0</h4>
+      <p>If you don't explicitly declare a priority, the test has an implicit priority of <code>0</code>. An unprioritized test runs *before* positive priority tests but *after* negative priority tests.</p>
+    </div>
+  </div>
+  <div class="iter-row">
+    <div class="iter-num">2</div>
+    <div class="iter-body">
+      <h4>Negative Priorities are Executed First</h4>
+      <p>Because negative numbers are smaller than positive numbers, a test with <code class="quiz-code">priority = -5</code> executes before a test with <code class="quiz-code">priority = -1</code> or <code class="quiz-code">priority = 0</code>.</p>
+    </div>
+  </div>
+  <div class="iter-row">
+    <div class="iter-num">3</div>
+    <div class="iter-body">
+      <h4>Tie Breakers fall back to Alphabetical Order</h4>
+      <p>If two tests share the same priority, TestNG defaults to running those two tests in alphabetical order by method name.</p>
+    </div>
+  </div>
+</div>
+
+<div class="section-title" style="font-size:1rem;margin-top:24px"><span class="dot"></span> Execution Flow Timeline</div>
+<div class="diagram-container">
+  <div style="font-size:0.8rem;font-weight:700;color:var(--text2);text-transform:uppercase;margin-bottom:12px">Execution Timeline Order</div>
+  <div class="diagram-flex">
+    <div class="diag-node" style="border-color:var(--accent4)">-2: initDatabase()</div>
+    <div class="diag-arrow">→</div>
+    <div class="diag-node" style="border-color:var(--accent)">0: checkAppHeartbeat()</div>
+    <div class="diag-arrow">→</div>
+    <div class="diag-node" style="border-color:var(--accent2)">1: loginAccount()</div>
+    <div class="diag-arrow">→</div>
+    <div class="diag-node" style="border-color:var(--accent3)">2: performTransaction()</div>
+  </div>
+</div>
+
+<div class="section-title" style="font-size:1rem;margin-top:20px"><span class="dot"></span> Code Example: Flight Booking Sequence</div>
+<div class="code-wrap">
+<div class="code-header"><div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><span class="code-lang">☕ FlightBookingTest.java</span></div>
+<pre class="code-pre"><span class="kw">package</span> com.enterprise.tests;
+
+<span class="kw">import</span> org.openqa.selenium.<span class="cls">WebDriver</span>;
+<span class="kw">import</span> org.openqa.selenium.chrome.<span class="cls">ChromeDriver</span>;
+<span class="kw">import</span> org.testng.annotations.<span class="cls">Test</span>;
+
+<span class="kw">public class</span> <span class="cls">FlightBookingTest</span> {
+
+    <span class="cls">WebDriver</span> driver;
+
+    <span class="cmt">// Priority -1: Setting up environment before any business login runs</span>
+    <span class="op">@</span><span class="cls">Test</span>(priority <span class="op">=</span> <span class="num">-1</span>)
+    <span class="kw">public void</span> <span class="fn">initEnvironment</span>() {
+        driver <span class="op">=</span> <span class="kw">new</span> <span class="cls">ChromeDriver</span>();
+        driver.<span class="fn">get</span>(<span class="str">"https://flight-booking-portal.com"</span>);
+    }
+
+    <span class="cmt">// Priority 0: Unspecified default priority is 0, so this runs after negative priority</span>
+    <span class="op">@</span><span class="cls">Test</span>
+    <span class="kw">public void</span> <span class="fn">verifyPortalLoading</span>() {
+        <span class="cls">String</span> pageTitle <span class="op">=</span> driver.<span class="fn">getTitle</span>();
+        <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Loaded: "</span> <span class="op">+</span> pageTitle);
+    }
+
+    <span class="cmt">// Priority 1: High level user flow must start with credentials authentication</span>
+    <span class="op">@</span><span class="cls">Test</span>(priority <span class="op">=</span> <span class="num">1</span>)
+    <span class="kw">public void</span> <span class="fn">loginToPortal</span>() {
+        <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Executing auth flow..."</span>);
+    }
+
+    <span class="cmt">// Priority 2: Searching flights only makes business sense once authentication finishes</span>
+    <span class="op">@</span><span class="cls">Test</span>(priority <span class="op">=</span> <span class="num">2</span>)
+    <span class="kw">public void</span> <span class="fn">searchFlights</span>() {
+        <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Searching outbound flight..."</span>);
+    }
+}</pre>
+</div>
+
+<div class="info-box orange">
+  <span class="ib-icon">⚠️</span>
+  <div><strong>Priority Limitation:</strong> Priorities only control execution order. They do <strong>not</strong> stop downstream tests if an earlier test fails. If <code class="quiz-code">loginToPortal()</code> fails, <code class="quiz-code">searchFlights()</code> will still execute and throw cascading exceptions. To block execution upon failure, use <code class="quiz-code">dependsOnMethods</code> instead of purely relying on priority!</div>
+</div>
+</div>
+
+<!-- ══════════════ TAB 3: GROUPS ══════════════ -->
+<div class="tab-content" id="tab-groups">
+<div class="section-title"><span class="dot"></span> Logical Grouping in Enterprise Frameworks</div>
+<p class="section-sub">Organize your tests into target modules that are perfectly executable via testng.xml suites.</p>
+
+<div class="info-box blue">
+  <span class="ib-icon">🔌</span>
+  <div><strong>What are Groups?</strong> Groups are custom tags assigned to test methods. Instead of dealing with simple integers, you tag test cases with semantic metadata tags like <code>"smoke"</code>, <code>"regression"</code>, <code>"billing"</code>, or <code>"payments"</code>.</div>
+</div>
+
+<div class="section-title" style="font-size:1rem"><span class="dot"></span> Enterprise XML Targeting</div>
+<p style="font-size:0.88rem;color:var(--text2);margin-bottom:14px">
+We trigger specific groups using our suite file. Below is a production configuration showing how to include the "smoke" category while entirely locking out any test flagged with "unstable" tags:
+</p>
+
+<div class="code-wrap">
+<div class="code-header"><div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><span class="code-lang">📄 testng.xml</span></div>
+<pre class="code-pre"><span class="xml-tag">&lt;!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd"&gt;</span>
+<span class="xml-tag">&lt;suite</span> <span class="xml-attr">name</span>=<span class="xml-val">"Enterprise Production Suite"</span><span class="xml-tag">&gt;</span>
+    <span class="xml-tag">&lt;test</span> <span class="xml-attr">name</span>=<span class="xml-val">"PR Verification Run"</span><span class="xml-tag">&gt;</span>
+        <span class="xml-tag">&lt;groups&gt;</span>
+            <span class="xml-tag">&lt;run&gt;</span>
+                <span class="cmt">&lt;!-- Target core critical features --&gt;</span>
+                <span class="xml-tag">&lt;include</span> <span class="xml-attr">name</span>=<span class="xml-val">"smoke"</span><span class="xml-tag">/&gt;</span>
+                <span class="xml-tag">&lt;include</span> <span class="xml-attr">name</span>=<span class="xml-val">"checkout"</span><span class="xml-tag">/&gt;</span>
+                
+                <span class="cmt">&lt;!-- Exclude absolute blocker/unstable bugs --&gt;</span>
+                <span class="xml-tag">&lt;exclude</span> <span class="xml-attr">name</span>=<span class="xml-val">"unstable"</span><span class="xml-tag">/&gt;</span>
+            <span class="xml-tag">&lt;/run&gt;</span>
+        <span class="xml-tag">&lt;/groups&gt;</span>
+        <span class="xml-tag">&lt;classes&gt;</span>
+            <span class="xml-tag">&lt;class</span> <span class="xml-attr">name</span>=<span class="xml-val">"com.enterprise.tests.ECommerceTestSuite"</span><span class="xml-tag">/&gt;</span>
+        <span class="xml-tag">&lt;/classes&gt;</span>
+    <span class="xml-tag">&lt;/test&gt;</span>
+<span class="xml-tag">&lt;/suite&gt;</span></pre>
+</div>
+
+<div class="info-box orange">
+  <span class="ib-icon">⚠️</span>
+  <div><strong>The Absolute Override Rule:</strong> If a test case belongs to both <code>"smoke"</code> and <code>"unstable"</code> groups, and you include <code>"smoke"</code> but exclude <code>"unstable"</code>, the **Exclude rule always wins**. TestNG will omit the test completely.</div>
+</div>
+
+<div class="section-title" style="font-size:1rem;margin-top:20px"><span class="dot"></span> Code Example: Multilayer Group tagging</div>
+<div class="code-wrap">
+<div class="code-header"><div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><span class="code-lang">☕ ECommerceTestSuite.java</span></div>
+<pre class="code-pre"><span class="kw">package</span> com.enterprise.tests;
+
+<span class="kw">import</span> org.testng.annotations.<span class="cls">Test</span>;
+
+<span class="kw">public class</span> <span class="cls">ECommerceTestSuite</span> {
+
+    <span class="cmt">// This test belongs to both "smoke" and "regression"</span>
+    <span class="op">@</span><span class="cls">Test</span>(groups <span class="op">=</span> {<span class="str">"smoke"</span>, <span class="str">"regression"</span>})
+    <span class="kw">public void</span> <span class="fn">validateLogin</span>() {
+        <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Executing critical login check..."</span>);
+    }
+
+    <span class="cmt">// This test is heavy, so it only sits in "regression"</span>
+    <span class="op">@</span><span class="cls">Test</span>(groups <span class="op">=</span> {<span class="str">"regression"</span>})
+    <span class="kw">public void</span> <span class="fn">deepHistoryReports</span>() {
+        <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Running deep reports..."</span>);
+    }
+
+    <span class="cmt">// Specific feature tag combined with stability tag</span>
+    <span class="op">@</span><span class="cls">Test</span>(groups <span class="op">=</span> {<span class="str">"checkout"</span>, <span class="str">"unstable"</span>})
+    <span class="kw">public void</span> <span class="fn">unstableCouponCalculation</span>() {
+        <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Validating buggy promo coupon API..."</span>);
+    }
+}</pre>
+</div>
+</div>
+
+<!-- ══════════════ TAB 4: LIVE PLAYGROUND ══════════════ -->
+<div class="tab-content" id="tab-playground">
+<div class="section-title"><span class="dot"></span> Test Execution Control Simulator</div>
+<p class="section-sub">Toggle priorities and select groups. Observe how TestNG organizes, schedules, and runs the queue.</p>
+
+<div class="pg-layout">
+  
+  <!-- Left Column: Test Configuration Controls -->
+  <div class="pg-panel">
+    <div class="pg-title">⚙️ Test Case Configuration Block</div>
+    
+    <!-- Test Case 1 -->
+    <div class="pg-test-card" id="tc-card-1">
+      <div class="pg-test-hdr">
+        <span class="pg-method-name">loginTest()</span>
+        <span class="pg-status-pill pg-status-pending" id="status-1">PENDING</span>
+      </div>
+      <div class="pg-controls-row">
+        <div class="pg-control-item">
+          <label>Priority:</label>
+          <select class="pg-select" id="prio-1" onchange="updateDynamicCode()">
+            <option value="-1">-1</option>
+            <option selected="" value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+          </select>
+        </div>
+        <div class="pg-control-item">
+          <label><input class="pg-checkbox" id="grp-smoke-1" type="checkbox" checked="" onchange="updateDynamicCode()"/> smoke</label>
+        </div>
+        <div class="pg-control-item">
+          <label><input class="pg-checkbox" id="grp-reg-1" type="checkbox" checked="" onchange="updateDynamicCode()"/> regression</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Test Case 2 -->
+    <div class="pg-test-card" id="tc-card-2">
+      <div class="pg-test-hdr">
+        <span class="pg-method-name">searchTest()</span>
+        <span class="pg-status-pill pg-status-pending" id="status-2">PENDING</span>
+      </div>
+      <div class="pg-controls-row">
+        <div class="pg-control-item">
+          <label>Priority:</label>
+          <select class="pg-select" id="prio-2" onchange="updateDynamicCode()">
+            <option value="-1">-1</option>
+            <option value="1">1</option>
+            <option selected="" value="2">2</option>
+            <option value="3">3</option>
+          </select>
+        </div>
+        <div class="pg-control-item">
+          <label><input class="pg-checkbox" id="grp-smoke-2" type="checkbox" onchange="updateDynamicCode()"/> smoke</label>
+        </div>
+        <div class="pg-control-item">
+          <label><input class="pg-checkbox" id="grp-reg-2" type="checkbox" checked="" onchange="updateDynamicCode()"/> regression</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Test Case 3 -->
+    <div class="pg-test-card" id="tc-card-3">
+      <div class="pg-test-hdr">
+        <span class="pg-method-name">cartTest()</span>
+        <span class="pg-status-pill pg-status-pending" id="status-3">PENDING</span>
+      </div>
+      <div class="pg-controls-row">
+        <div class="pg-control-item">
+          <label>Priority:</label>
+          <select class="pg-select" id="prio-3" onchange="updateDynamicCode()">
+            <option value="-1">-1</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option selected="" value="3">3</option>
+          </select>
+        </div>
+        <div class="pg-control-item">
+          <label><input class="pg-checkbox" id="grp-smoke-3" type="checkbox" onchange="updateDynamicCode()"/> smoke</label>
+        </div>
+        <div class="pg-control-item">
+          <label><input class="pg-checkbox" id="grp-reg-3" type="checkbox" checked="" onchange="updateDynamicCode()"/> regression</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Test Case 4 -->
+    <div class="pg-test-card" id="tc-card-4">
+      <div class="pg-test-hdr">
+        <span class="pg-method-name">checkoutTest()</span>
+        <span class="pg-status-pill pg-status-pending" id="status-4">PENDING</span>
+      </div>
+      <div class="pg-controls-row">
+        <div class="pg-control-item">
+          <label>Priority:</label>
+          <select class="pg-select" id="prio-4" onchange="updateDynamicCode()">
+            <option value="-1">-1</option>
+            <option selected="" value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+          </select>
+        </div>
+        <div class="pg-control-item">
+          <label><input class="pg-checkbox" id="grp-smoke-4" type="checkbox" checked="" onchange="updateDynamicCode()"/> smoke</label>
+        </div>
+        <div class="pg-control-item">
+          <label><input class="pg-checkbox" id="grp-reg-4" type="checkbox" onchange="updateDynamicCode()"/> regression</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Group Filter Selectors -->
+    <div style="margin-top:20px;border-top:1px solid var(--border);padding-top:15px">
+      <h4 style="font-size:0.85rem;margin-bottom:10px">Global suite Filter settings (testng.xml)</h4>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <div>
+          <label style="font-size:0.75rem">Include Group:</label>
+          <select class="pg-select" id="filter-include" onchange="buildTestQueue()">
+            <option value="ALL">ALL (No filter)</option>
+            <option value="smoke">smoke</option>
+            <option value="regression">regression</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:0.75rem">Exclude Group:</label>
+          <select class="pg-select" id="filter-exclude" onchange="buildTestQueue()">
+            <option value="NONE">NONE</option>
+            <option value="smoke">smoke</option>
+            <option value="regression">regression</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-top:20px">
+      <button class="pg-btn-run" id="btn-run-pg" onclick="runPlayground()">▶ Run Test Suite</button>
+      <button class="pg-btn-reset" onclick="resetPlayground()">↺ Reset</button>
+    </div>
+  </div>
+
+  <!-- Right Column: Real-time Scheduled Queue & Logs -->
+  <div class="pg-panel" style="display:flex;flex-direction:column;gap:16px;">
+    <div>
+      <div class="pg-title">📋 Scheduled Queue (Enforced Order)</div>
+      <div class="pg-queue-container" id="queue-container">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+
+    <div>
+      <div class="pg-title">💻 Live Execution Log</div>
+      <div class="cmd-log" style="margin-bottom:0">
+        <div class="cmd-log-bar">
+          <span>CONSOLE OUTPUT</span>
+          <span id="pg-console-status">IDLE</span>
+        </div>
+        <div class="cmd-log-body" id="pg-console" style="min-height:100px;font-size:0.8rem">
+          // Waiting for execution build triggers...
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="pg-title">⚡ Generated Test Code</div>
+      <div class="code-wrap" style="margin:0">
+        <pre class="code-pre" id="dynamic-code" style="padding:12px;font-size:0.75rem"></pre>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ══════════════ TAB 5: REAL WORLD EXAMPLES ══════════════ -->
+<div class="tab-content" id="tab-examples">
+<div class="section-title"><span class="dot"></span> Real World Enterprise Architectures</div>
+<p class="section-sub">Production-grade suites for Banking and Checkout modules using TestNG.</p>
+
+<div class="section-title" style="font-size:1.05rem"><span class="dot"></span> Case Study: Banking Dashboard Suite</div>
+<p style="font-size:0.88rem;color:var(--text2);margin-bottom:14px">
+Let's analyze a complete script testing transaction transfers. The sequence relies heavily on priorities for strict chronological process simulation (Init portal → Authenticate user → Execute Transfer → Verification PDF).
+</p>
+
+<div class="code-wrap">
+<div class="code-header"><div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><span class="code-lang">☕ BankingDashboardTest.java</span></div>
+<pre class="code-pre"><span class="kw">package</span> com.banking.portal;
+
+<span class="kw">import</span> org.openqa.selenium.<span class="cls">WebDriver</span>;
+<span class="kw">import</span> org.openqa.selenium.chrome.<span class="cls">ChromeDriver</span>;
+<span class="kw">import</span> org.testng.annotations.<span class="cls">Test</span>;
+<span class="kw">import</span> org.testng.<span class="cls">Assert</span>;
+
+<span class="kw">public class</span> <span class="cls">BankingDashboardTest</span> {
+
+    <span class="cls">WebDriver</span> driver;
+
+    <span class="op">@</span><span class="cls">Test</span>(priority <span class="op">=</span> <span class="num">-1</span>, groups <span class="op">=</span> {<span class="str">"smoke"</span>})
+    <span class="kw">public void</span> <span class="fn">initSession</span>() {
+        driver <span class="op">=</span> <span class="kw">new</span> <span class="cls">ChromeDriver</span>();
+        driver.<span class="fn">get</span>(<span class="str">"https://secure.enterprisebanking.com"</span>);
+    }
+
+    <span class="op">@</span><span class="cls">Test</span>(priority <span class="op">=</span> <span class="num">1</span>, groups <span class="op">=</span> {<span class="str">"smoke"</span>})
+    <span class="kw">public void</span> <span class="fn">authenticateClient</span>() {
+        <span class="cmt">// Enter customer IDs and credentials safely</span>
+        <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Completing multifactor verification..."</span>);
+        <span class="cls">Assert</span>.<span class="fn">assertTrue</span>(<span class="kw">true</span>);
+    }
+
+    <span class="op">@</span><span class="cls">Test</span>(priority <span class="op">=</span> <span class="num">2</span>, groups <span class="op">=</span> {<span class="str">"regression"</span>})
+    <span class="kw">public void</span> <span class="fn">executeFundTransfer</span>() {
+        <span class="cmt">// Specific fund transfer business calculations</span>
+        <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Transferring standard payment balance..."</span>);
+    }
+
+    <span class="op">@</span><span class="cls">Test</span>(priority <span class="op">=</span> <span class="num">3</span>, groups <span class="op">=</span> {<span class="str">"regression"</span>})
+    <span class="kw">public void</span> <span class="fn">assertStatementPDF</span>() {
+        <span class="cmt">// Download receipts verification checks</span>
+        <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Validating generated ledger logs..."</span>);
+    }
+}</pre>
+</div>
+
+<div class="info-box blue">
+  <span class="ib-icon">🎤</span>
+  <div><strong>Interview Tip:</strong> When interviewers ask: <em>"How do you execute only Smoke tests in your pipeline?"</em>, explain that you map different logical components inside TestNG annotation groups (e.g. <code>groups = {"smoke"}</code>), then write a specific <code>testng-smoke.xml</code> configurations mapping the target runs. Your Maven plugin invokes this XML path natively via standard command-line options.</div>
+</div>
+</div>
+
+<!-- ══════════════ TAB 6: COMMON MISTAKES ══════════════ -->
+<div class="tab-content" id="tab-mistakes">
+<div class="section-title"><span class="dot"></span> Common Test Execution Control Mistakes</div>
+<p class="section-sub">Avoid these debugging traps inside custom enterprise test suites.</p>
+
+<div class="err-sim-btns">
+<button class="err-btn active" onclick="showErr('dup',this)">⚠ Duplicate Priorities</button>
+<button class="err-btn" onclick="showErr('xml',this)">⚠ XML Group Typo</button>
+<button class="err-btn" onclick="showErr('mix',this)">⚠ Mixing Priority/Groups</button>
+</div>
+
+<!-- Error Block 1 -->
+<div class="err-panel active" id="err-dup">
+<div class="err-hdr">🔴 Error: Duplicate Priorities without alphabetical checks</div>
+<div class="err-body">
+  <h4>What happened?</h4>
+  <p>Two critical dependencies are given the same priority value. Rather than running in order of declaration, TestNG executes them alphabetically, which can cause unexpected errors.</p>
+  <div class="err-msg">java.lang.AssertionError: expected [true] but found [false] (Because searchUser ran before createUser)</div>
+  <div class="code-diff">
+    <div class="diff-wrong">
+      <div class="diff-lbl">❌ Wrong (Relying on sequence layout)</div>
+      <div class="diff-code"><span class="op">@</span><span class="cls">Test</span>(priority <span class="op">=</span> <span class="num">1</span>)
+<span class="kw">public void</span> <span class="fn">searchUser</span>() { <span class="cmt">// Runs first!</span>
+    <span class="cmt">// Fails since user creation is pending</span>
+}
+
+<span class="op">@</span><span class="cls">Test</span>(priority <span class="op">=</span> <span class="num">1</span>)
+<span class="kw">public void</span> <span class="fn">createUser</span>() {
+    <span class="cmt">// Code for creating user</span>
+}</div>
+    </div>
+    <div class="diff-right">
+      <div class="diff-lbl">✅ Correct</div>
+      <div class="diff-code"><span class="op">@</span><span class="cls">Test</span>(priority <span class="op">=</span> <span class="num">1</span>)
+<span class="kw">public void</span> <span class="fn">createUser</span>() {
+    <span class="cmt">// Code for creating user</span>
+}
+
+<span class="op">@</span><span class="cls">Test</span>(priority <span class="op">=</span> <span class="num">2</span>)
+<span class="kw">public void</span> <span class="fn">searchUser</span>() {
+    <span class="cmt">// Search after creation</span>
+}</div>
+    </div>
+  </div>
+  <div class="fix-tag">✅ Fix: Ensure distinct execution sequences for dependent workflows, or utilize the `dependsOnMethods` attribute.</div>
+</div>
+</div>
+
+<!-- Error Block 2 -->
+<div class="err-panel" id="err-xml">
+<div class="err-hdr">🔴 Error: Silent Ignored Runs via Case-Sensitive Typos</div>
+<div class="err-body">
+  <h4>What happened?</h4>
+  <p>XML filters are case-sensitive. If you declare a group as <code class="quiz-code">"Smoke"</code> but target <code class="quiz-code">"smoke"</code> in the class, TestNG silently skips execution, resulting in zero tests run.</p>
+  <div class="err-msg">[TestNG] [WARN] No tests found in your execution selection.</div>
+  <div class="code-diff">
+    <div class="diff-wrong">
+      <div class="diff-lbl">❌ Mismatched Casing</div>
+      <div class="diff-code"><span class="cmt">// In Java Class</span>
+<span class="op">@</span><span class="cls">Test</span>(groups <span class="op">=</span> {<span class="str">"Smoke"</span>})
+
+<span class="cmt">// In XML Configuration</span>
+<span class="xml-tag">&lt;include</span> <span class="xml-attr">name</span>=<span class="xml-val">"smoke"</span><span class="xml-tag">/&gt;</span></div>
+    </div>
+    <div class="diff-right">
+      <div class="diff-lbl">✅ Correct Casing Match</div>
+      <div class="diff-code"><span class="cmt">// In Java Class</span>
+<span class="op">@</span><span class="cls">Test</span>(groups <span class="op">=</span> {<span class="str">"smoke"</span>})
+
+<span class="cmt">// In XML Configuration</span>
+<span class="xml-tag">&lt;include</span> <span class="xml-attr">name</span>=<span class="xml-val">"smoke"</span><span class="xml-tag">/&gt;</span></div>
+    </div>
+  </div>
+  <div class="fix-tag">✅ Fix: Always use lowercase naming standards across both Java code declarations and XML suite targets.</div>
+</div>
+</div>
+
+<!-- Error Block 3 -->
+<div class="err-panel" id="err-mix">
+<div class="err-hdr">🔴 Error: Mixing Unrelated Tests into One priority sequence</div>
+<div class="err-body">
+  <h4>What happened?</h4>
+  <p>Using priorities globally across multiple files often leads to maintenance headaches and scheduling issues. This makes the codebase rigid and fragile when adding new tests.</p>
+  <div class="code-diff">
+    <div class="diff-wrong">
+      <div class="diff-lbl">❌ Global Priority Sequence</div>
+      <div class="diff-code"><span class="cmt">// File 1</span>
+<span class="op">@</span><span class="cls">Test</span>(priority <span class="op">=</span> <span class="num">101</span>)
+<span class="cmt">// File 2</span>
+<span class="op">@</span><span class="cls">Test</span>(priority <span class="op">=</span> <span class="num">102</span>)</div>
+    </div>
+    <div class="diff-right">
+      <div class="diff-lbl">✅ Target modular flows instead</div>
+      <div class="diff-code"><span class="cmt">// Use Groups for modular suites</span>
+<span class="op">@</span><span class="cls">Test</span>(groups <span class="op">=</span> {<span class="str">"smoke"</span>})</div>
+    </div>
+  </div>
+  <div class="fix-tag">✅ Fix: Use priorities only within a single class to control sequential actions, and rely on groups to define broader test suites.</div>
+</div>
+</div>
+</div>
+
+<!-- ══════════════ TAB 7: QUIZ ══════════════ -->
+<div class="tab-content" id="tab-quiz">
+<div class="section-title"><span class="dot"></span> Quick Check Quiz</div>
+<p class="section-sub">Test your understanding of TestNG priorities, groups, and suite configurations.</p>
+
+<div class="quiz-container">
+  
+  <!-- Q1 -->
+  <div class="quiz-block">
+    <div class="quiz-num">Question 1 of 10</div>
+    <div class="quiz-q">What is the default execution order in TestNG if no priority values are defined?</div>
+    <div class="quiz-opts">
+      <div class="quiz-opt" onclick="answerQ(1,this,false)">⬜ Order of declaration inside the Java file</div>
+      <div class="quiz-opt" onclick="answerQ(1,this,true)">⬜ Alphabetical order by the test method names</div>
+      <div class="quiz-opt" onclick="answerQ(1,this,false)">⬜ Random execution order based on runtime threads</div>
+    </div>
+    <div class="quiz-feedback" id="qf1"></div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="quiz-block">
+    <div class="quiz-num">Question 2 of 10</div>
+    <div class="quiz-q">Which priority runs first in a TestNG test suite?</div>
+    <div class="quiz-opts">
+      <div class="quiz-opt" onclick="answerQ(2,this,true)">⬜ @Test(priority = -1)</div>
+      <div class="quiz-opt" onclick="answerQ(2,this,false)">⬜ @Test(priority = 0)</div>
+      <div class="quiz-opt" onclick="answerQ(2,this,false)">⬜ @Test(priority = 1)</div>
+    </div>
+    <div class="quiz-feedback" id="qf2"></div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="quiz-block">
+    <div class="quiz-num">Question 3 of 10</div>
+    <div class="quiz-q">If two tests have the exact same priority value, how does TestNG break the tie?</div>
+    <div class="quiz-opts">
+      <div class="quiz-opt" onclick="answerQ(3,this,false)">⬜ It throws a DuplicatePriorityException</div>
+      <div class="quiz-opt" onclick="answerQ(3,this,true)">⬜ It falls back to alphabetical execution by method name</div>
+      <div class="quiz-opt" onclick="answerQ(3,this,false)">⬜ It skips both tests to prevent scheduling conflicts</div>
+    </div>
+    <div class="quiz-feedback" id="qf3"></div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="quiz-block">
+    <div class="quiz-num">Question 4 of 10</div>
+    <div class="quiz-q">How does priority affect a test's eligibility in a group-filtered execution suite?</div>
+    <div class="quiz-opts">
+      <div class="quiz-opt" onclick="answerQ(4,this,false)">⬜ Priority overrides group filters to force execution</div>
+      <div class="quiz-opt" onclick="answerQ(4,this,true)">⬜ Priority has no effect on filtering; it only schedules tests that match the group filters</div>
+      <div class="quiz-opt" onclick="answerQ(4,this,false)">⬜ Unprioritized tests are excluded from group execution by default</div>
+    </div>
+    <div class="quiz-feedback" id="qf4"></div>
+  </div>
+
+  <!-- Q5 -->
+  <div class="quiz-block">
+    <div class="quiz-num">Question 5 of 10</div>
+    <div class="quiz-q">Which tag takes precedence if a test belongs to both an included and an excluded group in your configuration?</div>
+    <div class="quiz-opts">
+      <div class="quiz-opt" onclick="answerQ(5,this,true)">⬜ The Exclude tag always takes absolute precedence</div>
+      <div class="quiz-opt" onclick="answerQ(5,this,false)">⬜ The Include tag takes precedence</div>
+      <div class="quiz-opt" onclick="answerQ(5,this,false)">⬜ TestNG runs the test but displays a warning log</div>
+    </div>
+    <div class="quiz-feedback" id="qf5"></div>
+  </div>
+
+  <!-- Q6 -->
+  <div class="quiz-block">
+    <div class="quiz-num">Question 6 of 10</div>
+    <div class="quiz-q">What is the risk of using priorities to simulate step-by-step test workflows?</div>
+    <div class="quiz-opts">
+      <div class="quiz-opt" onclick="answerQ(6,this,true)">⬜ If an early step fails, subsequent tests still execute with stale state and fail anyway</div>
+      <div class="quiz-opt" onclick="answerQ(6,this,false)">⬜ It makes tests run significantly slower</div>
+      <div class="quiz-opt" onclick="answerQ(6,this,false)">⬜ Priorities can only be assigned to positive numbers</div>
+    </div>
+    <div class="quiz-feedback" id="qf6"></div>
+  </div>
+
+  <!-- Q7 -->
+  <div class="quiz-block">
+    <div class="quiz-num">Question 7 of 10</div>
+    <div class="quiz-q">Which suite file structure is correct for running a specific group?</div>
+    <div class="quiz-opts">
+      <div class="quiz-opt" onclick="answerQ(7,this,false)">⬜ &lt;test&gt; &lt;group name="smoke"/&gt; &lt;/test&gt;</div>
+      <div class="quiz-opt" onclick="answerQ(7,this,true)">⬜ &lt;groups&gt; &lt;run&gt; &lt;include name="smoke"/&gt; &lt;/run&gt; &lt;/groups&gt;</div>
+      <div class="quiz-opt" onclick="answerQ(7,this,false)">⬜ &lt;run group="smoke"/&gt;</div>
+    </div>
+    <div class="quiz-feedback" id="qf7"></div>
+  </div>
+
+  <!-- Q8 -->
+  <div class="quiz-block">
+    <div class="quiz-num">Question 8 of 10</div>
+    <div class="quiz-q">How are custom group tags defined in your test classes?</div>
+    <div class="quiz-opts">
+      <div class="quiz-opt" onclick="answerQ(8,this,true)">⬜ @Test(groups = {"customTag"})</div>
+      <div class="quiz-opt" onclick="answerQ(8,this,false)">⬜ @Test(priority = "customTag")</div>
+      <div class="quiz-opt" onclick="answerQ(8,this,false)">⬜ @Group(name = "customTag")</div>
+    </div>
+    <div class="quiz-feedback" id="qf8"></div>
+  </div>
+
+  <!-- Q9 -->
+  <div class="quiz-block">
+    <div class="quiz-num">Question 9 of 10</div>
+    <div class="quiz-q">What is a key difference between priority and groups?</div>
+    <div class="quiz-opts">
+      <div class="quiz-opt" onclick="answerQ(9,this,false)">⬜ Groups only work with Chrome, while priorities are browser-agnostic</div>
+      <div class="quiz-opt" onclick="answerQ(9,this,true)">⬜ Priorities define micro-order execution sequence, while groups allow macro selection and filtering</div>
+      <div class="quiz-opt" onclick="answerQ(9,this,false)">⬜ Priorities are strings and groups are integers</div>
+    </div>
+    <div class="quiz-feedback" id="qf9"></div>
+  </div>
+
+  <!-- Q10 -->
+  <div class="quiz-block">
+    <div class="quiz-num">Question 10 of 10</div>
+    <div class="quiz-q">Which strategy is best for managing large enterprise regression suites?</div>
+    <div class="quiz-opts">
+      <div class="quiz-opt" onclick="answerQ(10,this,true)">⬜ Tag tests with functional groups and target them through distinct testng.xml configurations</div>
+      <div class="quiz-opt" onclick="answerQ(10,this,false)">⬜ Assign unique priorities to all 1,000+ tests globally across the project</div>
+      <div class="quiz-opt" onclick="answerQ(10,this,false)">⬜ Rename methods alphabetically to force execution order</div>
+    </div>
+    <div class="quiz-feedback" id="qf10"></div>
+  </div>
+
+</div>
+
+<div class="score-box" id="score-box">
+  <div class="score-num" id="score-num">0/10</div>
+  <div class="score-label" id="score-lbl"></div>
+  <button class="btn-retake" onclick="retakeQuiz()">↺ Retake Quiz</button>
+</div>
+</div>
+
+</div><!-- /tabs-wrapper -->
+
+<div class="course-nav">
+  <div class="course-nav-left">
+    <a href="w4_t3_testng_test_selection.html">← Previous</a>
+    <a href="../index.html">🏠 Home</a>
+  </div>
+  <div class="course-nav-right">
+    <a href="w4_t5_testng_test_dependencies.html">Next →</a>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<script>
+/* ══ THEME ══════════════════════════════════════════════════ */
+function toggleTheme(){
+  var h=document.documentElement,b=document.getElementById('themeToggle');
+  h.dataset.theme=h.dataset.theme==='dark'?'light':'dark';
+  b.textContent=h.dataset.theme==='dark'?'☀ Light':'🌙 Dark';
+}
+
+/* ══ TABS ════════════════════════════════════════════════════ */
+function switchTab(id,btn){
+  document.querySelectorAll('.tab-content').forEach(function(t){t.classList.remove('active');});
+  document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
+  document.getElementById('tab-'+id).classList.add('active');
+  btn.classList.add('active');
+  if(id === 'playground') {
+    updateDynamicCode();
+    buildTestQueue();
+  }
+}
+
+/* ══ ERROR TAB ══════════════════════════════════════════════ */
+function showErr(id,btn){
+  document.querySelectorAll('.err-panel').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.err-btn').forEach(function(b){b.classList.remove('active');});
+  document.getElementById('err-'+id).classList.add('active');btn.classList.add('active');
+}
+
+/* ══ PLAYGROUND SIMULATOR ═══════════════════════════════════ */
+var testCases = [
+  { id: 1, name: "loginTest", defaultPriority: 1, groups: ["smoke", "regression"] },
+  { id: 2, name: "searchTest", defaultPriority: 2, groups: ["regression"] },
+  { id: 3, name: "cartTest", defaultPriority: 3, groups: ["regression"] },
+  { id: 4, name: "checkoutTest", defaultPriority: 1, groups: ["smoke"] }
+];
+
+function updateDynamicCode() {
+  var codeEl = document.getElementById('dynamic-code');
+  var codeText = "public class EnterpriseSuite {\n\n";
+  
+  testCases.forEach(function(tc) {
+    var prio = document.getElementById('prio-' + tc.id).value;
+    var grps = [];
+    if(document.getElementById('grp-smoke-' + tc.id).checked) grps.push('"smoke"');
+    if(document.getElementById('grp-reg-' + tc.id).checked) grps.push('"regression"');
+    
+    var grpsStr = grps.length > 0 ? ", groups = {" + grps.join(", ") + "}" : "";
+    codeText += "    @Test(priority = " + prio + grpsStr + ")\n";
+    codeText += "    public void " + tc.name + "() {\n";
+    codeText += "        System.out.println(\"Executing " + tc.name + "...\");\n";
+    codeText += "    }\n\n";
+  });
+  
+  codeText += "}";
+  codeEl.textContent = codeText;
+  buildTestQueue();
+}
+
+var activeQueue = [];
+
+function buildTestQueue() {
+  var includeFilter = document.getElementById('filter-include').value;
+  var excludeFilter = document.getElementById('filter-exclude').value;
+  
+  activeQueue = [];
+  
+  testCases.forEach(function(tc) {
+    var prio = parseInt(document.getElementById('prio-' + tc.id).value);
+    var grps = [];
+    if(document.getElementById('grp-smoke-' + tc.id).checked) grps.push('smoke');
+    if(document.getElementById('grp-reg-' + tc.id).checked) grps.push('regression');
+    
+    var matchesInclude = (includeFilter === "ALL") || grps.includes(includeFilter);
+    var matchesExclude = (excludeFilter !== "NONE") && grps.includes(excludeFilter);
+    
+    if(matchesInclude && !matchesExclude) {
+      activeQueue.push({
+        id: tc.id,
+        name: tc.name,
+        priority: prio,
+        groups: grps
+      });
+    }
+  });
+  
+  // Sort by priority. Tiebreaker alphabetical.
+  activeQueue.sort(function(a, b) {
+    if(a.priority !== b.priority) {
+      return a.priority - b.priority;
+    }
+    return a.name.localeCompare(b.name);
+  });
+  
+  renderQueueHTML();
+}
+
+function renderQueueHTML() {
+  var container = document.getElementById('queue-container');
+  container.innerHTML = "";
+  
+  if(activeQueue.length === 0) {
+    container.innerHTML = "<div style='color:var(--text2);text-align:center;padding:20px 0;font-size:0.8rem;'>No active test matches your execution group settings.</div>";
+    return;
+  }
+  
+  activeQueue.forEach(function(tc, index) {
+    var div = document.createElement('div');
+    div.className = "pg-queue-item";
+    div.id = "queue-item-" + tc.id;
+    
+    var grpsTags = tc.groups.map(function(g) {
+      return "<span class='pg-tag pg-tag-grp'>" + g + "</span>";
+    }).join(" ");
+    
+    div.innerHTML = "<span>" + (index+1) + ". " + tc.name + "()</span>" +
+                    "<div class='pg-queue-item-meta'>" +
+                      "<span class='pg-tag pg-tag-prio'>Prio: " + tc.priority + "</span>" +
+                      grpsTags +
+                      "<span class='pg-status-pill pg-status-pending' id='qp-status-" + tc.id + "'>PENDING</span>" +
+                    "</div>";
+    container.appendChild(div);
+  });
+}
+
+var pgRunning = false;
+function runPlayground() {
+  if(pgRunning) return;
+  if(activeQueue.length === 0) {
+    alert("The queue is empty! Adjust filter settings to include some test methods.");
+    return;
+  }
+  pgRunning = true;
+  document.getElementById('btn-run-pg').disabled = true;
+  document.getElementById('pg-console-status').textContent = "RUNNING";
+  document.getElementById('pg-console-status').style.color = "var(--accent)";
+  
+  var consoleEl = document.getElementById('pg-console');
+  consoleEl.innerHTML = "<span style='color:var(--accent2)'>$ Initializing TestNG execution scheduler...</span>\n";
+  
+  var step = 0;
+  function executeNext() {
+    if(step >= activeQueue.length) {
+      consoleEl.innerHTML += "<span style='color:var(--accent3)'>[SUCCESS] All targeted suite elements run successfully.</span>\n";
+      document.getElementById('pg-console-status').textContent = "COMPLETED";
+      document.getElementById('pg-console-status').style.color = "var(--accent3)";
+      document.getElementById('btn-run-pg').disabled = false;
+      pgRunning = false;
+      return;
+    }
+    
+    var currentItem = activeQueue[step];
+    
+    // Update statuses
+    document.getElementById('status-' + currentItem.id).className = "pg-status-pill pg-status-running";
+    document.getElementById('status-' + currentItem.id).textContent = "RUNNING";
+    document.getElementById('qp-status-' + currentItem.id).className = "pg-status-pill pg-status-running";
+    document.getElementById('qp-status-' + currentItem.id).textContent = "RUNNING";
+    
+    consoleEl.innerHTML += "Executing " + currentItem.name + "() [Priority: " + currentItem.priority + "]\n";
+    consoleEl.scrollTop = consoleEl.scrollHeight;
+    
+    setTimeout(function() {
+      document.getElementById('status-' + currentItem.id).className = "pg-status-pill pg-status-pass";
+      document.getElementById('status-' + currentItem.id).textContent = "PASS";
+      document.getElementById('qp-status-' + currentItem.id).className = "pg-status-pill pg-status-pass";
+      document.getElementById('qp-status-' + currentItem.id).textContent = "PASS";
+      
+      consoleEl.innerHTML += "<span style='color:var(--accent3)'>→ " + currentItem.name + "() PASSED</span>\n";
+      consoleEl.scrollTop = consoleEl.scrollHeight;
+      step++;
+      executeNext();
+    }, 1200);
+  }
+  
+  executeNext();
+}
+
+function resetPlayground() {
+  if(pgRunning) return;
+  testCases.forEach(function(tc) {
+    document.getElementById('status-' + tc.id).className = "pg-status-pill pg-status-pending";
+    document.getElementById('status-' + tc.id).textContent = "PENDING";
+    document.getElementById('prio-' + tc.id).value = tc.defaultPriority;
+    
+    document.getElementById('grp-smoke-' + tc.id).checked = tc.groups.includes('smoke');
+    document.getElementById('grp-reg-' + tc.id).checked = tc.groups.includes('regression');
+  });
+  
+  document.getElementById('filter-include').value = "ALL";
+  document.getElementById('filter-exclude').value = "NONE";
+  
+  document.getElementById('pg-console').innerHTML = "// Waiting for execution build triggers...";
+  document.getElementById('pg-console-status').textContent = "IDLE";
+  document.getElementById('pg-console-status').style.color = "var(--text2)";
+  
+  updateDynamicCode();
+}
+
+/* ══ QUIZ SYSTEM ════════════════════════════════════════════ */
+var quizExp={
+  1:{c:'✅ Correct! By default, TestNG schedules unprioritized test runs alphabetically based on their method names, regardless of how they are written in the java file.',
+     w:'❌ Incorrect. TestNG does not use order of declaration or run-time thread order by default. It defaults to alphabetical sorting by method names.'},
+  2:{c:'✅ Correct! Negative numbers are evaluated first in Java integer order. A test case assigned to priority -1 executes before 0 or positive priorities.',
+     w:'❌ Incorrect. -1 is evaluated as smaller than 0 or positive integers, meaning it receives high scheduling precedence.'},
+  3:{c:'✅ Correct! When execution priorities are identical, TestNG breaks the tie alphabetically using the method names.',
+     w:'❌ Incorrect. TestNG does not skip tests or throw warnings on duplicate priority properties; it uses alphabetical order to break the tie.'},
+  4:{c:'✅ Correct! Group configurations inside testng.xml filter tests before scheduling. Priority values only control the execution order among the matching, included tests.',
+     w:'❌ Incorrect. Priority only controls execution order. If a test is filtered out by group settings, its priority is ignored.'},
+  5:{c:'✅ Correct! The XML exclusion rules always override inclusion rules. If a test case falls under an excluded group, it is omitted from execution.',
+     w:'❌ Incorrect. XML exclusion configurations always take absolute precedence over inclusions.'},
+  6:{c:'✅ Correct! Priority only orders test cases. If an early step fails, subsequent tests continue to run and fail on subsequent stale steps. Use dependsOnMethods to avoid this cascading issue.',
+     w:'❌ Incorrect. Speed is unaffected, and negatives are fully allowed. The main risk is that dependent failures still cascade down.'},
+  7:{c:'✅ Correct! This is the standard syntax structure used inside a testng.xml file to direct execution to target specific group tags.',
+     w:'❌ Incorrect. Group selectors require nesting within a run element under the groups tags.'},
+  8:{c:'✅ Correct! Custom groups are specified in the @Test annotation as an array of strings.',
+     w:'❌ Incorrect. TestNG maps custom tags through parameter declarations inside the standard @Test annotation brackets.'},
+  9:{c:'✅ Correct! Priority alters the micro execution order within a class, while groups define the macro components targeted for suite executions.',
+     w:'❌ Incorrect. Both can work with any driver and are standard properties within the @Test annotation configuration.'},
+  10:{c:'✅ Correct! Tagging tests with functional groups and managing runs via XML suites is the industry standard for scalable, clean, and reliable test execution control.',
+      w:'❌ Incorrect. RENAMING methods or assigning thousands of unique priority integers globally is fragile and unsustainable.'}
+};
+
+var qAns={},qCorrect=0;
+function answerQ(n,el,correct){
+  if(qAns[n]!==undefined)return;
+  qAns[n]=correct;if(correct)qCorrect++;
+  el.closest('.quiz-opts').querySelectorAll('.quiz-opt').forEach(function(o){o.classList.add('disabled');});
+  el.classList.add(correct?'correct':'wrong');
+  var fb=document.getElementById('qf'+n);
+  fb.innerHTML=correct?quizExp[n].c:quizExp[n].w;
+  fb.className='quiz-feedback show '+(correct?'correct':'wrong');
+  
+  var totalAnswered = Object.keys(qAns).length;
+  if(totalAnswered === 10) setTimeout(showScore,500);
+}
+
+function showScore(){
+  var box=document.getElementById('score-box'),num=document.getElementById('score-num'),lbl=document.getElementById('score-lbl');
+  num.textContent=qCorrect+'/10';
+  num.style.color=qCorrect===10?'var(--accent3)':qCorrect>=7?'var(--accent)':'var(--accent4)';
+  lbl.textContent=qCorrect===10?'🎉 Excellent! You have mastered TestNG execution control workflows.':
+    qCorrect>=7?'👍 Good progress! Review the mistakes and questions you missed.':' Revisit the Priorities and Groups content to improve your understanding.';
+  box.classList.add('show');
+}
+
+function retakeQuiz(){
+  qAns={};qCorrect=0;
+  document.getElementById('score-box').classList.remove('show');
+  document.querySelectorAll('.quiz-opt').forEach(function(o){o.className='quiz-opt';});
+  document.querySelectorAll('.quiz-feedback').forEach(function(f){f.className='quiz-feedback';f.innerHTML='';});
+}
+</script>
+</body>
+</html>

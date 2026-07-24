@@ -1,0 +1,1383 @@
+<!DOCTYPE html>
+
+<html data-theme="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Locators &amp; XPath Mastery</title>
+<style>
+/* ── TOKENS ─────────────────────────────────────────────── */
+:root {
+  --bg:#0d1117; --surface:#161b22; --surface2:#1f2937; --border:#30363d;
+  --accent:#f89820; --accent2:#4fa3e0; --accent3:#58d68d; --accent4:#e74c3c; --accent5:#c678dd;
+  --text:#e6edf3; --text2:#8b949e; --text3:#c9d1d9;
+  --tab-bg:#161b22; --tab-active:#1f2937; --code-bg:#0d1117;
+  --radius:10px; --font-mono:'Courier New',Courier,monospace; --sel:#43b02a;
+}
+[data-theme="light"]{
+  --bg:#f0f4f8; --surface:#ffffff; --surface2:#e8eef5; --border:#d1d9e0;
+  --text:#1a202c; --text2:#4a5568; --text3:#2d3748;
+  --tab-bg:#e8eef5; --tab-active:#ffffff; --code-bg:#e2e8f0;
+}
+[data-theme="light"] pre,[data-theme="light"] .code-pre{color:#1a202c;background:#e2e8f0;}
+[data-theme="light"] .quiz-code,[data-theme="light"] .card code,
+[data-theme="light"] .info-box code,[data-theme="light"] code{
+  background:#dde4ee;color:var(--text);border:1px solid var(--border);}
+[data-theme="light"] .kw{color:#7c3aed;}[data-theme="light"] .cls{color:#b45309;}
+[data-theme="light"] .fn{color:#1d4ed8;}[data-theme="light"] .str{color:#15803d;}
+[data-theme="light"] .cmt{color:#6b7280;}[data-theme="light"] .num{color:#c2410c;}
+[data-theme="light"] .op{color:#0369a1;}
+[data-theme="light"] .xt{color:#7c3aed;}[data-theme="light"] .xa{color:#b45309;}
+[data-theme="light"] .xv{color:#15803d;}[data-theme="light"] .xf{color:#1d4ed8;}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);
+  min-height:100vh;transition:background .3s,color .3s;line-height:1.65;
+  user-select:none;-webkit-user-select:none;}
+#watermark{position:fixed;bottom:14px;right:18px;font-size:.7rem;color:var(--text2);
+  opacity:.44;pointer-events:none;z-index:800;letter-spacing:.2px;white-space:nowrap;}
+
+/* ── HEADER ─────────────────────────────────────────────── */
+header{background:var(--surface);border-bottom:1px solid var(--border);
+  padding:0 32px;display:flex;align-items:center;justify-content:space-between;
+  height:62px;position:sticky;top:0;z-index:100;box-shadow:0 1px 0 var(--border);}
+.logo{display:flex;align-items:center;gap:10px;font-size:1.05rem;font-weight:700;}
+.logo-icon{width:32px;height:32px;border-radius:8px;
+  background:linear-gradient(135deg,#43b02a,#26890c);
+  display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:#fff;}
+.badge{font-size:.68rem;font-weight:600;padding:2px 8px;border-radius:20px;
+  background:var(--accent);color:#000;text-transform:uppercase;letter-spacing:.5px;}
+#themeToggle{background:var(--surface2);border:1px solid var(--border);color:var(--text);
+  border-radius:8px;padding:6px 14px;cursor:pointer;font-size:.85rem;transition:all .2s;}
+#themeToggle:hover{border-color:var(--accent);color:var(--accent);}
+
+/* ── LAYOUT ─────────────────────────────────────────────── */
+.container{max-width:1100px;margin:0 auto;padding:32px 20px 80px;}
+  /* ── BREADCRUMB ROW ─────────────────────────────────────── */
+.breadcrumb-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.breadcrumb{display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--text2);}
+.breadcrumb span{color:var(--accent2);font-weight:600;}
+.watermark{font-size:.7rem;color:var(--text2);opacity:.52;letter-spacing:.3px;
+  white-space:nowrap;font-weight:500;}
+
+/* ── HERO ───────────────────────────────────────────────── */
+.hero{background:linear-gradient(135deg,var(--surface),var(--surface2));
+  border:1px solid var(--border);border-radius:14px;padding:36px 40px;
+  margin-bottom:28px;display:flex;align-items:center;gap:28px;
+  position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:240px;height:240px;
+  border-radius:50%;background:radial-gradient(circle,rgba(248,152,32,.14) 0%,transparent 70%);pointer-events:none;}
+.hero-icon{font-size:64px;flex-shrink:0;filter:drop-shadow(0 4px 16px rgba(248,152,32,.4));}
+.hero-text h1{font-size:1.75rem;font-weight:800;line-height:1.2;}
+.hero-text h1 span{color:var(--accent);}
+.hero-text p{color:var(--text2);margin-top:8px;font-size:.95rem;}
+.hero-pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;}
+.pill{padding:4px 12px;border-radius:20px;font-size:.78rem;font-weight:600;
+  border:1px solid;display:flex;align-items:center;gap:5px;}
+.pill-orange{color:var(--accent);border-color:rgba(248,152,32,.35);background:rgba(248,152,32,.08);}
+.pill-blue{color:var(--accent2);border-color:rgba(79,163,224,.35);background:rgba(79,163,224,.08);}
+.pill-green{color:var(--accent3);border-color:rgba(88,214,141,.35);background:rgba(88,214,141,.08);}
+.pill-purple{color:var(--accent5);border-color:rgba(198,120,221,.35);background:rgba(198,120,221,.08);}
+
+ /* ── BREADCRUMB ROW ─────────────────────────────────────── */
+.breadcrumb-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.breadcrumb{display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--text2);}
+.breadcrumb span{color:var(--accent2);font-weight:600;}
+.watermark{font-size:.7rem;color:var(--text2);opacity:.52;letter-spacing:.3px;
+  white-space:nowrap;font-weight:500;}
+
+/* ── TABS ───────────────────────────────────────────────── */
+.tabs-wrapper{background:var(--tab-bg);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.tab-nav{display:flex;overflow-x:auto;border-bottom:1px solid var(--border);scrollbar-width:none;}
+.tab-nav::-webkit-scrollbar{display:none;}
+.tab-btn{flex-shrink:0;padding:13px 16px;background:none;border:none;color:var(--text2);
+  font-size:.82rem;font-weight:600;cursor:pointer;position:relative;transition:color .2s;
+  display:flex;align-items:center;gap:5px;}
+.tab-btn:hover{color:var(--text);}
+.tab-btn.active{color:var(--accent);background:var(--tab-active);}
+.tab-btn.active::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+  background:var(--accent);border-radius:2px 2px 0 0;}
+.tab-content{display:none;padding:32px;}
+.tab-content.active{display:block;animation:fadeIn .25s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ── SECTION ────────────────────────────────────────────── */
+.section-title{font-size:1.2rem;font-weight:800;margin-bottom:6px;display:flex;align-items:center;gap:9px;}
+.section-title .dot{width:10px;height:10px;border-radius:50%;background:var(--accent);}
+.section-sub{color:var(--text2);font-size:.9rem;margin-bottom:22px;}
+
+/* ── CARDS ──────────────────────────────────────────────── */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px;margin-bottom:28px;}
+.card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);
+  padding:20px;transition:border-color .2s,transform .2s;}
+.card:hover{border-color:var(--accent);transform:translateY(-2px);}
+.card-icon{font-size:1.6rem;margin-bottom:10px;}
+.card h3{font-size:.95rem;font-weight:700;margin-bottom:6px;}
+.card p{font-size:.83rem;color:var(--text2);line-height:1.55;}
+.card code{font-family:var(--font-mono);font-size:.78rem;background:var(--code-bg);
+  padding:1px 6px;border-radius:4px;color:var(--accent3);border:1px solid var(--border);}
+
+/* ── INFO BOX ───────────────────────────────────────────── */
+.info-box{border-radius:var(--radius);padding:16px 20px;font-size:.875rem;
+  margin-bottom:20px;border-left:4px solid;display:flex;gap:12px;align-items:flex-start;}
+.info-box .ib-icon{font-size:1.2rem;flex-shrink:0;margin-top:1px;}
+.info-box.blue{background:rgba(79,163,224,.1);border-color:var(--accent2);}
+.info-box.orange{background:rgba(248,152,32,.1);border-color:var(--accent);}
+.info-box.green{background:rgba(88,214,141,.1);border-color:var(--accent3);}
+.info-box.red{background:rgba(231,76,60,.1);border-color:var(--accent4);}
+.info-box code{font-family:var(--font-mono);font-size:.82rem;background:var(--code-bg);
+  padding:1px 6px;border-radius:4px;color:var(--accent3);border:1px solid var(--border);}
+
+/* ── CODE BLOCK ─────────────────────────────────────────── */
+.code-wrap{background:var(--code-bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin:16px 0;}
+.code-header{display:flex;align-items:center;justify-content:space-between;
+  padding:10px 16px;border-bottom:1px solid var(--border);background:rgba(255,255,255,.03);}
+.code-lang{font-size:.75rem;color:var(--text2);font-weight:600;}
+.code-dots{display:flex;gap:5px;}
+.code-dots span{width:11px;height:11px;border-radius:50%;}
+.code-dots .r{background:#ff5f57;}.code-dots .y{background:#ffbd2e;}.code-dots .g{background:#28c840;}
+.code-pre{padding:20px;overflow-x:auto;font-family:var(--font-mono);font-size:.85rem;line-height:1.75;color:#abb2bf;white-space:pre;}
+.kw{color:#c678dd;font-weight:600;}.cls{color:#e5c07b;}.fn{color:#61afef;}
+.str{color:#98c379;}.cmt{color:#5c6370;font-style:italic;}.num{color:#d19a66;}.op{color:#56b6c2;}
+/* XPath syntax colours */
+.xt{color:#e06c75;}.xa{color:#d19a66;}.xv{color:#98c379;}.xf{color:#61afef;}
+/* HTML colours */
+.ht{color:#e06c75;}.ha{color:#d19a66;}.hv{color:#98c379;}.hc{color:#5c6370;font-style:italic;}
+
+/* ── COMPARE TABLE ──────────────────────────────────────── */
+.compare-table{width:100%;border-collapse:collapse;font-size:.875rem;margin:16px 0;}
+.compare-table th{text-align:left;padding:10px 16px;background:var(--surface2);color:var(--text2);
+  font-weight:700;font-size:.78rem;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);}
+.compare-table td{padding:11px 16px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.compare-table tr:last-child td{border-bottom:none;}
+.compare-table tr:hover td{background:rgba(255,255,255,.02);}
+.mono{font-family:var(--font-mono);font-size:.82rem;color:var(--accent3);}
+.yes-cell{color:var(--accent3);font-weight:700;}
+.no-cell{color:var(--accent4);}
+
+/* ── LOCATOR MINI-CARDS ─────────────────────────────────── */
+.loc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin:18px 0 26px;}
+.loc-card{background:var(--surface2);border:2px solid var(--border);border-radius:var(--radius);
+  padding:18px;transition:all .2s;}
+.loc-card:hover{transform:translateY(-2px);}
+.loc-card.id-card{border-color:rgba(88,214,141,.4);}
+.loc-card.name-card{border-color:rgba(79,163,224,.4);}
+.loc-card.class-card{border-color:rgba(198,120,221,.4);}
+.loc-card.css-card{border-color:rgba(248,152,32,.4);}
+.loc-card.xpath-card{border-color:rgba(231,76,60,.4);}
+.lc-tag{font-size:.68rem;font-weight:700;padding:2px 8px;border-radius:5px;
+  text-transform:uppercase;letter-spacing:.4px;display:inline-block;margin-bottom:10px;}
+.tag-id{background:rgba(88,214,141,.15);color:var(--accent3);}
+.tag-name{background:rgba(79,163,224,.15);color:var(--accent2);}
+.tag-class{background:rgba(198,120,221,.15);color:var(--accent5);}
+.tag-css{background:rgba(248,152,32,.15);color:var(--accent);}
+.tag-xpath{background:rgba(231,76,60,.15);color:var(--accent4);}
+.loc-card h4{font-family:var(--font-mono);font-size:.9rem;font-weight:800;margin-bottom:5px;}
+.loc-card p{font-size:.8rem;color:var(--text2);line-height:1.5;margin-bottom:8px;}
+.loc-card .lc-ex{font-family:var(--font-mono);font-size:.76rem;background:var(--code-bg);
+  padding:6px 10px;border-radius:6px;border:1px solid var(--border);color:#abb2bf;white-space:pre;}
+
+/* ── CSS ANATOMY ────────────────────────────────────────── */
+.css-anatomy{background:var(--code-bg);border:1px solid var(--border);border-radius:var(--radius);
+  padding:24px;margin:18px 0;text-align:center;}
+.css-row{display:flex;align-items:flex-start;justify-content:center;flex-wrap:wrap;gap:4px;
+  font-size:1rem;font-family:var(--font-mono);}
+.css-part{display:inline-flex;flex-direction:column;align-items:center;}
+.css-token{padding:7px 12px;border-radius:8px;font-weight:700;font-size:.9rem;
+  border:2px solid transparent;cursor:default;transition:transform .15s;}
+.css-token:hover{transform:translateY(-2px);}
+.ct-tag{background:rgba(224,108,117,.18);border-color:rgba(224,108,117,.4);color:#e06c75;}
+.ct-id{background:rgba(88,214,141,.18);border-color:rgba(88,214,141,.4);color:#58d68d;}
+.ct-cls{background:rgba(198,120,221,.18);border-color:rgba(198,120,221,.4);color:#c678dd;}
+.ct-attr{background:rgba(248,152,32,.18);border-color:rgba(248,152,32,.4);color:#f89820;}
+.ct-punc{color:var(--text2);padding:7px 4px;font-size:.9rem;align-self:flex-start;margin-top:7px;}
+.css-label{font-family:'Segoe UI',sans-serif;font-size:.66rem;font-weight:700;
+  margin-top:8px;text-transform:uppercase;letter-spacing:.5px;color:var(--text2);}
+
+/* ── DOM TREE ───────────────────────────────────────────── */
+.dom-tree{background:var(--code-bg);border:1px solid var(--border);border-radius:var(--radius);
+  padding:20px 24px;font-family:var(--font-mono);font-size:.84rem;line-height:2;color:#abb2bf;}
+.dom-html{color:#e06c75;}
+.dom-attr{color:#d19a66;}
+.dom-val{color:#98c379;}
+.dom-text{color:#abb2bf;}
+.dom-indent1{padding-left:20px;}
+.dom-indent2{padding-left:40px;}
+.dom-indent3{padding-left:60px;}
+.dom-indent4{padding-left:80px;}
+.dom-highlight{background:rgba(248,152,32,.18);border-radius:4px;border:1px solid rgba(248,152,32,.4);
+  padding:0 4px;transition:all .3s;}
+.dom-highlight.lit{background:rgba(88,214,141,.18);border-color:rgba(88,214,141,.4);color:#58d68d;}
+
+/* ── ITER STEPS ─────────────────────────────────────────── */
+.iter-steps{display:flex;flex-direction:column;gap:10px;margin:16px 0;}
+.iter-row{display:flex;gap:14px;align-items:flex-start;background:var(--surface2);
+  border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;transition:border-color .2s;}
+.iter-row:hover{border-color:var(--accent);}
+.iter-num{flex-shrink:0;width:28px;height:28px;border-radius:50%;background:var(--accent);
+  color:#000;font-weight:800;font-size:.8rem;display:flex;align-items:center;justify-content:center;margin-top:1px;}
+.iter-body h4{font-size:.88rem;font-weight:700;margin-bottom:3px;}
+.iter-body p{font-size:.82rem;color:var(--text2);}
+.iter-body code{font-family:var(--font-mono);font-size:.8rem;background:var(--code-bg);
+  padding:1px 6px;border-radius:4px;color:var(--accent3);border:1px solid var(--border);}
+
+/* ── PLAYGROUND ─────────────────────────────────────────── */
+.playground{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+.pg-header{display:flex;align-items:center;justify-content:space-between;
+  padding:13px 20px;background:rgba(255,255,255,.03);border-bottom:1px solid var(--border);
+  font-weight:700;font-size:.88rem;}
+.pg-body{padding:24px;}
+.pg-row{display:grid;grid-template-columns:180px 1fr;gap:12px;margin-bottom:14px;align-items:center;}
+.pg-label{font-size:.82rem;font-weight:700;color:var(--text2);}
+.pg-select,.pg-input{width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--border);
+  background:var(--code-bg);color:var(--text);font-size:.88rem;font-family:var(--font-mono);
+  outline:none;transition:border-color .2s;}
+.pg-select:focus,.pg-input:focus{border-color:var(--accent);}
+.pg-select option{background:var(--surface);}
+
+/* Fake webpage in playground */
+.fake-page{background:var(--code-bg);border:1px solid var(--border);border-radius:var(--radius);
+  overflow:hidden;margin:18px 0;}
+.fake-page-bar{background:#1a1d23;padding:9px 14px;display:flex;align-items:center;
+  gap:10px;border-bottom:1px solid var(--border);}
+.fake-page-dots{display:flex;gap:5px;}
+.fpd{width:10px;height:10px;border-radius:50%;}
+.fpd.r{background:#ff5f57;}.fpd.y{background:#ffbd2e;}.fpd.g{background:#28c840;}
+.fake-page-url{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:5px;
+  padding:4px 10px;font-size:.76rem;color:var(--text2);font-family:var(--font-mono);}
+.fake-page-content{padding:24px 28px;position:relative;}
+.fp-element{border:2px dashed var(--border);border-radius:7px;padding:10px 14px;
+  margin-bottom:12px;transition:all .35s;position:relative;cursor:default;}
+.fp-element.highlighted{border-color:var(--accent3);background:rgba(88,214,141,.1);
+  box-shadow:0 0 0 3px rgba(88,214,141,.2);}
+.fp-element.not-matched{border-color:var(--accent4);background:rgba(231,76,60,.06);opacity:.5;}
+.fp-elem-label{font-size:.65rem;font-weight:700;color:var(--text2);text-transform:uppercase;
+  letter-spacing:.4px;position:absolute;top:-9px;left:10px;background:var(--code-bg);
+  padding:0 6px;border-radius:3px;}
+.fp-elem-label.matched{color:var(--accent3);background:rgba(88,214,141,.15);}
+.fp-input-fake{width:100%;max-width:280px;padding:8px 12px;border-radius:7px;
+  border:1px solid var(--border);background:var(--surface);color:var(--text2);
+  font-family:var(--font-mono);font-size:.84rem;pointer-events:none;}
+.fp-btn-fake{padding:9px 22px;border-radius:7px;background:var(--accent2);color:#fff;
+  font-weight:700;font-size:.84rem;border:none;pointer-events:none;}
+.fp-heading-fake{font-size:1.1rem;font-weight:800;color:var(--text);}
+
+/* Result pills */
+.result-pills{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px;min-height:34px;}
+.rpill{display:flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;
+  font-size:.82rem;font-weight:600;border:1px solid;animation:fadeIn .2s;}
+.rpill-success{background:rgba(88,214,141,.12);border-color:rgba(88,214,141,.4);color:var(--accent3);}
+.rpill-error{background:rgba(231,76,60,.12);border-color:rgba(231,76,60,.4);color:var(--accent4);}
+.rpill-info{background:rgba(79,163,224,.12);border-color:rgba(79,163,224,.4);color:var(--accent2);}
+.rpill-warn{background:rgba(248,152,32,.12);border-color:rgba(248,152,32,.4);color:var(--accent);}
+
+.pg-output{background:var(--code-bg);border:1px solid var(--border);border-radius:var(--radius);
+  padding:14px 18px;font-family:var(--font-mono);font-size:.85rem;min-height:70px;
+  line-height:1.75;color:#abb2bf;white-space:pre-wrap;word-break:break-word;transition:border-color .3s;}
+.pg-output.ok{border-color:rgba(88,214,141,.4);}
+.pg-output.err{border-color:rgba(231,76,60,.4);}
+
+.btn-validate{background:linear-gradient(135deg,var(--accent),#e05a00);color:#000;border:none;
+  border-radius:8px;padding:10px 26px;font-weight:800;font-size:.9rem;cursor:pointer;
+  transition:opacity .2s,transform .2s;display:flex;align-items:center;gap:8px;}
+.btn-validate:hover{opacity:.88;transform:translateY(-1px);}
+.btn-clear{background:none;border:1px solid var(--border);color:var(--text2);border-radius:8px;
+  padding:10px 18px;font-size:.875rem;cursor:pointer;transition:all .2s;}
+.btn-clear:hover{border-color:var(--text2);color:var(--text);}
+
+/* ── ERROR PANEL ─────────────────────────────────────────── */
+.err-sim-btns{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px;}
+.err-btn{padding:8px 18px;border-radius:8px;border:1px solid var(--border);
+  background:var(--surface2);color:var(--text);font-size:.84rem;font-weight:600;cursor:pointer;transition:all .2s;}
+.err-btn:hover{border-color:var(--accent4);color:var(--accent4);}
+.err-btn.active{background:rgba(231,76,60,.15);border-color:var(--accent4);color:var(--accent4);}
+.err-panel{display:none;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+.err-panel.active{display:block;animation:fadeIn .2s ease;}
+.err-hdr{display:flex;align-items:center;gap:10px;padding:12px 18px;
+  background:rgba(231,76,60,.12);border-bottom:1px solid var(--border);
+  font-size:.875rem;font-weight:700;color:var(--accent4);}
+.err-body{padding:20px;}
+.err-body h4{font-size:.9rem;font-weight:700;margin-bottom:8px;}
+.err-body p{font-size:.85rem;color:var(--text2);margin-bottom:12px;}
+.err-msg{font-family:var(--font-mono);font-size:.8rem;background:var(--code-bg);
+  border:1px solid rgba(231,76,60,.3);border-radius:7px;padding:12px 16px;
+  color:#ff6b6b;margin-bottom:14px;white-space:pre;overflow-x:auto;}
+.code-diff{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0;}
+.diff-wrong,.diff-right{border-radius:8px;overflow:hidden;border:1px solid var(--border);}
+.diff-lbl{padding:7px 12px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
+.diff-wrong .diff-lbl{background:rgba(231,76,60,.15);color:var(--accent4);}
+.diff-right .diff-lbl{background:rgba(88,214,141,.15);color:var(--accent3);}
+.diff-code{padding:12px 14px;font-family:var(--font-mono);font-size:.8rem;background:var(--code-bg);
+  line-height:1.7;color:#abb2bf;white-space:pre;}
+.fix-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(88,214,141,.1);
+  border:1px solid rgba(88,214,141,.3);color:var(--accent3);border-radius:6px;
+  padding:5px 12px;font-size:.82rem;font-weight:600;margin-top:4px;}
+
+/* ── QUIZ ───────────────────────────────────────────────── */
+.quiz-container{display:flex;flex-direction:column;gap:24px;}
+.quiz-block{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:22px 24px;}
+.quiz-num{font-size:.72rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;}
+.quiz-q{font-weight:700;font-size:.92rem;margin-bottom:14px;line-height:1.5;}
+.quiz-opts{display:flex;flex-direction:column;gap:9px;}
+.quiz-opt{padding:10px 16px;border-radius:8px;border:1px solid var(--border);background:var(--bg);
+  font-size:.875rem;cursor:pointer;transition:all .2s;display:flex;align-items:flex-start;gap:10px;text-align:left;}
+.quiz-opt:hover:not(.correct):not(.wrong){border-color:var(--accent);background:rgba(248,152,32,.04);}
+.quiz-opt.correct{border-color:var(--accent3);background:rgba(88,214,141,.1);color:var(--accent3);pointer-events:none;}
+.quiz-opt.wrong{border-color:var(--accent4);background:rgba(231,76,60,.08);color:var(--accent4);pointer-events:none;}
+.quiz-opt.disabled{pointer-events:none;opacity:.5;}
+.quiz-feedback{margin-top:12px;font-size:.845rem;padding:10px 14px;border-radius:7px;display:none;}
+.quiz-feedback.show{display:block;animation:fadeIn .2s;}
+.quiz-feedback.correct{background:rgba(88,214,141,.1);color:var(--accent3);border:1px solid rgba(88,214,141,.25);}
+.quiz-feedback.wrong{background:rgba(231,76,60,.08);color:var(--accent4);border:1px solid rgba(231,76,60,.2);}
+.quiz-code{font-family:var(--font-mono);background:var(--code-bg);padding:1px 7px;
+  border-radius:4px;font-size:.85em;color:var(--text);border:1px solid var(--border);}
+.score-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);
+  padding:28px;text-align:center;display:none;margin-top:24px;}
+.score-box.show{display:block;animation:fadeIn .3s;}
+.score-num{font-size:3rem;font-weight:900;line-height:1;}
+.score-label{color:var(--text2);font-size:.9rem;margin-top:6px;margin-bottom:16px;}
+.btn-retake{background:var(--surface2);border:1px solid var(--border);color:var(--text);
+  border-radius:8px;padding:9px 24px;font-size:.875rem;font-weight:700;cursor:pointer;transition:all .2s;}
+.btn-retake:hover{border-color:var(--accent);color:var(--accent);}
+
+/* ── XPATH PARTS ────────────────────────────────────────── */
+.xpath-anatomy{background:var(--code-bg);border:1px solid var(--border);border-radius:var(--radius);
+  padding:24px;margin:18px 0;}
+.xpath-row{display:flex;align-items:flex-start;justify-content:flex-start;flex-wrap:wrap;gap:4px;
+  font-size:1rem;font-family:var(--font-mono);margin-bottom:16px;}
+.xp-part{display:inline-flex;flex-direction:column;align-items:center;}
+.xp-token{padding:7px 12px;border-radius:8px;font-weight:700;font-size:.88rem;
+  border:2px solid transparent;cursor:default;transition:transform .15s;}
+.xp-token:hover{transform:translateY(-2px);}
+.xp-axis{background:rgba(224,108,117,.18);border-color:rgba(224,108,117,.4);color:#e06c75;}
+.xp-tag{background:rgba(229,192,123,.18);border-color:rgba(229,192,123,.4);color:#e5c07b;}
+.xp-bracket{color:var(--text2);padding:7px 3px;font-size:.88rem;}
+.xp-at{background:rgba(209,154,102,.18);border-color:rgba(209,154,102,.4);color:#d19a66;}
+.xp-val{background:rgba(152,195,121,.18);border-color:rgba(152,195,121,.4);color:#98c379;}
+.xp-fn{background:rgba(97,175,239,.18);border-color:rgba(97,175,239,.4);color:#61afef;}
+.xp-label{font-family:'Segoe UI',sans-serif;font-size:.65rem;font-weight:700;
+  margin-top:7px;text-transform:uppercase;letter-spacing:.5px;color:var(--text2);}
+.xpath-legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;justify-content:center;}
+.xleg{display:flex;align-items:center;gap:6px;font-size:.78rem;background:var(--surface2);
+  border:1px solid var(--border);border-radius:7px;padding:5px 12px;}
+.xleg-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+
+@media(max-width:700px){
+  .hero{flex-direction:column;padding:24px 20px;}
+  .tab-btn{padding:11px 10px;font-size:.76rem;}
+  .tab-content{padding:20px 16px;}
+  .hero-text h1{font-size:1.35rem;}
+  .code-diff{grid-template-columns:1fr;}
+  .loc-grid{grid-template-columns:1fr;}
+  .pg-row{grid-template-columns:1fr;}
+  .css-row{gap:6px;}
+}
+
+.course-nav{
+    position:sticky;
+    bottom:0;
+    background:var(--surface, var(--bg-primary));
+    z-index:999;
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:12px;
+
+    margin-top:18px;
+    padding:14px 20px 12px;
+
+    border-top:.5px solid var(--border);
+}
+
+.course-nav-left,
+.course-nav-right{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.course-nav a{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+
+    text-decoration:none;
+
+    padding:7px 15px;          /* Increased slightly */
+
+    border:.5px solid var(--border);
+    border-radius:8px;
+
+    color:var(--text);
+    background:var(--surface2);
+
+    font-size:.86rem;          /* Slightly larger than 12px */
+    font-weight:600;
+    line-height:1.25;
+
+    transition:all .2s ease;
+}
+
+.course-nav a:hover{
+    border-color:var(--accent2);
+}
+
+.course-topic{
+    font-size:.8rem;
+    color:var(--text2);
+}
+</style>
+</head>
+<body>
+<header>
+<div class="logo">
+<div class="logo-icon">Se</div>
+    Selenium Series  
+</div>
+<button id="themeToggle" onclick="toggleTheme()">🌙 Dark</button>
+</header>
+<div class="container">
+  <!-- BREADCRUMB -->
+  <div class="breadcrumb-row">
+    <div class="breadcrumb">
+      Automation Series <span style="color:var(--border)">›</span> Week 3 <span style="color:var(--border)">›</span> <span>Selenium Locators</span>
+    </div>
+    <span class="watermark">Ronak Shah — Automation Training Content</span>
+  </div>
+
+<div class="hero">
+<div class="hero-icon">🎯</div>
+<div class="hero-text">
+<h1>Locators &amp; <span>XPath</span> Mastery</h1>
+<p>Learn every strategy Selenium uses to find elements — from simple ID lookups to powerful dynamic XPath expressions.</p>
+<div class="hero-pills">
+<span class="pill pill-green">🎯 ID / Name / Class</span>
+<span class="pill pill-blue">🎨 CSS Selectors</span>
+<span class="pill pill-orange">⚡ XPath &amp; Dynamic</span>
+<span class="pill pill-purple">⚙ Live Playground</span>
+</div>
+</div>
+</div>
+<div class="tabs-wrapper">
+<div class="tab-nav">
+<button class="tab-btn active" onclick="switchTab('basics',this)"><span>📘</span> Basics</button>
+<button class="tab-btn" onclick="switchTab('idname',this)"><span>🎯</span> ID/Name/Class</button>
+<button class="tab-btn" onclick="switchTab('css',this)"><span>🎨</span> CSS</button>
+<button class="tab-btn" onclick="switchTab('xpath',this)"><span>🌐</span> XPath</button>
+<button class="tab-btn" onclick="switchTab('dynamic',this)"><span>⚡</span> Dynamic XPath</button>
+<button class="tab-btn" onclick="switchTab('playground',this)"><span>⚙</span> Playground</button>
+<button class="tab-btn" onclick="switchTab('errors',this)"><span>❌</span> Mistakes</button>
+<button class="tab-btn" onclick="switchTab('quiz',this)"><span>🧠</span> Quick Check</button>
+</div>
+<!-- ════════════ TAB 1: LOCATOR BASICS ════════════ -->
+<div class="tab-content active" id="tab-basics">
+<div class="section-title"><span class="dot"></span> What is a Locator?</div>
+<p class="section-sub">A locator is the strategy Selenium uses to identify a specific HTML element on a webpage. Without a locator, Selenium has no idea which element to interact with.</p>
+<div class="info-box orange">
+<span class="ib-icon">💡</span>
+<div><strong>Real-world analogy:</strong> Think of a webpage as a city and elements as buildings. A locator is the <em>address</em> you give Selenium so it can navigate directly to the right building — without wandering the entire city. A good locator is precise (goes to the right place) and stable (doesn't change when the city is redesigned).</div>
+</div>
+<div class="section-title" style="font-size:1rem;margin-top:4px"><span class="dot"></span> The DOM — Where Elements Live</div>
+<p class="section-sub" style="margin-bottom:14px">The DOM (Document Object Model) is the browser's internal representation of a webpage as a tree of elements. Selenium traverses this tree using locators to find elements.</p>
+<div class="dom-tree">
+<div><span class="dom-html">&lt;html&gt;</span></div>
+<div class="dom-indent1"><span class="dom-html">&lt;body&gt;</span></div>
+<div class="dom-indent2"><span class="dom-html">&lt;form <span class="dom-attr">id</span>=<span class="dom-val">"loginForm"</span>&gt;</span></div>
+<div class="dom-indent3"><span class="dom-html">&lt;input <span class="dom-attr">id</span>=<span class="dom-val">"username"</span> <span class="dom-attr">name</span>=<span class="dom-val">"userName"</span> <span class="dom-attr">class</span>=<span class="dom-val">"input-field"</span> <span class="dom-attr">type</span>=<span class="dom-val">"text"</span>&gt;</span></div>
+<div class="dom-indent3"><span class="dom-html">&lt;input <span class="dom-attr">id</span>=<span class="dom-val">"password"</span> <span class="dom-attr">name</span>=<span class="dom-val">"userPass"</span> <span class="dom-attr">type</span>=<span class="dom-val">"password"</span>&gt;</span></div>
+<div class="dom-indent3"><span class="dom-html">&lt;button <span class="dom-attr">id</span>=<span class="dom-val">"loginBtn"</span> <span class="dom-attr">class</span>=<span class="dom-val">"btn-primary"</span>&gt;</span><span class="dom-text">Login</span><span class="dom-html">&lt;/button&gt;</span></div>
+<div class="dom-indent2"><span class="dom-html">&lt;/form&gt;</span></div>
+<div class="dom-indent1"><span class="dom-html">&lt;/body&gt;</span></div>
+<div><span class="dom-html">&lt;/html&gt;</span></div>
+</div>
+<div class="section-title" style="font-size:1rem;margin-top:20px"><span class="dot"></span> One Element — Multiple Locator Strategies</div>
+<div class="code-wrap">
+<div class="code-header"><div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><span class="code-lang">HTML element</span></div>
+<pre class="code-pre"><span class="ht">&lt;input</span> <span class="ha">id</span>=<span class="hv">"username"</span> <span class="ha">name</span>=<span class="hv">"userName"</span> <span class="ha">class</span>=<span class="hv">"input-field"</span> <span class="ha">type</span>=<span class="hv">"text"</span> <span class="ha">placeholder</span>=<span class="hv">"Enter username"</span><span class="ht">&gt;</span></pre>
+</div>
+<div class="code-wrap">
+<div class="code-header"><div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><span class="code-lang">☕ All Locators Pointing to Same Element</span></div>
+<pre class="code-pre"><span class="cmt">// 1. By ID — fastest and most reliable</span>
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"username"</span>));
+
+<span class="cmt">// 2. By Name</span>
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">name</span>(<span class="str">"userName"</span>));
+
+<span class="cmt">// 3. By Class</span>
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">className</span>(<span class="str">"input-field"</span>));
+
+<span class="cmt">// 4. CSS Selector</span>
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">cssSelector</span>(<span class="str">"input#username"</span>));
+
+<span class="cmt">// 5. XPath</span>
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">xpath</span>(<span class="str">"//input[@id='username']"</span>));</pre>
+</div>
+<div class="section-title" style="font-size:1rem"><span class="dot"></span> Locator Priority — Which to Use When</div>
+<table class="compare-table">
+<thead><tr><th>Priority</th><th>Locator</th><th>Reliability</th><th>When to Use</th></tr></thead>
+<tbody>
+<tr><td><strong style="color:var(--accent3)">1st</strong></td><td class="mono">By.id()</td><td class="yes-cell">⭐⭐⭐⭐⭐ Best</td><td>When id is unique and stable</td></tr>
+<tr><td><strong style="color:var(--accent3)">2nd</strong></td><td class="mono">By.name()</td><td class="yes-cell">⭐⭐⭐⭐</td><td>Form inputs with stable name attributes</td></tr>
+<tr><td><strong style="color:var(--accent2)">3rd</strong></td><td class="mono">By.cssSelector()</td><td class="yes-cell">⭐⭐⭐⭐</td><td>When id/name unavailable — flexible</td></tr>
+<tr><td><strong style="color:var(--accent)">4th</strong></td><td class="mono">By.xpath()</td><td class="yes-cell">⭐⭐⭐</td><td>Complex elements, text-based, dynamic</td></tr>
+<tr><td><strong style="color:var(--accent4)">Last</strong></td><td class="mono">By.className()</td><td class="no-cell">⭐⭐</td><td>Avoid if class is shared across many elements</td></tr>
+</tbody>
+</table>
+</div>
+<!-- ════════════ TAB 2: ID / NAME / CLASS ════════════ -->
+<div class="tab-content" id="tab-idname">
+<div class="section-title"><span class="dot"></span> Simple Attribute Locators</div>
+<p class="section-sub">These three are the simplest locators — they match a specific attribute value on the element directly.</p>
+<div class="loc-grid">
+<div class="loc-card id-card">
+<span class="lc-tag tag-id">By.id()</span>
+<h4>ID Locator</h4>
+<p>Matches the element whose <code>id</code> attribute equals the given value. IDs are unique per page — making this the most reliable locator.</p>
+<div class="lc-ex"><span class="cmt">// HTML: &lt;input id="username"&gt;</span>
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"username"</span>));</div>
+</div>
+<div class="loc-card name-card">
+<span class="lc-tag tag-name">By.name()</span>
+<h4>Name Locator</h4>
+<p>Matches elements by their <code>name</code> attribute. Common in form inputs. Not always unique — multiple elements can share a name.</p>
+<div class="lc-ex"><span class="cmt">// HTML: &lt;input name="email"&gt;</span>
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">name</span>(<span class="str">"email"</span>));</div>
+</div>
+<div class="loc-card class-card">
+<span class="lc-tag tag-class">By.className()</span>
+<h4>Class Locator</h4>
+<p>Matches elements by CSS class name. Classes are often shared across many elements — use carefully and only when the class is specific enough.</p>
+<div class="lc-ex"><span class="cmt">// HTML: &lt;button class="btn-primary"&gt;</span>
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">className</span>(<span class="str">"btn-primary"</span>));</div>
+</div>
+</div>
+<div class="section-title" style="font-size:1rem"><span class="dot"></span> Complete Code Examples</div>
+<div class="code-wrap">
+<div class="code-header"><div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><span class="code-lang">☕ ID / Name / Class — Login Test</span></div>
+<pre class="code-pre"><span class="cls">WebDriver</span> driver <span class="op">=</span> <span class="kw">new</span> <span class="cls">ChromeDriver</span>();
+driver.<span class="fn">get</span>(<span class="str">"https://app.example.com/login"</span>);
+
+<span class="cmt">// By.id — preferred: unique per page</span>
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"username"</span>)).<span class="fn">sendKeys</span>(<span class="str">"admin"</span>);
+
+<span class="cmt">// By.name — form field with name attribute</span>
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">name</span>(<span class="str">"userPass"</span>)).<span class="fn">sendKeys</span>(<span class="str">"secret123"</span>);
+
+<span class="cmt">// By.className — button with specific class</span>
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">className</span>(<span class="str">"btn-primary"</span>)).<span class="fn">click</span>();
+
+<span class="cmt">// By.linkText — exact anchor text</span>
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">linkText</span>(<span class="str">"Forgot Password?"</span>)).<span class="fn">click</span>();
+
+<span class="cmt">// By.partialLinkText — partial anchor text</span>
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">partialLinkText</span>(<span class="str">"Forgot"</span>)).<span class="fn">click</span>();</pre>
+</div>
+<div class="section-title" style="font-size:1rem;margin-top:8px"><span class="dot"></span> Comparison</div>
+<table class="compare-table">
+<thead><tr><th>Locator</th><th>Unique?</th><th>Reliability</th><th>Best For</th><th>Pitfall</th></tr></thead>
+<tbody>
+<tr><td class="mono">By.id()</td><td class="yes-cell">✓ Yes (per spec)</td><td class="yes-cell">Excellent</td><td>Any element with a stable id</td><td>Dynamic ids (e.g. id="btn-1234")</td></tr>
+<tr><td class="mono">By.name()</td><td>Sometimes</td><td class="yes-cell">Good</td><td>Form inputs (username, email)</td><td>Multiple elements with same name</td></tr>
+<tr><td class="mono">By.className()</td><td class="no-cell">✗ Usually shared</td><td>Fair</td><td>When class is very specific</td><td>Multiple elements share class</td></tr>
+<tr><td class="mono">By.linkText()</td><td>If unique</td><td class="yes-cell">Good</td><td>Anchor tags with exact text</td><td>Text changes break it</td></tr>
+</tbody>
+</table>
+<div class="info-box orange">
+<span class="ib-icon">⚠</span>
+<div><strong>className() gotcha:</strong> If an element has multiple classes (<code>class="btn btn-primary large"</code>), you must pass ONLY ONE class to <code>By.className()</code>. Passing two classes will throw an error. Use <code>By.cssSelector()</code> for multiple classes: <code>".btn.btn-primary"</code>.</div>
+</div>
+</div>
+<!-- ════════════ TAB 3: CSS SELECTORS ════════════ -->
+<div class="tab-content" id="tab-css">
+<div class="section-title"><span class="dot"></span> CSS Selectors in Selenium</div>
+<p class="section-sub">CSS Selectors are the same patterns used to style web pages — and they work in Selenium too. Faster than XPath in most browsers and very readable.</p>
+<div class="info-box blue">
+<span class="ib-icon">🎨</span>
+<div><strong>Why CSS Selectors?</strong> They are <strong>faster</strong> than XPath in Chrome and Firefox. They support complex patterns combining tag, id, class, and attributes. They're concise and widely understood by both developers and testers.</div>
+</div>
+<!-- CSS Anatomy -->
+<div class="section-title" style="font-size:1rem"><span class="dot"></span> CSS Selector — Interactive Anatomy</div>
+<div class="css-anatomy">
+<div class="css-row">
+<div class="css-part">
+<span class="css-token ct-tag">input</span>
+<span class="css-label">Tag</span>
+</div>
+<span class="css-token ct-punc">#</span>
+<div class="css-part">
+<span class="css-token ct-id">username</span>
+<span class="css-label">ID</span>
+</div>
+<span style="padding:0 14px;color:var(--text2);align-self:center;font-size:.9rem">+</span>
+<div class="css-part">
+<span class="css-token ct-tag">button</span>
+<span class="css-label">Tag</span>
+</div>
+<span class="css-token ct-punc">.</span>
+<div class="css-part">
+<span class="css-token ct-cls">btn-primary</span>
+<span class="css-label">Class</span>
+</div>
+<span style="padding:0 14px;color:var(--text2);align-self:center;font-size:.9rem">+</span>
+<div class="css-part">
+<span class="css-token ct-tag">input</span>
+<span class="css-label">Tag</span>
+</div>
+<span class="css-token ct-punc">[</span>
+<div class="css-part">
+<span class="css-token ct-attr">type='text'</span>
+<span class="css-label">Attribute</span>
+</div>
+<span class="css-token ct-punc">]</span>
+</div>
+</div>
+<div class="section-title" style="font-size:1rem"><span class="dot"></span> All CSS Selector Patterns</div>
+<div class="code-wrap">
+<div class="code-header"><div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><span class="code-lang">☕ CSS Selector — All Patterns</span></div>
+<pre class="code-pre"><span class="cmt">// 1. Tag + ID (# means ID)</span>
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">cssSelector</span>(<span class="str">"input#username"</span>));
+
+<span class="cmt">// 2. Tag + Class (. means class)</span>
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">cssSelector</span>(<span class="str">"button.btn-primary"</span>));
+
+<span class="cmt">// 3. Attribute selector [attr='value']</span>
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">cssSelector</span>(<span class="str">"input[type='text']"</span>));
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">cssSelector</span>(<span class="str">"input[name='email']"</span>));
+
+<span class="cmt">// 4. Attribute contains (*=)</span>
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">cssSelector</span>(<span class="str">"input[id*='user']"</span>));  <span class="cmt">// id contains "user"</span>
+
+<span class="cmt">// 5. Attribute starts-with (^=)</span>
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">cssSelector</span>(<span class="str">"input[id^='user']"</span>)); <span class="cmt">// id starts with "user"</span>
+
+<span class="cmt">// 6. Multiple classes</span>
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">cssSelector</span>(<span class="str">".btn.btn-primary"</span>));
+
+<span class="cmt">// 7. Parent → Child (space = descendant)</span>
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">cssSelector</span>(<span class="str">"form#loginForm input#username"</span>));
+
+<span class="cmt">// 8. Direct child (&gt;)</span>
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">cssSelector</span>(<span class="str">"div.container &gt; form &gt; input"</span>));</pre>
+</div>
+<div class="section-title" style="font-size:1rem;margin-top:8px"><span class="dot"></span> CSS Selector Cheatsheet</div>
+<table class="compare-table">
+<thead><tr><th>Pattern</th><th>Meaning</th><th>Example</th></tr></thead>
+<tbody>
+<tr><td class="mono">tag</td><td>Tag name</td><td class="mono">input</td></tr>
+<tr><td class="mono">#id</td><td>Element with id</td><td class="mono">#username</td></tr>
+<tr><td class="mono">.class</td><td>Element with class</td><td class="mono">.btn-primary</td></tr>
+<tr><td class="mono">tag#id</td><td>Tag with specific id</td><td class="mono">input#username</td></tr>
+<tr><td class="mono">tag.class</td><td>Tag with specific class</td><td class="mono">button.submit</td></tr>
+<tr><td class="mono">[attr='val']</td><td>Element where attr equals val</td><td class="mono">input[type='text']</td></tr>
+<tr><td class="mono">[attr*='val']</td><td>Attribute contains val</td><td class="mono">input[id*='user']</td></tr>
+<tr><td class="mono">[attr^='val']</td><td>Attribute starts with val</td><td class="mono">div[class^='nav']</td></tr>
+<tr><td class="mono">A B</td><td>B is a descendant of A</td><td class="mono">form input</td></tr>
+<tr><td class="mono">A &gt; B</td><td>B is a direct child of A</td><td class="mono">form &gt; input</td></tr>
+</tbody>
+</table>
+</div>
+<!-- ════════════ TAB 4: XPATH BASICS ════════════ -->
+<div class="tab-content" id="tab-xpath">
+<div class="section-title"><span class="dot"></span> What is XPath?</div>
+<p class="section-sub">XPath (XML Path Language) is a query language for finding nodes in XML/HTML. It's the most powerful locator strategy — but also the most complex.</p>
+<div class="info-box blue">
+<span class="ib-icon">🌐</span>
+<div><strong>CSS vs XPath:</strong> CSS Selectors can only traverse <em>downward</em> in the DOM (parent to child). XPath can also go <em>upward</em> (child to parent), traverse siblings, and find elements by text content — making it essential for complex scenarios that CSS cannot handle.</div>
+</div>
+<!-- XPath Anatomy -->
+<div class="section-title" style="font-size:1rem"><span class="dot"></span> XPath Anatomy — Interactive</div>
+<div class="xpath-anatomy">
+<div style="font-size:.78rem;font-weight:700;color:var(--text2);margin-bottom:12px;text-transform:uppercase;letter-spacing:.4px">Relative XPath — Most Used</div>
+<div class="xpath-row">
+<div class="xp-part"><span class="xp-token xp-axis">//</span><span class="xp-label">Axis (any level)</span></div>
+<div class="xp-part"><span class="xp-token xp-tag">input</span><span class="xp-label">Tag</span></div>
+<span class="xp-bracket">[</span>
+<div class="xp-part"><span class="xp-token xp-at">@id</span><span class="xp-label">Attribute</span></div>
+<span class="xp-bracket">=</span>
+<div class="xp-part"><span class="xp-token xp-val">'username'</span><span class="xp-label">Value</span></div>
+<span class="xp-bracket">]</span>
+</div>
+<div style="font-size:.78rem;font-weight:700;color:var(--text2);margin:20px 0 12px;text-transform:uppercase;letter-spacing:.4px">Text-based XPath</div>
+<div class="xpath-row">
+<div class="xp-part"><span class="xp-token xp-axis">//</span><span class="xp-label">Axis</span></div>
+<div class="xp-part"><span class="xp-token xp-tag">button</span><span class="xp-label">Tag</span></div>
+<span class="xp-bracket">[</span>
+<div class="xp-part"><span class="xp-token xp-fn">text()</span><span class="xp-label">Function</span></div>
+<span class="xp-bracket">=</span>
+<div class="xp-part"><span class="xp-token xp-val">'Login'</span><span class="xp-label">Text content</span></div>
+<span class="xp-bracket">]</span>
+</div>
+<div class="xpath-legend">
+<div class="xleg"><div class="xleg-dot" style="background:#e06c75"></div> // = Search anywhere in DOM</div>
+<div class="xleg"><div class="xleg-dot" style="background:#e5c07b"></div> tag = element type</div>
+<div class="xleg"><div class="xleg-dot" style="background:#d19a66"></div> @attr = attribute</div>
+<div class="xleg"><div class="xleg-dot" style="background:#98c379"></div> value = expected value</div>
+<div class="xleg"><div class="xleg-dot" style="background:#61afef"></div> text() = visible text</div>
+</div>
+</div>
+<div class="section-title" style="font-size:1rem"><span class="dot"></span> Absolute vs Relative XPath</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0 24px">
+<div class="code-wrap" style="margin:0">
+<div class="code-header"><div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><span class="code-lang">❌ Absolute XPath (avoid)</span></div>
+<pre class="code-pre"><span class="cmt">// Starts from root — fragile!</span>
+<span class="cmt">// One DOM change breaks it</span>
+<span class="str">/html/body/div/form/input[1]</span>
+
+<span class="cmt">// Generated by record tools</span>
+<span class="cmt">// Never use in real projects</span></pre>
+</div>
+<div class="code-wrap" style="margin:0">
+<div class="code-header"><div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><span class="code-lang">✅ Relative XPath (recommended)</span></div>
+<pre class="code-pre"><span class="cmt">// Starts with // — finds anywhere</span>
+<span class="str">//input[@id='username']</span>
+
+<span class="cmt">// Stable — doesn't care about</span>
+<span class="cmt">// DOM structure above it</span></pre>
+</div>
+</div>
+<div class="section-title" style="font-size:1rem"><span class="dot"></span> XPath Basics — Code Examples</div>
+<div class="code-wrap">
+<div class="code-header"><div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><span class="code-lang">☕ XPath Basics in Java</span></div>
+<pre class="code-pre"><span class="cmt">// 1. By attribute (most common)</span>
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">xpath</span>(<span class="str">"//input[@id='username']"</span>));
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">xpath</span>(<span class="str">"//input[@name='email']"</span>));
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">xpath</span>(<span class="str">"//input[@type='text']"</span>));
+
+<span class="cmt">// 2. By visible text</span>
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">xpath</span>(<span class="str">"//button[text()='Login']"</span>));
+
+<span class="cmt">// 3. Combining tag + attribute</span>
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">xpath</span>(<span class="str">"//form[@id='loginForm']//input"</span>));
+
+<span class="cmt">// 4. Navigate up (parent) — CSS can't do this!</span>
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">xpath</span>(<span class="str">"//label[text()='Username']/../input"</span>));
+
+<span class="cmt">// 5. Nth element using index</span>
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">xpath</span>(<span class="str">"(//input[@type='text'])[2]"</span>)); <span class="cmt">// 2nd text input</span></pre>
+</div>
+<div class="info-box green">
+<span class="ib-icon">🌲</span>
+<div><strong>Remember:</strong> In XPath, <code>//</code> means "anywhere in the document". <code>/</code> (single slash) means "direct child". So <code>//form//input</code> finds any input inside any form, while <code>//form/input</code> finds only inputs that are direct children of a form.</div>
+</div>
+</div>
+<!-- ════════════ TAB 5: DYNAMIC XPATH ════════════ -->
+<div class="tab-content" id="tab-dynamic">
+<div class="section-title"><span class="dot"></span> Why Dynamic XPath?</div>
+<p class="section-sub">Modern web apps generate element attributes dynamically — ids change on every page load. Dynamic XPath uses <em>functions</em> instead of exact values to locate these elements reliably.</p>
+<div class="info-box orange">
+<span class="ib-icon">⚡</span>
+<div><strong>The problem:</strong> Many frameworks (Angular, React) generate ids like <code>id="username-abc123xyz"</code> where the suffix changes each time. You can't use <code>By.id("username-abc123xyz")</code> because tomorrow it will be different. Dynamic XPath uses <code>contains()</code> to match just the stable part.</div>
+</div>
+<div class="section-title" style="font-size:1rem"><span class="dot"></span> The Four Dynamic XPath Functions</div>
+<div class="iter-steps">
+<div class="iter-row">
+<div class="iter-num">1</div>
+<div class="iter-body">
+<h4><code>contains()</code> — Partial match on any attribute or text</h4>
+<p>Matches when the attribute <em>contains</em> the given string. Perfect for dynamic ids with changing suffixes.</p>
+</div>
+</div>
+<div class="iter-row">
+<div class="iter-num">2</div>
+<div class="iter-body">
+<h4><code>starts-with()</code> — Match by prefix</h4>
+<p>Matches when the attribute <em>starts with</em> a fixed prefix. More precise than contains() when only the suffix varies.</p>
+</div>
+</div>
+<div class="iter-row">
+<div class="iter-num">3</div>
+<div class="iter-body">
+<h4><code>text()</code> — Match by visible text</h4>
+<p>Matches elements by their visible text content. Great for buttons and links whose text is stable even when other attributes change.</p>
+</div>
+</div>
+<div class="iter-row">
+<div class="iter-num">4</div>
+<div class="iter-body">
+<h4><code>and / or</code> — Combine multiple conditions</h4>
+<p>Use <code>and</code> to narrow down results when a single attribute isn't unique enough. Target the element using two attributes simultaneously.</p>
+</div>
+</div>
+</div>
+<div class="section-title" style="font-size:1rem;margin-top:4px"><span class="dot"></span> Dynamic XPath — All Patterns with Code</div>
+<div class="code-wrap">
+<div class="code-header"><div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><span class="code-lang">☕ Dynamic XPath — Complete Examples</span></div>
+<pre class="code-pre"><span class="cmt">// 1. contains() on attribute</span>
+<span class="cmt">// HTML: &lt;input id="username-abc123"&gt; — suffix changes each load</span>
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">xpath</span>(<span class="str">"//input[contains(@id,'username')]"</span>));
+
+<span class="cmt">// 2. starts-with() on attribute</span>
+<span class="cmt">// HTML: &lt;input id="user_field_999"&gt;</span>
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">xpath</span>(<span class="str">"//input[starts-with(@id,'user_')]"</span>));
+
+<span class="cmt">// 3. contains() on text</span>
+<span class="cmt">// Button text might be "Login Now" or "Login Here"</span>
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">xpath</span>(<span class="str">"//button[contains(text(),'Login')]"</span>));
+
+<span class="cmt">// 4. Exact text match</span>
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">xpath</span>(<span class="str">"//button[text()='Submit']"</span>));
+
+<span class="cmt">// 5. AND — both conditions must match</span>
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">xpath</span>(<span class="str">"//input[@type='text' and @name='email']"</span>));
+
+<span class="cmt">// 6. OR — either condition matches</span>
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">xpath</span>(<span class="str">"//input[@type='text' or @type='email']"</span>));
+
+<span class="cmt">// 7. contains() on class (partial class name)</span>
+<span class="cmt">// HTML: &lt;button class="btn btn-primary large"&gt;</span>
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">xpath</span>(<span class="str">"//button[contains(@class,'btn-primary')]"</span>));
+
+<span class="cmt">// 8. Real project — React dynamic ID</span>
+<span class="cmt">// HTML: &lt;input id="react-select-3-input"&gt;</span>
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">xpath</span>(<span class="str">"//input[contains(@id,'react-select') and contains(@id,'input')]"</span>));</pre>
+</div>
+<div class="section-title" style="font-size:1rem;margin-top:8px"><span class="dot"></span> Dynamic XPath Cheatsheet</div>
+<table class="compare-table">
+<thead><tr><th>Function</th><th>Syntax</th><th>Use When</th></tr></thead>
+<tbody>
+<tr><td class="mono">contains()</td><td class="mono">//tag[contains(@attr,'part')]</td><td>Attribute has a dynamic suffix/prefix</td></tr>
+<tr><td class="mono">starts-with()</td><td class="mono">//tag[starts-with(@attr,'prefix')]</td><td>Only suffix is dynamic</td></tr>
+<tr><td class="mono">text()</td><td class="mono">//tag[text()='exact text']</td><td>Button/link text is stable</td></tr>
+<tr><td class="mono">contains(text())</td><td class="mono">//tag[contains(text(),'part')]</td><td>Text varies slightly</td></tr>
+<tr><td class="mono">and</td><td class="mono">//tag[@a='x' and @b='y']</td><td>One attribute isn't unique enough</td></tr>
+<tr><td class="mono">or</td><td class="mono">//tag[@a='x' or @b='y']</td><td>Element can have different attributes</td></tr>
+</tbody>
+</table>
+<div class="info-box green">
+<span class="ib-icon">✅</span>
+<div><strong>Best practice:</strong> When writing dynamic XPath, always target the <strong>most stable part</strong> of an attribute. Usually the beginning of an id or class is set by developers and stays fixed — only auto-generated suffixes change. Use <code>starts-with()</code> or <code>contains()</code> on that stable part.</div>
+</div>
+</div>
+<!-- ════════════ TAB 6: PLAYGROUND ════════════ -->
+<div class="tab-content" id="tab-playground">
+<div class="section-title"><span class="dot"></span> Locator Playground</div>
+<p class="section-sub">Select a locator type, enter a value, and watch Selenium find the matching element in the fake webpage below. The matching element highlights instantly.</p>
+<div class="playground">
+<div class="pg-header">
+<span>🎯 Interactive Locator Tester</span>
+<span style="font-size:.78rem;font-weight:400;color:var(--text2)">Find elements on the fake page</span>
+</div>
+<div class="pg-body">
+<div class="pg-row">
+<div class="pg-label">Locator Type</div>
+<select class="pg-select" id="pg-type" onchange="onLocatorTypeChange()">
+<option value="">— Select locator —</option>
+<option value="id">By.id()</option>
+<option value="name">By.name()</option>
+<option value="class">By.className()</option>
+<option value="css">By.cssSelector()</option>
+<option value="xpath">By.xpath()</option>
+</select>
+</div>
+<div class="pg-row">
+<div class="pg-label">Locator Value</div>
+<input class="pg-input" id="pg-value" oninput="clearResult()" placeholder='e.g. username  or  input#username  or  //input[@id="username"]'/>
+</div>
+<!-- Quick examples -->
+<div id="pg-hints" style="display:none;margin-bottom:16px">
+<div style="font-size:.78rem;color:var(--text2);font-weight:700;margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px">Quick examples — click to try:</div>
+<div id="pg-hints-inner" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+</div>
+<div style="display:flex;gap:10px;margin-bottom:18px">
+<button class="btn-validate" onclick="runLocator()">🎯  Find Element</button>
+<button class="btn-clear" onclick="clearAll()">↺ Clear</button>
+</div>
+<div class="result-pills" id="pg-pills"></div>
+<!-- Fake webpage -->
+<div class="fake-page">
+<div class="fake-page-bar">
+<div class="fake-page-dots"><div class="fpd r"></div><div class="fpd y"></div><div class="fpd g"></div></div>
+<div class="fake-page-url">https://demo-login.example.com</div>
+</div>
+<div class="fake-page-content">
+<div class="fp-element" data-class="page-title" data-id="pageHeading" data-name="" data-tag="h2" data-text="Login to Your Account" id="fp-heading">
+<span class="fp-elem-label" id="lbl-heading">h2#pageHeading.page-title</span>
+<div class="fp-heading-fake">Login to Your Account</div>
+</div>
+<div class="fp-element" data-class="input-field" data-id="username" data-name="userName" data-tag="input" data-text="" data-type="text" id="fp-user">
+<span class="fp-elem-label" id="lbl-user">input#username[name="userName"].input-field</span>
+<input class="fp-input-fake" placeholder="Username" readonly="" type="text"/>
+</div>
+<div class="fp-element" data-class="input-field" data-id="password" data-name="userPass" data-tag="input" data-text="" data-type="password" id="fp-pass">
+<span class="fp-elem-label" id="lbl-pass">input#password[name="userPass"].input-field[type="password"]</span>
+<input class="fp-input-fake" placeholder="Password" readonly="" type="password"/>
+</div>
+<div class="fp-element" data-class="btn-primary" data-id="loginBtn" data-name="loginBtn" data-tag="button" data-text="Login" id="fp-btn">
+<span class="fp-elem-label" id="lbl-btn">button#loginBtn.btn-primary</span>
+<button class="fp-btn-fake">Login</button>
+</div>
+<div class="fp-element" data-class="link-text" data-id="forgotLink" data-name="" data-tag="a" data-text="Forgot Password?" id="fp-forgot">
+<span class="fp-elem-label" id="lbl-forgot">a#forgotLink.link-text</span>
+<a style="color:var(--accent2);font-size:.88rem;cursor:default">Forgot Password?</a>
+</div>
+</div>
+</div>
+<!-- Generated code -->
+<div style="font-size:.78rem;font-weight:700;color:var(--text2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px">Generated Selenium Code</div>
+<div class="pg-output" id="pg-output"><span style="color:var(--text2);font-size:.82rem;">// Selenium code will appear here after you find an element</span></div>
+</div>
+</div>
+</div>
+<!-- ════════════ TAB 7: COMMON MISTAKES ════════════ -->
+<div class="tab-content" id="tab-errors">
+<div class="section-title"><span class="dot"></span> Common Locator Mistakes</div>
+<p class="section-sub">These five mistakes are responsible for most "element not found" failures. Know each one — prevent hours of debugging.</p>
+<div class="err-sim-btns">
+<button class="err-btn active" onclick="showErr('xpath-syntax',this)">⚠ Wrong XPath Syntax</button>
+<button class="err-btn" onclick="showErr('dynamic-id',this)">⚠ Dynamic ID Direct Use</button>
+<button class="err-btn" onclick="showErr('class-space',this)">⚠ Spaces in className</button>
+<button class="err-btn" onclick="showErr('abs-xpath',this)">⚠ Absolute XPath</button>
+<button class="err-btn" onclick="showErr('single-quote',this)">⚠ Quote Issues in XPath</button>
+</div>
+<div class="err-panel active" id="err-xpath-syntax">
+<div class="err-hdr">🔴 Mistake: Wrong XPath Syntax</div>
+<div class="err-body">
+<h4>What happened?</h4>
+<p>A common syntax error is missing <code>//</code> at the start, forgetting <code>@</code> before attribute names, or using the wrong quote style inside XPath strings.</p>
+<div class="err-msg">org.openqa.selenium.InvalidSelectorException: invalid selector: Unable to locate an element with the xpath expression
+input[@id='username'] — missing leading //</div>
+<div class="code-diff">
+<div class="diff-wrong"><div class="diff-lbl">❌ Wrong syntax</div><div class="diff-code">driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">xpath</span>(<span class="str">"input[@id='username']"</span>));
+<span class="cmt">// Missing leading //</span>
+
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">xpath</span>(<span class="str">"//input[id='username']"</span>));
+<span class="cmt">// Missing @ before id</span></div></div>
+<div class="diff-right"><div class="diff-lbl">✅ Correct syntax</div><div class="diff-code">driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">xpath</span>(<span class="str">"//input[@id='username']"</span>));
+<span class="cmt">// // + @ = correct</span>
+
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">xpath</span>(<span class="str">"//button[text()='Login']"</span>));
+<span class="cmt">// text() doesn't use @</span></div></div>
+</div>
+<div class="fix-tag">✅ Rule: XPath must start with //. Attributes need @prefix. text() is a function — no @.</div>
+</div>
+</div>
+<div class="err-panel" id="err-dynamic-id">
+<div class="err-hdr">🔴 Mistake: Using Dynamic IDs Directly</div>
+<div class="err-body">
+<h4>What happened?</h4>
+<p>Frameworks like React, Angular, and Vue often generate IDs automatically with a different suffix on every page load. Using the full ID will work in dev but fail in CI or the next day.</p>
+<div class="err-msg">NoSuchElementException: no such element: Unable to locate element by: id "username-xk92ms3p"
+The auto-generated suffix "xk92ms3p" is different on every page load.</div>
+<div class="code-diff">
+<div class="diff-wrong"><div class="diff-lbl">❌ Fragile (full dynamic id)</div><div class="diff-code">driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"username-xk92ms3p"</span>));
+<span class="cmt">// Breaks on next page load!</span></div></div>
+<div class="diff-right"><div class="diff-lbl">✅ Stable (contains)</div><div class="diff-code">driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">xpath</span>(
+  <span class="str">"//input[contains(@id,'username')]"</span>));
+<span class="cmt">// Matches any id containing "username" ✓</span></div></div>
+</div>
+<div class="fix-tag">✅ Fix: Use contains() or starts-with() on the stable prefix of dynamic attributes.</div>
+</div>
+</div>
+<div class="err-panel" id="err-class-space">
+<div class="err-hdr">🔴 Mistake: Multiple Classes in By.className()</div>
+<div class="err-body">
+<h4>What happened?</h4>
+<p><code>By.className()</code> accepts exactly ONE class name. Passing multiple classes (with a space) throws an exception because Selenium interprets spaces as part of the class name.</p>
+<div class="err-msg">org.openqa.selenium.InvalidSelectorException: Compound class names not permitted
+className "btn btn-primary" contains a space — that is not a valid single class name.</div>
+<div class="code-diff">
+<div class="diff-wrong"><div class="diff-lbl">❌ Multiple classes (space)</div><div class="diff-code"><span class="cmt">// HTML: class="btn btn-primary"</span>
+driver.<span class="fn">findElement</span>(
+  <span class="cls">By</span>.<span class="fn">className</span>(<span class="str">"btn btn-primary"</span>));
+<span class="cmt">// Exception — space not allowed!</span></div></div>
+<div class="diff-right"><div class="diff-lbl">✅ Use CSS Selector</div><div class="diff-code"><span class="cmt">// Use CSS for multiple classes</span>
+driver.<span class="fn">findElement</span>(
+  <span class="cls">By</span>.<span class="fn">cssSelector</span>(<span class="str">".btn.btn-primary"</span>));
+<span class="cmt">// dot.dot = multiple classes ✓</span></div></div>
+</div>
+<div class="fix-tag">✅ Fix: Use By.cssSelector(".class1.class2") to match elements with multiple classes.</div>
+</div>
+</div>
+<div class="err-panel" id="err-abs-xpath">
+<div class="err-hdr">🔴 Mistake: Using Absolute XPath in Real Projects</div>
+<div class="err-body">
+<h4>What happened?</h4>
+<p>Absolute XPath starts from the root <code>/html/body/…</code> and lists every level. Adding even a single div wrapper anywhere in the page breaks the entire locator.</p>
+<div class="err-msg">NoSuchElementException: no such element
+The developer added a wrapper div — now the absolute path is wrong:
+/html/body/div[1]/form/input[1] → doesn't exist anymore</div>
+<div class="code-diff">
+<div class="diff-wrong"><div class="diff-lbl">❌ Absolute XPath</div><div class="diff-code">driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">xpath</span>(
+  <span class="str">"/html/body/div/form/input[1]"</span>));
+<span class="cmt">// Breaks if ANY parent changes</span></div></div>
+<div class="diff-right"><div class="diff-lbl">✅ Relative XPath</div><div class="diff-code">driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">xpath</span>(
+  <span class="str">"//input[@id='username']"</span>));
+<span class="cmt">// Independent of DOM structure ✓</span></div></div>
+</div>
+<div class="fix-tag">✅ Fix: Always write relative XPath starting with //. Never use absolute XPath in automation.</div>
+</div>
+</div>
+<div class="err-panel" id="err-single-quote">
+<div class="err-hdr">🔴 Mistake: Quote Conflict in XPath Strings</div>
+<div class="err-body">
+<h4>What happened?</h4>
+<p>In Java, XPath strings are wrapped in double quotes. If the XPath value also uses double quotes, the Java string terminates early — causing a compile error or invalid XPath.</p>
+<div class="err-msg">Compile error: String literal is not properly closed
+driver.findElement(By.xpath("//input[@id="username"]")); ← the inner " ends the Java string</div>
+<div class="code-diff">
+<div class="diff-wrong"><div class="diff-lbl">❌ Conflicting quotes</div><div class="diff-code">driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">xpath</span>(
+  <span class="str">"//input[@id="username"]"</span>));
+<span class="cmt">// Double inside double = broken!</span></div></div>
+<div class="diff-right"><div class="diff-lbl">✅ Use single quotes inside</div><div class="diff-code">driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">xpath</span>(
+  <span class="str">"//input[@id='username']"</span>));
+<span class="cmt">// Outer = double, inner = single ✓</span></div></div>
+</div>
+<div class="fix-tag">✅ Rule: XPath string is wrapped in Java double quotes. Always use single quotes inside XPath for attribute values.</div>
+</div>
+</div>
+</div>
+<!-- ════════════ TAB 8: QUICK CHECK ════════════ -->
+<div class="tab-content" id="tab-quiz">
+<div class="section-title"><span class="dot"></span> Quick Check</div>
+<p class="section-sub">5 questions — click to answer for instant feedback.</p>
+<div class="quiz-container">
+<div class="quiz-block">
+<div class="quiz-num">Question 1 of 5</div>
+<div class="quiz-q">Which locator is the <strong>most reliable and fastest</strong> in Selenium?</div>
+<div class="quiz-opts">
+<div class="quiz-opt" onclick="answerQ(1,this,false)">⬜ By.className()</div>
+<div class="quiz-opt" onclick="answerQ(1,this,false)">⬜ By.xpath()</div>
+<div class="quiz-opt" onclick="answerQ(1,this,true)">⬜ By.id()</div>
+<div class="quiz-opt" onclick="answerQ(1,this,false)">⬜ By.cssSelector()</div>
+</div>
+<div class="quiz-feedback" id="qf1"></div>
+</div>
+<div class="quiz-block">
+<div class="quiz-num">Question 2 of 5</div>
+<div class="quiz-q">An element has <span class="quiz-code">class="btn btn-primary"</span>. Which locator will work correctly for this element?</div>
+<div class="quiz-opts">
+<div class="quiz-opt" onclick="answerQ(2,this,false)">⬜ By.className("btn btn-primary")</div>
+<div class="quiz-opt" onclick="answerQ(2,this,true)">⬜ By.cssSelector(".btn.btn-primary")</div>
+<div class="quiz-opt" onclick="answerQ(2,this,false)">⬜ By.id("btn btn-primary")</div>
+<div class="quiz-opt" onclick="answerQ(2,this,false)">⬜ By.name("btn-primary")</div>
+</div>
+<div class="quiz-feedback" id="qf2"></div>
+</div>
+<div class="quiz-block">
+<div class="quiz-num">Question 3 of 5</div>
+<div class="quiz-q">What does the XPath <span class="quiz-code">//button[contains(text(),'Login')]</span> match?</div>
+<div class="quiz-opts">
+<div class="quiz-opt" onclick="answerQ(3,this,false)">⬜ A button whose id contains "Login"</div>
+<div class="quiz-opt" onclick="answerQ(3,this,true)">⬜ Any button element whose visible text contains the word "Login"</div>
+<div class="quiz-opt" onclick="answerQ(3,this,false)">⬜ A button whose class contains "Login"</div>
+<div class="quiz-opt" onclick="answerQ(3,this,false)">⬜ Any element anywhere with the text "Login"</div>
+</div>
+<div class="quiz-feedback" id="qf3"></div>
+</div>
+<div class="quiz-block">
+<div class="quiz-num">Question 4 of 5</div>
+<div class="quiz-q">What is the correct way to match an element where <span class="quiz-code">id</span> starts with "user" using XPath?</div>
+<div class="quiz-opts">
+<div class="quiz-opt" onclick="answerQ(4,this,false)">⬜ //input[@id~='user']</div>
+<div class="quiz-opt" onclick="answerQ(4,this,false)">⬜ //input[contains-id='user']</div>
+<div class="quiz-opt" onclick="answerQ(4,this,true)">⬜ //input[starts-with(@id,'user')]</div>
+<div class="quiz-opt" onclick="answerQ(4,this,false)">⬜ //input[@id^='user']</div>
+</div>
+<div class="quiz-feedback" id="qf4"></div>
+</div>
+<div class="quiz-block">
+<div class="quiz-num">Question 5 of 5</div>
+<div class="quiz-q">What is the key difference between CSS Selectors and XPath in Selenium?</div>
+<div class="quiz-opts">
+<div class="quiz-opt" onclick="answerQ(5,this,false)">⬜ CSS Selectors only work in Chrome; XPath works in all browsers</div>
+<div class="quiz-opt" onclick="answerQ(5,this,false)">⬜ XPath is always faster than CSS Selectors</div>
+<div class="quiz-opt" onclick="answerQ(5,this,true)">⬜ XPath can traverse upward in the DOM (parent direction) and match by text content; CSS can only go downward</div>
+<div class="quiz-opt" onclick="answerQ(5,this,false)">⬜ There is no difference — both do the same thing</div>
+</div>
+<div class="quiz-feedback" id="qf5"></div>
+</div>
+</div>
+<div class="score-box" id="score-box">
+<div class="score-num" id="score-num">0/5</div>
+<div class="score-label" id="score-lbl"></div>
+<button class="btn-retake" onclick="retakeQuiz()">↺ Retake Quiz</button>
+</div>
+</div>
+</div><!-- /tabs-wrapper -->
+  <div class="course-nav">
+    <div class="course-nav-left">
+      <a href="../index.html">🏠 Home</a>
+    </div>
+    <div class="course-nav-right">
+      <a href="w3_t2_dropdowns.html">Next →</a>
+    </div>
+  </div>
+</div><!-- /container --><!-- /container -->
+<script>
+/* ══ THEME ══════════════════════════════════════════════════ */
+function toggleTheme(){
+  var h=document.documentElement,b=document.getElementById('themeToggle');
+  h.dataset.theme=h.dataset.theme==='dark'?'light':'dark';
+  b.textContent=h.dataset.theme==='dark'?'☀ Light':'🌙 Dark';
+}
+
+/* ══ TABS ════════════════════════════════════════════════════ */
+function switchTab(id,btn){
+  document.querySelectorAll('.tab-content').forEach(function(t){t.classList.remove('active');});
+  document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
+  document.getElementById('tab-'+id).classList.add('active');btn.classList.add('active');
+}
+
+/* ══ ERROR TAB ══════════════════════════════════════════════ */
+function showErr(id,btn){
+  document.querySelectorAll('.err-panel').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.err-btn').forEach(function(b){b.classList.remove('active');});
+  document.getElementById('err-'+id).classList.add('active');btn.classList.add('active');
+}
+
+/* ══ PLAYGROUND ══════════════════════════════════════════════ */
+var HINTS = {
+  id:    [{v:'username',lbl:'username field'},{v:'password',lbl:'password field'},{v:'loginBtn',lbl:'login button'},{v:'pageHeading',lbl:'heading'},{v:'forgotLink',lbl:'forgot link'}],
+  name:  [{v:'userName',lbl:'username'},{v:'userPass',lbl:'password'},{v:'loginBtn',lbl:'button'}],
+  class: [{v:'input-field',lbl:'input fields'},{v:'btn-primary',lbl:'login button'},{v:'page-title',lbl:'heading'},{v:'link-text',lbl:'forgot link'}],
+  css:   [{v:'input#username',lbl:'username'},{v:'input[type="password"]',lbl:'password'},{v:'button.btn-primary',lbl:'button'},{v:'h2.page-title',lbl:'heading'},{v:'.input-field',lbl:'all inputs'}],
+  xpath: [{v:"//input[@id='username']",lbl:'username'},{v:"//button[text()='Login']",lbl:'button by text'},{v:"//input[contains(@class,'input-field')]",lbl:'all inputs'},{v:"//a[contains(text(),'Forgot')]",lbl:'forgot link'},{v:"//input[@type='password']",lbl:'password'}]
+};
+
+var FP_ELEMENTS = [
+  {id:'fp-heading', elId:'pageHeading', elName:'',       elClass:'page-title', elTag:'h2',     elType:'',         elText:'Login to Your Account'},
+  {id:'fp-user',    elId:'username',    elName:'userName',elClass:'input-field',elTag:'input',  elType:'text',     elText:''},
+  {id:'fp-pass',    elId:'password',    elName:'userPass',elClass:'input-field',elTag:'input',  elType:'password', elText:''},
+  {id:'fp-btn',     elId:'loginBtn',    elName:'loginBtn',elClass:'btn-primary',elTag:'button', elType:'',         elText:'Login'},
+  {id:'fp-forgot',  elId:'forgotLink',  elName:'',        elClass:'link-text',  elTag:'a',      elType:'',         elText:'Forgot Password?'}
+];
+
+function onLocatorTypeChange(){
+  var type=document.getElementById('pg-type').value;
+  var hintsWrap=document.getElementById('pg-hints');
+  var inner=document.getElementById('pg-hints-inner');
+  clearResult();
+  if(!type){hintsWrap.style.display='none';return;}
+  hintsWrap.style.display='block';
+  var list=HINTS[type]||[];
+  inner.innerHTML=list.map(function(h){
+    return '<button style="padding:5px 12px;border-radius:7px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-size:.78rem;font-weight:600;cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor=\'var(--accent)\';this.style.color=\'var(--accent)\'" onmouseout="this.style.borderColor=\'var(--border)\';this.style.color=\'var(--text2)\'" onclick="fillHint(\''+h.v.replace(/'/g,"\\'")+'\')">' + h.lbl + '</button>';
+  }).join('');
+}
+
+function fillHint(v){
+  document.getElementById('pg-value').value=v;
+  clearResult();
+}
+
+function clearResult(){
+  document.getElementById('pg-pills').innerHTML='';
+  var out=document.getElementById('pg-output');
+  out.className='pg-output';
+  out.innerHTML='<span style="color:var(--text2);font-size:.82rem;">// Selenium code will appear here after you find an element</span>';
+  FP_ELEMENTS.forEach(function(e){
+    var el=document.getElementById(e.id);
+    var lbl=document.getElementById('lbl-'+e.id.replace('fp-',''));
+    if(el){el.classList.remove('highlighted','not-matched');}
+    if(lbl){lbl.classList.remove('matched');lbl.style.color='';}
+  });
+}
+
+function clearAll(){
+  document.getElementById('pg-type').value='';
+  document.getElementById('pg-value').value='';
+  document.getElementById('pg-hints').style.display='none';
+  clearResult();
+}
+
+function addPill(html,type){
+  var el=document.createElement('div');el.className='rpill rpill-'+type;el.innerHTML=html;
+  document.getElementById('pg-pills').appendChild(el);
+}
+
+function runLocator(){
+  var type=document.getElementById('pg-type').value.trim();
+  var value=document.getElementById('pg-value').value.trim();
+  var out=document.getElementById('pg-output');
+
+  clearResult();
+
+  if(!type){addPill('⚠ Select a locator type first','warn');return;}
+  if(!value){addPill('⚠ Enter a locator value','warn');return;}
+
+  var matched=matchElements(type,value);
+  var code=generateCode(type,value);
+
+  if(matched.length===0){
+    addPill('❌ No element found — locator did not match any element on this page','error');
+    out.className='pg-output err';
+    out.innerHTML='<span style="color:#ff6b6b">// No matching element found\n// Check: typo in value? Wrong type selected?</span>';
+    FP_ELEMENTS.forEach(function(e){document.getElementById(e.id).classList.add('not-matched');});
+    return;
+  }
+
+  matched.forEach(function(e){
+    var el=document.getElementById(e.id);
+    var lblId='lbl-'+e.id.replace('fp-','');
+    var lbl=document.getElementById(lblId);
+    if(el){el.classList.add('highlighted');}
+    if(lbl){lbl.classList.add('matched');}
+  });
+
+  FP_ELEMENTS.filter(function(e){return matched.indexOf(e)<0;}).forEach(function(e){
+    document.getElementById(e.id).classList.add('not-matched');
+  });
+
+  var countMsg=matched.length>1?' ('+matched.length+' elements matched)':'';
+  addPill('✓ Element found'+countMsg,'success');
+  addPill('Locator: '+type,'info');
+
+  out.className='pg-output ok';
+  out.innerHTML=code;
+}
+
+function matchElements(type,value){
+  return FP_ELEMENTS.filter(function(e){
+    var v=value.trim();
+    if(type==='id')    return e.elId===v;
+    if(type==='name')  return e.elName===v && e.elName!=='';
+    if(type==='class') return e.elClass===v;
+    if(type==='css')   return matchCss(e,v);
+    if(type==='xpath') return matchXpath(e,v);
+    return false;
+  });
+}
+
+function matchCss(e,css){
+  css=css.trim();
+  /* simple CSS matcher for the demo elements */
+  /* tag only */
+  if(/^[a-z]+$/.test(css)) return e.elTag===css;
+  /* #id */
+  if(/^#/.test(css) && !/[.[]/.test(css.slice(1))) return e.elId===css.slice(1);
+  /* .class */
+  if(/^\./.test(css) && !css.slice(1).includes('.') && !/[#[]/.test(css.slice(1))) return e.elClass.split(' ').indexOf(css.slice(1))>=0;
+  /* tag#id */
+  var m=css.match(/^([a-z]+)#([a-z0-9_-]+)$/i); if(m) return e.elTag===m[1] && e.elId===m[2];
+  /* tag.class */
+  m=css.match(/^([a-z]+)\.([a-z0-9_-]+)$/i); if(m) return e.elTag===m[1] && e.elClass.split(' ').indexOf(m[2])>=0;
+  /* multiple classes .a.b */
+  if(/^\.[a-z0-9_-]+(\.[a-z0-9_-]+)+$/i.test(css)){
+    var classes=css.split('.').filter(Boolean);
+    return classes.every(function(c){return e.elClass.split(' ').indexOf(c)>=0;});
+  }
+  /* [type="x"] or [type='x'] */
+  m=css.match(/^\[type=['"]?([a-z]+)['"]?\]$/i); if(m) return e.elType===m[1];
+  /* input[type='text'] */
+  m=css.match(/^([a-z]+)\[type=['"]?([a-z]+)['"]?\]$/i); if(m) return e.elTag===m[1] && e.elType===m[2];
+  /* [name="x"] */
+  m=css.match(/^\[name=['"]?([a-z0-9_-]+)['"]?\]$/i); if(m) return e.elName===m[1];
+  /* h2.page-title etc */
+  m=css.match(/^([a-z]+)\.([a-z0-9_-]+)$/i); if(m) return e.elTag===m[1] && e.elClass.split(' ').indexOf(m[2])>=0;
+  return false;
+}
+
+function matchXpath(e,xp){
+  xp=xp.trim();
+  /* strip leading // */
+  if(xp.startsWith('//')){
+    var rest=xp.slice(2);
+    /* extract tag */
+    var tagMatch=rest.match(/^([a-z*]+)/i);
+    var tag=tagMatch?tagMatch[1]:'*';
+    if(tag!=='*' && tag!==e.elTag) return false;
+    /* extract predicates */
+    var predStr='';
+    var pStart=rest.indexOf('[');
+    if(pStart>=0) predStr=rest.slice(pStart+1,rest.lastIndexOf(']'));
+    if(!predStr) return tag==='*'||tag===e.elTag;
+    return evalXpathPred(e,predStr);
+  }
+  return false;
+}
+
+function evalXpathPred(e,pred){
+  /* handle AND */
+  if(pred.toLowerCase().includes(' and ')){
+    var parts=pred.split(/\s+and\s+/i);
+    return parts.every(function(p){return evalXpathPred(e,p.trim());});
+  }
+  /* @attr='val' */
+  var m=pred.match(/^@([a-z]+)='([^']*)'$/i);
+  if(m) return getAttr(e,m[1])===m[2];
+  m=pred.match(/^@([a-z]+)="([^"]*)"$/i);
+  if(m) return getAttr(e,m[1])===m[2];
+  /* contains(@attr,'val') */
+  m=pred.match(/^contains\(@([a-z]+),\s*'([^']*)'\)/i);
+  if(m) return getAttr(e,m[1]).includes(m[2]);
+  m=pred.match(/^contains\(@([a-z]+),\s*"([^"]*)"\)/i);
+  if(m) return getAttr(e,m[1]).includes(m[2]);
+  /* starts-with(@attr,'val') */
+  m=pred.match(/^starts-with\(@([a-z]+),\s*'([^']*)'\)/i);
+  if(m) return getAttr(e,m[1]).startsWith(m[2]);
+  /* contains(text(),'val') */
+  m=pred.match(/^contains\(text\(\),\s*'([^']*)'\)/i);
+  if(m) return e.elText.includes(m[1]);
+  /* text()='val' */
+  m=pred.match(/^text\(\)='([^']*)'/i);
+  if(m) return e.elText===m[1];
+  return false;
+}
+
+function getAttr(e,attr){
+  if(attr==='id') return e.elId||'';
+  if(attr==='name') return e.elName||'';
+  if(attr==='class') return e.elClass||'';
+  if(attr==='type') return e.elType||'';
+  return '';
+}
+
+function generateCode(type,value){
+  var byStr='';
+  if(type==='id')    byStr='By.id("'+value+'")';
+  if(type==='name')  byStr='By.name("'+value+'")';
+  if(type==='class') byStr='By.className("'+value+'")';
+  if(type==='css')   byStr='By.cssSelector("'+value+'")';
+  if(type==='xpath') byStr='By.xpath("'+esc(value)+'")';
+  return '<span style="color:#5c6370;font-style:italic">// Selenium code generated from your locator</span>\n\n'+
+    '<span style="color:#c678dd;font-weight:600">WebElement</span> element = driver.<span style="color:#61afef">findElement</span>('+byStr+');\n\n'+
+    '<span style="color:#5c6370;font-style:italic">// Common actions you can now perform:</span>\n'+
+    'element.<span style="color:#61afef">click</span>();\n'+
+    'element.<span style="color:#61afef">sendKeys</span>(<span style="color:#98c379">"your text"</span>);\n'+
+    'element.<span style="color:#61afef">getText</span>();';
+}
+function esc(s){return s.replace(/"/g,"'");}
+
+/* ══ QUIZ ════════════════════════════════════════════════════ */
+var quizExp={
+  1:{c:'✅ Correct! By.id() is the fastest and most reliable locator. IDs are meant to be unique per page by the HTML spec, giving Selenium an unambiguous target every time.',
+     w:'❌ Not quite. By.id() is the most reliable — IDs are unique per page by spec, making them the fastest and most stable locator. Use XPath or cssSelector as fallback.'},
+  2:{c:'✅ Correct! By.className() only accepts a single class. For multiple classes, use By.cssSelector(".btn.btn-primary") — the dot-dot notation chains two classes.',
+     w:'❌ Not quite. By.className("btn btn-primary") throws an exception because of the space. Use By.cssSelector(".btn.btn-primary") to match elements with both classes.'},
+  3:{c:'✅ Correct! The //button part targets button elements, and [contains(text(),\'Login\')] matches those whose visible text contains "Login" — so "Login", "Login Now", "Login Here" all match.',
+     w:'❌ Not quite. text() returns the visible text content of an element, not attributes. So //button[contains(text(),\'Login\')] finds button elements whose displayed text contains "Login".'},
+  4:{c:'✅ Correct! starts-with(@id,\'user\') is the correct XPath function for prefix matching. The @id syntax references the id attribute. CSS equivalent would be input[id^=\'user\'].',
+     w:'❌ Not quite. The correct XPath function is starts-with(@id,\'user\'). Note the @ prefix for attributes. The syntax @id^=\'user\' is CSS syntax, not XPath.'},
+  5:{c:'✅ Correct! XPath can navigate upward (parent, ancestor axes) and match elements by text content using text(). CSS selectors can only traverse downward and cannot match by text.',
+     w:'❌ Not quite. The key difference is traversal direction and text matching. XPath can go up the DOM tree and match by visible text. CSS can only go down and cannot match by text content.'}
+};
+var qAns={},qCorrect=0;
+function answerQ(n,el,correct){
+  if(qAns[n]!==undefined)return;
+  qAns[n]=correct;if(correct)qCorrect++;
+  el.closest('.quiz-opts').querySelectorAll('.quiz-opt').forEach(function(o){o.classList.add('disabled');});
+  el.classList.add(correct?'correct':'wrong');
+  var fb=document.getElementById('qf'+n);
+  fb.innerHTML=correct?quizExp[n].c:quizExp[n].w;
+  fb.className='quiz-feedback show '+(correct?'correct':'wrong');
+  if(Object.keys(qAns).length===5)setTimeout(showScore,500);
+}
+function showScore(){
+  var box=document.getElementById('score-box'),num=document.getElementById('score-num'),lbl=document.getElementById('score-lbl');
+  num.textContent=qCorrect+'/5';
+  num.style.color=qCorrect===5?'var(--accent3)':qCorrect>=3?'var(--accent)':'var(--accent4)';
+  lbl.textContent=qCorrect===5?'🎉 Perfect! You have mastered Selenium locators.':
+    qCorrect>=3?'👍 Good progress! Review the ones you missed.':'📖 Revisit the XPath and CSS tabs and try again.';
+  box.classList.add('show');
+}
+function retakeQuiz(){
+  qAns={};qCorrect=0;
+  document.getElementById('score-box').classList.remove('show');
+  document.querySelectorAll('.quiz-opt').forEach(function(o){o.className='quiz-opt';});
+  document.querySelectorAll('.quiz-feedback').forEach(function(f){f.className='quiz-feedback';f.innerHTML='';});
+}
+</script>
+</body>
+</html>

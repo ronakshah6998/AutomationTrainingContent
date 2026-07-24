@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>What is Software Testing &amp; Why It Matters</title>
+<style>
+  :root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f5f5f2;
+    --bg-tertiary: #eeede8;
+    --bg-info: #e6f1fb;
+    --bg-success: #eaf3de;
+    --bg-warning: #faeeda;
+    --bg-danger: #fcebeb;
+    --text-primary: #1a1a18;
+    --text-secondary: #5f5e5a;
+    --text-tertiary: #888780;
+    --text-info: #0c447c;
+    --text-success: #27500a;
+    --text-warning: #633806;
+    --text-danger: #791f1f;
+    --border-light: rgba(0,0,0,0.08);
+    --border-mid: rgba(0,0,0,0.15);
+    --border-info: #85b7eb;
+    --border-success: #97c459;
+    --border-warning: #ef9f27;
+    --border-danger: #f09595;
+    --font: system-ui, -apple-system, sans-serif;
+    --mono: 'Menlo','Consolas','Monaco',monospace;
+    --radius: 10px;
+    --radius-sm: 6px;
+	--surface: var(--bg-primary);
+    --surface2: var(--bg-secondary);
+
+    --text: var(--text-primary);
+    --text2: var(--text-secondary);
+
+    --border: var(--border-light);
+    --accent2: var(--border-mid);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg-primary: #1e1e1c;
+      --bg-secondary: #2a2a27;
+      --bg-tertiary: #232320;
+      --bg-info: #042c53;
+      --bg-success: #173404;
+      --bg-warning: #412402;
+      --bg-danger: #501313;
+      --text-primary: #e8e6de;
+      --text-secondary: #a8a69e;
+      --text-tertiary: #6e6c66;
+      --text-info: #85b7eb;
+      --text-success: #97c459;
+      --text-warning: #ef9f27;
+      --text-danger: #f09595;
+      --border-light: rgba(255,255,255,0.07);
+      --border-mid: rgba(255,255,255,0.14);
+      --border-info: #185fa5;
+      --border-success: #3b6d11;
+      --border-warning: #854f0b;
+      --border-danger: #a32d2d;
+	   /* Existing variables... */
+	  --surface: var(--bg-primary);
+	  --surface2: var(--bg-secondary);
+	  --text: var(--text-primary);
+	  --text2: var(--text-secondary);
+      --border: var(--border-light);
+	  --accent2: var(--border-mid);
+    }
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg-tertiary);font-family:var(--font);min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:2rem 1rem}
+  .outer{width:100%;max-width:740px}
+
+  /* Header */
+  .hdr{background:var(--bg-primary);border:0.5px solid var(--border-light);border-radius:var(--radius);padding:1.5rem 1.5rem 1.25rem;margin-bottom:12px}
+  .week-tag{display:inline-flex;align-items:center;gap:6px;background:var(--bg-success);color:var(--text-success);border:0.5px solid var(--border-success);border-radius:20px;font-size:11px;font-weight:500;padding:3px 10px;margin-bottom:10px}
+  .hdr h1{font-size:20px;font-weight:600;color:var(--text-primary);margin-bottom:6px;line-height:1.3}
+  .hdr p{font-size:13px;color:var(--text-secondary);line-height:1.65}
+
+  /* Section */
+  .section{background:var(--bg-primary);border:0.5px solid var(--border-light);border-radius:var(--radius);margin-bottom:12px;overflow:hidden}
+  .sec-head{padding:12px 16px;border-bottom:0.5px solid var(--border-light);display:flex;align-items:center;gap:8px}
+  .sec-icon{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+  .sec-icon.blue{background:var(--bg-info)}
+  .sec-icon.green{background:var(--bg-success)}
+  .sec-icon.amber{background:var(--bg-warning)}
+  .sec-icon.red{background:var(--bg-danger)}
+  .sec-title{font-size:13px;font-weight:500;color:var(--text-primary)}
+  .sec-body{padding:16px}
+
+  /* Definition block */
+  .def-box{background:var(--bg-info);border:0.5px solid var(--border-info);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:12px}
+  .def-box p{font-size:13.5px;color:var(--text-info);line-height:1.7}
+  .def-box strong{font-weight:600}
+
+  /* Analogy card */
+  .analogy{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+  @media(max-width:500px){.analogy{grid-template-columns:1fr}}
+  .a-card{background:var(--bg-secondary);border:0.5px solid var(--border-light);border-radius:var(--radius-sm);padding:12px 14px}
+  .a-card .a-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-tertiary);margin-bottom:5px}
+  .a-card .a-text{font-size:13px;color:var(--text-primary);line-height:1.6}
+  .a-card .a-emoji{font-size:22px;margin-bottom:6px}
+
+  /* Plain note */
+  .note{font-size:13px;color:var(--text-secondary);line-height:1.7;margin-bottom:10px}
+  .note strong{color:var(--text-primary);font-weight:500}
+
+  /* SDLC Phase bar */
+  .phases{display:flex;gap:0;margin:10px 0;border-radius:var(--radius-sm);overflow:hidden;border:0.5px solid var(--border-mid)}
+  .phase{flex:1;padding:10px 6px;text-align:center;font-size:11px;font-weight:500;line-height:1.4;cursor:pointer;transition:filter .15s;position:relative}
+  .phase-label{font-size:10px;margin-top:2px;opacity:.75}
+  .ph-req{background:#dbeafe;color:#1e40af}
+  .ph-des{background:#ede9fe;color:#5b21b6}
+  .ph-dev{background:#fef9c3;color:#854d0e}
+  .ph-tst{background:#dcfce7;color:#166534}
+  .ph-rel{background:#fee2e2;color:#991b1b}
+  @media(prefers-color-scheme:dark){
+    .ph-req{background:#1e3a5f;color:#93c5fd}
+    .ph-des{background:#2e1b5e;color:#c4b5fd}
+    .ph-dev{background:#3b2800;color:#fde047}
+    .ph-tst{background:#052e16;color:#86efac}
+    .ph-rel{background:#450a0a;color:#fca5a5}
+  }
+  .phase:hover{filter:brightness(.92)}
+  .phase.active{box-shadow:inset 0 -3px 0 rgba(0,0,0,0.25)}
+
+  /* Phase detail */
+  .phase-detail{background:var(--bg-secondary);border:0.5px solid var(--border-light);border-radius:var(--radius-sm);padding:13px 15px;margin-top:8px;min-height:70px;transition:all .2s}
+  .pd-name{font-size:12px;font-weight:600;color:var(--text-primary);margin-bottom:4px}
+  .pd-desc{font-size:12.5px;color:var(--text-secondary);line-height:1.65}
+  .pd-test{font-size:12px;color:var(--text-info);background:var(--bg-info);border:0.5px solid var(--border-info);border-radius:4px;padding:4px 10px;margin-top:8px;display:inline-block}
+
+  /* Cost curve */
+  .cost-wrap{margin:12px 0}
+  .cost-bar-group{display:flex;flex-direction:column;gap:7px}
+  .cost-row{display:flex;align-items:center;gap:10px}
+  .cost-phase-label{font-size:12px;color:var(--text-secondary);width:120px;flex-shrink:0;text-align:right}
+  .cost-bar-track{flex:1;height:28px;background:var(--bg-secondary);border-radius:4px;overflow:hidden;border:0.5px solid var(--border-light)}
+  .cost-bar-fill{height:100%;border-radius:4px;display:flex;align-items:center;padding-left:10px;font-size:11px;font-weight:600;color:#fff;transition:width 1s cubic-bezier(.22,1,.36,1);width:0}
+  .cost-multiplier{font-size:12px;font-weight:600;min-width:44px;text-align:right}
+  .cost-legend{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-tertiary);margin-top:8px;justify-content:flex-end}
+
+  /* Key points */
+  .kp-list{display:flex;flex-direction:column;gap:8px}
+  .kp{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:var(--bg-secondary);border:0.5px solid var(--border-light);border-radius:var(--radius-sm)}
+  .kp-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px}
+  .kp-text{font-size:13px;color:var(--text-primary);line-height:1.6}
+  .kp-text span{color:var(--text-secondary);font-size:12px}
+
+  /* Real world bugs */
+  .bug-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  @media(max-width:500px){.bug-grid{grid-template-columns:1fr}}
+  .bug-card{background:var(--bg-secondary);border:0.5px solid var(--border-light);border-radius:var(--radius-sm);padding:11px 13px}
+  .bug-top{display:flex;align-items:center;gap:7px;margin-bottom:5px}
+  .bug-icon{font-size:18px}
+  .bug-co{font-size:12px;font-weight:600;color:var(--text-primary)}
+  .bug-cost{font-size:11px;color:var(--text-danger);background:var(--bg-danger);border:0.5px solid var(--border-danger);border-radius:10px;padding:1px 7px;margin-left:auto}
+  .bug-desc{font-size:12px;color:var(--text-secondary);line-height:1.55}
+
+   /* ── BREADCRUMB ROW */
+.breadcrumb-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.breadcrumb{display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--text2);}
+.breadcrumb span{color:var(--accent2);font-weight:600;}
+.watermark{font-size:.7rem;color:var(--text2);opacity:.52;letter-spacing:.3px;
+  white-space:nowrap;font-weight:500;}
+
+  /* Summary pill */
+  .summary{background:var(--bg-success);border:0.5px solid var(--border-success);border-radius:var(--radius-sm);padding:14px 16px;display:flex;gap:12px;align-items:flex-start}
+  .summary-icon{font-size:20px;flex-shrink:0}
+  .summary-text{font-size:13px;color:var(--text-success);line-height:1.7}
+  .summary-text strong{font-weight:600}
+
+  /* Footer nav */
+  .footer{display:flex;justify-content:space-between;align-items:center;padding:12px 0 0;font-size:12px;color:var(--text-tertiary)}
+  .topic-counter{background:var(--bg-secondary);border:0.5px solid var(--border-mid);border-radius:20px;padding:4px 12px}
+
+.course-nav{
+    position:sticky;
+    bottom:0;
+    background:var(--surface, var(--bg-primary));
+    z-index:999;
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:12px;
+
+    margin-top:18px;
+    padding:14px 20px 12px;
+
+    border-top:.5px solid var(--border);
+}
+
+.course-nav-left,
+.course-nav-right{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.course-nav a{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+
+    text-decoration:none;
+
+    padding:7px 15px;          /* Increased slightly */
+
+    border:.5px solid var(--border);
+    border-radius:8px;
+
+    color:var(--text);
+    background:var(--surface2);
+
+    font-size:.86rem;          /* Slightly larger than 12px */
+    font-weight:600;
+    line-height:1.25;
+
+    transition:all .2s ease;
+}
+
+.course-nav a:hover{
+    border-color:var(--accent2);
+}
+
+.course-topic{
+    font-size:.8rem;
+    color:var(--text2);
+}
+</style>
+</head>
+<body>
+<div class="outer">
+<!-- Header -->
+<div class="hdr">
+<!-- BREADCRUMB -->
+  <div class="breadcrumb-row">
+    <div class="breadcrumb">
+      Manual Testing Fundamentals <span style="color:var(--border)">›</span> Week 0 <span style="color:var(--border)">›</span> <span>Topic 1 of 8</span>
+    </div>
+    <span class="watermark">Ronak Shah — Automation Training Content</span>
+  </div>
+<h1>What is Software Testing &amp; Why It Matters</h1>
+<p>Before we write a single line of code, let's understand what testing actually is — and why companies spend millions on it.</p>
+</div>
+<!-- Section 1: What is it -->
+<div class="section">
+<div class="sec-head">
+<div class="sec-icon blue">🔍</div>
+<span class="sec-title">What is software testing?</span>
+</div>
+<div class="sec-body">
+<div class="def-box">
+<p><strong>Software testing</strong> is the process of checking whether a software application works as <strong>expected</strong> — and finding where it doesn't — before real users experience it.</p>
+</div>
+<p class="note">Think of it this way. Before a car leaves the factory, engineers test the brakes, the engine, the lights. They don't wait for a customer to crash to discover the brakes don't work. <strong>Software testing is the same idea.</strong></p>
+<div class="analogy">
+<div class="a-card">
+<div class="a-emoji">🚗</div>
+<div class="a-label">Real world</div>
+<div class="a-text">A mechanic tests brakes before delivering the car to the customer.</div>
+</div>
+<div class="a-card">
+<div class="a-emoji">💻</div>
+<div class="a-label">Software world</div>
+<div class="a-text">A tester checks the login button before the app reaches real users.</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Section 2: Where does testing happen -->
+<div class="section">
+<div class="sec-head">
+<div class="sec-icon blue">🗺️</div>
+<span class="sec-title">Where does testing happen in a project? Click each phase.</span>
+</div>
+<div class="sec-body">
+<div class="phases">
+<div class="phase ph-req active" onclick="showPhase(0)">
+<div>📋</div>
+<div>Requirements</div>
+<div class="phase-label">Phase 1</div>
+</div>
+<div class="phase ph-des" onclick="showPhase(1)">
+<div>🎨</div>
+<div>Design</div>
+<div class="phase-label">Phase 2</div>
+</div>
+<div class="phase ph-dev" onclick="showPhase(2)">
+<div>⌨️</div>
+<div>Development</div>
+<div class="phase-label">Phase 3</div>
+</div>
+<div class="phase ph-tst" onclick="showPhase(3)">
+<div>🧪</div>
+<div>Testing</div>
+<div class="phase-label">Phase 4</div>
+</div>
+<div class="phase ph-rel" onclick="showPhase(4)">
+<div>🚀</div>
+<div>Production</div>
+<div class="phase-label">Phase 5</div>
+</div>
+</div>
+<div class="phase-detail" id="phase-detail">
+<div class="pd-name" id="pd-name">Requirements Phase</div>
+<div class="pd-desc" id="pd-desc">The team gathers what the software should do — written as requirements or user stories. e.g. "Users should be able to log in with email and password."</div>
+<div class="pd-test" id="pd-test">Testing here: Review requirements for gaps and ambiguities before anything is built.</div>
+</div>
+</div>
+</div>
+<!-- Section 3: Cost Curve -->
+<div class="section">
+<div class="sec-head">
+<div class="sec-icon amber">💰</div>
+<span class="sec-title">Why find bugs early? The cost of waiting.</span>
+</div>
+<div class="sec-body">
+<p class="note">This is the most important concept in testing. <strong>The later a bug is found, the more expensive it is to fix.</strong> Not a little more — dramatically more.</p>
+<div class="cost-wrap">
+<div class="cost-bar-group" id="cost-bars"></div>
+<div class="cost-legend">← relative cost to fix a bug found at this stage</div>
+</div>
+<p class="note" style="margin-top:10px">A bug found <strong>during requirements review</strong> might take 10 minutes to fix (just update a document). The same bug found <strong>in production</strong> could take weeks of hotfixes, rollbacks, and customer support — and may have already cost real money.</p>
+</div>
+</div>
+<!-- Section 4: Real World Examples -->
+<div class="section">
+<div class="sec-head">
+<div class="sec-icon red">🌍</div>
+<span class="sec-title">Real bugs that reached production — and what they cost</span>
+</div>
+<div class="sec-body">
+<div class="bug-grid">
+<div class="bug-card">
+<div class="bug-top">
+<div class="bug-icon">🚀</div>
+<div class="bug-co">NASA Mars Orbiter</div>
+<div class="bug-cost">$327M lost</div>
+</div>
+<div class="bug-desc">One team used metric units, another used imperial. The mismatch was never caught in testing. The spacecraft was lost.</div>
+</div>
+<div class="bug-card">
+<div class="bug-top">
+<div class="bug-icon">🏦</div>
+<div class="bug-co">Knight Capital</div>
+<div class="bug-cost">$440M in 45 min</div>
+</div>
+<div class="bug-desc">A faulty software deployment caused the trading firm to lose $440 million in under an hour. The company nearly collapsed.</div>
+</div>
+<div class="bug-card">
+<div class="bug-top">
+<div class="bug-icon">🏥</div>
+<div class="bug-co">Therac-25 (Medical)</div>
+<div class="bug-cost">Lives lost</div>
+</div>
+<div class="bug-desc">A radiation therapy machine had a software bug that delivered lethal doses of radiation. Patients died. No proper testing was done.</div>
+</div>
+<div class="bug-card">
+<div class="bug-top">
+<div class="bug-icon">🛒</div>
+<div class="bug-co">Amazon Pricing Bug</div>
+<div class="bug-cost">~$24M exposure</div>
+</div>
+<div class="bug-desc">A pricing algorithm bug made thousands of products available for $0. Orders flooded in before the bug was caught.</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Section 5: Key Takeaways -->
+<div class="section">
+<div class="sec-head">
+<div class="sec-icon green">✅</div>
+<span class="sec-title">What a tester's job actually is</span>
+</div>
+<div class="sec-body">
+<div class="kp-list">
+<div class="kp">
+<div class="kp-dot" style="background:#3b82f6"></div>
+<div class="kp-text"><strong>Find bugs before users do.</strong> <span>A bug found by a tester costs the company minutes. A bug found by a user costs reputation, money, and trust.</span></div>
+</div>
+<div class="kp">
+<div class="kp-dot" style="background:#22c55e"></div>
+<div class="kp-text"><strong>Verify the software does what it's supposed to.</strong> <span>Does the login page actually log you in? Does the payment actually charge correctly?</span></div>
+</div>
+<div class="kp">
+<div class="kp-dot" style="background:#f59e0b"></div>
+<div class="kp-text"><strong>Catch what developers missed.</strong> <span>Developers focus on building — testers focus on breaking. Both are essential.</span></div>
+</div>
+<div class="kp">
+<div class="kp-dot" style="background:#ef4444"></div>
+<div class="kp-text"><strong>Give confidence to release.</strong> <span>Without testing, every release is a gamble. With testing, the team knows what works.</span></div>
+</div>
+</div>
+<div style="margin-top:12px">
+<div class="summary">
+<div class="summary-icon">💡</div>
+<div class="summary-text"><strong>One line to remember:</strong> Software testing is the safety net between what developers build and what users experience. Your job as a tester is to find the holes in that net before anyone falls through.</div>
+</div>
+</div>
+</div>
+</div>
+<div class="footer">
+<span>Week 0 · Manual Testing Fundamentals</span>
+<span class="topic-counter">Topic 1 of 8</span>
+</div>
+<div class="course-nav">
+    <div class="course-nav-left">
+      <a href="../index.html">🏠 Home</a>
+    </div>
+	<div class="course-nav-right">
+		<a href="w0_t2_manual_vs_automation_1.html">Next →</a>
+	</div>
+</div><!-- /container -->
+<script>
+const phases = [
+  {
+    name: 'Requirements Phase',
+    desc: 'The team gathers what the software should do — written as requirements or user stories. e.g. "Users should be able to log in with email and password."',
+    test: 'Testing here: Review requirements for gaps and ambiguities before anything is built.'
+  },
+  {
+    name: 'Design Phase',
+    desc: 'Architects and designers plan how the system will look and work — database structure, UI wireframes, API design.',
+    test: 'Testing here: Review designs for usability issues and logical flaws before development starts.'
+  },
+  {
+    name: 'Development Phase',
+    desc: 'Developers write the actual code. Features are built one by one based on the requirements.',
+    test: 'Testing here: Developers write unit tests. Testers begin preparing test cases in parallel.'
+  },
+  {
+    name: 'Testing Phase',
+    desc: 'The built software is handed over to testers. This is where most manual and automated testing happens.',
+    test: 'Testing here: Functional testing, regression testing, integration testing, bug reporting.'
+  },
+  {
+    name: 'Production Phase',
+    desc: 'The software is live — real users are using it. Any bug found here is now a customer-facing problem.',
+    test: '⚠️ Testing here: Monitoring, bug reports from users. Most expensive place to find issues — avoid this!'
+  }
+];
+
+function showPhase(i) {
+  document.querySelectorAll('.phase').forEach((p, j) => p.classList.toggle('active', j === i));
+  document.getElementById('pd-name').textContent = phases[i].name;
+  document.getElementById('pd-desc').textContent = phases[i].desc;
+  document.getElementById('pd-test').textContent = phases[i].test;
+}
+
+const costData = [
+  { label: 'Requirements', mult: 1,   color: '#3b82f6', pct: 5  },
+  { label: 'Design',       mult: 5,   color: '#8b5cf6', pct: 14 },
+  { label: 'Development',  mult: 10,  color: '#f59e0b', pct: 27 },
+  { label: 'Testing',      mult: 20,  color: '#f97316', pct: 50 },
+  { label: 'Production',   mult: 100, color: '#ef4444', pct: 100 },
+];
+
+const barGroup = document.getElementById('cost-bars');
+costData.forEach(d => {
+  const row = document.createElement('div');
+  row.className = 'cost-row';
+  row.innerHTML = `
+    <div class="cost-phase-label">${d.label}</div>
+    <div class="cost-bar-track">
+      <div class="cost-bar-fill" style="background:${d.color}" data-pct="${d.pct}">
+        ${d.mult > 1 ? d.mult + 'x' : '1x'}
+      </div>
+    </div>
+    <div class="cost-multiplier" style="color:${d.color}">${d.mult === 100 ? '100x' : d.mult + 'x'}</div>
+  `;
+  barGroup.appendChild(row);
+});
+
+setTimeout(() => {
+  document.querySelectorAll('.cost-bar-fill').forEach(bar => {
+    bar.style.width = bar.dataset.pct + '%';
+  });
+}, 300);
+</script>
+</body>
+</html>

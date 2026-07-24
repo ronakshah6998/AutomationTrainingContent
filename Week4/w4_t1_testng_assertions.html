@@ -1,0 +1,1529 @@
+
+<!DOCTYPE html>
+<html data-theme="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TestNG Assertions - Week 4 Tutorial</title>
+<style>
+/* ── TOKENS ─────────────────────────────────────────────── */
+:root {
+--bg:#0d1117; --surface:#161b22; --surface2:#1f2937; --border:#30363d;
+--accent:#f89820; --accent2:#4fa3e0; --accent3:#58d68d; --accent4:#e74c3c; --accent5:#c678dd;
+--text:#e6edf3; --text2:#8b949e; --text3:#c9d1d9;
+--tab-bg:#161b22; --tab-active:#1f2937; --code-bg:#0d1117;
+--radius:10px; --font-mono:'Courier New',Courier,monospace;
+--sel:#43b02a;
+}
+[data-theme="light"]{
+--bg:#f0f4f8; --surface:#ffffff; --surface2:#e8eef5; --border:#d1d9e0;
+--text:#1a202c; --text2:#4a5568; --text3:#2d3748;
+--tab-bg:#e8eef5; --tab-active:#ffffff; --code-bg:#e2e8f0;
+}
+[data-theme="light"] pre,[data-theme="light"] .code-pre{color:#1a202c;background:#e2e8f0;}
+[data-theme="light"] .quiz-code,[data-theme="light"] .card code,
+[data-theme="light"] .info-box code,[data-theme="light"] code{background:#dde4ee;color:var(--text);border:1px solid var(--border);}
+[data-theme="light"] .kw{color:#7c3aed;}[data-theme="light"] .cls{color:#b45309;}
+[data-theme="light"] .fn{color:#1d4ed8;}[data-theme="light"] .str{color:#15803d;}
+[data-theme="light"] .cmt{color:#6b7280;}[data-theme="light"] .num{color:#c2410c;}
+[data-theme="light"] .xml-tag{color:#be185d;}[data-theme="light"] .xml-val{color:#15803d;}
+,::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);
+min-height:100vh;transition:background .3s,color .3s;line-height:1.65;
+user-select:none;-webkit-user-select:none;}
+/* ── WATERMARK ─────────────────────────────────────────── */
+#watermark{position:fixed;bottom:14px;right:18px;font-size:.7rem;color:var(--text2);
+opacity:.44;pointer-events:none;z-index:800;letter-spacing:.2px;white-space:nowrap;}
+/* ── HEADER ─────────────────────────────────────────────── */
+header{background:var(--surface);border-bottom:1px solid var(--border);
+padding:0 32px;display:flex;align-items:center;justify-content:space-between;
+height:62px;position:sticky;top:0;z-index:100;box-shadow:0 1px 0 var(--border);}
+.logo{display:flex;align-items:center;gap:10px;font-size:1.05rem;font-weight:700;}
+.logo-icon{width:32px;height:32px;border-radius:8px;
+background:linear-gradient(135deg,#43b02a,#26890c);
+display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:#fff;}
+.badge{font-size:.68rem;font-weight:600;padding:2px 8px;border-radius:20px;
+background:var(--accent2);color:#000;text-transform:uppercase;letter-spacing:.5px;}
+#themeToggle{background:var(--surface2);border:1px solid var(--border);color:var(--text);
+border-radius:8px;padding:6px 14px;cursor:pointer;font-size:.85rem;transition:all .2s;}
+#themeToggle:hover{border-color:var(--accent);color:var(--accent);}
+/* ── LAYOUT ─────────────────────────────────────────────── */
+.container{max-width:1100px;margin:0 auto;padding:32px 20px 80px;}
+/* ── HERO ───────────────────────────────────────────────── */
+.hero{background:linear-gradient(135deg,var(--surface),var(--surface2));
+border:1px solid var(--border);border-radius:14px;padding:36px 40px;
+margin-bottom:28px;display:flex;align-items:center;gap:28px;
+position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:240px;height:240px;
+border-radius:50%;background:radial-gradient(circle,rgba(79,163,224,.14) 0%,transparent 70%);
+pointer-events:none;}
+.hero-icon{font-size:64px;flex-shrink:0;filter:drop-shadow(0 4px 16px rgba(79,163,224,.4));}
+.hero-text h1{font-size:1.75rem;font-weight:800;line-height:1.2;}
+.hero-text h1 span{color:var(--accent2);}
+.hero-text p{color:var(--text2);margin-top:8px;font-size:.95rem;}
+.hero-pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;}
+.pill{padding:4px 12px;border-radius:20px;font-size:.78rem;font-weight:600;
+border:1px solid;display:flex;align-items:center;gap:5px;}
+.pill-orange{color:var(--accent);border-color:rgba(248,152,32,.35);background:rgba(248,152,32,.08);}
+.pill-blue{color:var(--accent2);border-color:rgba(79,163,224,.35);background:rgba(79,163,224,.08);}
+.pill-green{color:var(--accent3);border-color:rgba(88,214,141,.35);background:rgba(88,214,141,.08);}
+.pill-purple{color:var(--accent5);border-color:rgba(198,120,221,.35);background:rgba(198,120,221,.08);}
+.pill-sel{color:var(--sel);border-color:rgba(67,176,42,.35);background:rgba(67,176,42,.08);}
+/* ── BREADCRUMB ROW ─────────────────────────────────────── */
+.breadcrumb-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.breadcrumb{display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--text2);}
+.breadcrumb span{color:var(--accent2);font-weight:600;}
+.watermark{font-size:.7rem;color:var(--text2);opacity:.52;letter-spacing:.3px;
+white-space:nowrap;font-weight:500;}
+/* ── TABS ───────────────────────────────────────────────── */
+.tabs-wrapper{background:var(--tab-bg);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.tab-nav{display:flex;overflow-x:auto;border-bottom:1px solid var(--border);scrollbar-width:none;}
+.tab-nav::-webkit-scrollbar{display:none;}
+.tab-btn{flex-shrink:0;padding:13px 18px;background:none;border:none;color:var(--text2);
+font-size:.83rem;font-weight:600;cursor:pointer;position:relative;transition:color .2s;
+display:flex;align-items:center;gap:6px;}
+.tab-btn:hover{color:var(--text);}
+.tab-btn.active{color:var(--accent2);background:var(--tab-active);}
+.tab-btn.active::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+background:var(--accent2);border-radius:2px 2px 0 0;}
+.tab-content{display:none;padding:32px;}
+.tab-content.active{display:block;animation:fadeIn .25s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+/* ── SECTION HEADINGS ───────────────────────────────────── */
+.section-title{font-size:1.2rem;font-weight:800;margin-bottom:6px;display:flex;align-items:center;gap:9px;}
+.section-title .dot{width:10px;height:10px;border-radius:50%;background:var(--accent2);}
+.section-sub{color:var(--text2);font-size:.9rem;margin-bottom:22px;}
+/* ── CARDS ──────────────────────────────────────────────── */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px;margin-bottom:28px;}
+.card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);
+padding:20px;transition:border-color .2s,transform .2s;}
+.card:hover{border-color:var(--accent2);transform:translateY(-2px);}
+.card-icon{font-size:1.6rem;margin-bottom:10px;}
+.card h3{font-size:.95rem;font-weight:700;margin-bottom:6px;}
+.card p{font-size:.83rem;color:var(--text2);line-height:1.55;}
+.card code{font-family:var(--font-mono);font-size:.78rem;background:var(--code-bg);
+padding:1px 6px;border-radius:4px;color:var(--accent3);border:1px solid var(--border);}
+/* ── INFO BOX ───────────────────────────────────────────── */
+.info-box{border-radius:var(--radius);padding:16px 20px;font-size:.875rem;
+margin-bottom:20px;border-left:4px solid;display:flex;gap:12px;align-items:flex-start;}
+.info-box .ib-icon{font-size:1.2rem;flex-shrink:0;margin-top:1px;}
+.info-box.blue{background:rgba(79,163,224,.1);border-color:var(--accent2);}
+.info-box.orange{background:rgba(248,152,32,.1);border-color:var(--accent);}
+.info-box.green{background:rgba(88,214,141,.1);border-color:var(--accent3);}
+.info-box.red{background:rgba(231,76,60,.1);border-color:var(--accent4);}
+.info-box.sel{background:rgba(67,176,42,.1);border-color:var(--sel);}
+.info-box code{font-family:var(--font-mono);font-size:.82rem;background:var(--code-bg);
+padding:1px 6px;border-radius:4px;color:var(--accent3);border:1px solid var(--border);}
+/* ── CODE BLOCK ─────────────────────────────────────────── */
+.code-wrap{background:var(--code-bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin:16px 0;}
+.code-header{display:flex;align-items:center;justify-content:space-between;
+padding:10px 16px;border-bottom:1px solid var(--border);background:rgba(255,255,255,.03);}
+.code-lang{font-size:.75rem;color:var(--text2);font-weight:600;}
+.code-dots{display:flex;gap:5px;}
+.code-dots span{width:11px;height:11px;border-radius:50%;}
+.code-dots .r{background:#ff5f57;}.code-dots .y{background:#ffbd2e;}.code-dots .g{background:#28c840;}
+.code-pre{padding:20px;overflow-x:auto;font-family:var(--font-mono);font-size:.85rem;line-height:1.75;color:#abb2bf;white-space:pre;}
+.kw{color:#c678dd;font-weight:600;}.cls{color:#e5c07b;}.fn{color:#61afef;}
+.str{color:#98c379;}.cmt{color:#5c6370;font-style:italic;}.num{color:#d19a66;}.op{color:#56b6c2;}
+.xml-tag{color:#e06c75;}.xml-attr{color:#d19a66;}.xml-val{color:#98c379;}
+/* Line highlights in playground (Fixed) */
+.code-pre .pl-line {
+display: block;
+width: 100%;
+white-space: pre;
+border-left: 3px solid transparent;
+transition: background 0.15s, border-left-color 0.15s;
+}
+.code-pre .pl-line.active-line {
+background: rgba(79, 163, 224, 0.16);
+border-left-color: var(--accent2);
+margin-left: -20px;
+padding-left: 17px;
+}
+/* ── FLOW PIPELINE ──────────────────────────────────────── */
+.flow-pipe{display:flex;flex-direction:column;gap:6px;margin:20px 0;}
+.fp-row{display:flex;align-items:center;gap:12px;}
+.fp-box{flex:1;background:var(--surface2);border:2px solid var(--border);border-radius:var(--radius);
+padding:13px 18px;display:flex;align-items:center;gap:12px;transition:all .3s;}
+.fp-box.active{border-color:var(--accent2);background:rgba(79,163,224,.08);box-shadow:0 0 0 3px rgba(79,163,224,.15);}
+.fp-box.done{border-color:var(--accent3);background:rgba(88,214,141,.07);}
+.fp-icon{font-size:1.4rem;flex-shrink:0;}
+.fp-info .fp-label{font-size:.7rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.4px;}
+.fp-info .fp-title{font-size:.9rem;font-weight:700;margin-top:1px;}
+.fp-arrow{text-align:center;font-size:.8rem;color:var(--text2);padding:4px 0;}
+.fp-arrow.lit{color:var(--accent3);}
+/* ── ITER STEPS ─────────────────────────────────────────── */
+.iter-steps{display:flex;flex-direction:column;gap:10px;margin:16px 0;}
+.iter-row{display:flex;gap:14px;align-items:flex-start;background:var(--surface2);
+border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;transition:border-color .2s;}
+.iter-row:hover{border-color:var(--accent2);}
+.iter-num{flex-shrink:0;width:28px;height:28px;border-radius:50%;background:var(--accent2);
+color:#000;font-weight:800;font-size:.8rem;display:flex;align-items:center;justify-content:center;margin-top:1px;}
+.iter-body h4{font-size:.88rem;font-weight:700;margin-bottom:3px;}
+.iter-body p{font-size:.82rem;color:var(--text2);}
+.iter-body code{font-family:var(--font-mono);font-size:.8rem;background:var(--code-bg);
+padding:1px 6px;border-radius:4px;color:var(--accent3);border:1px solid var(--border);}
+/* ── COMPARE TABLE ──────────────────────────────────────── */
+.compare-table{width:100%;border-collapse:collapse;font-size:.875rem;margin:16px 0;}
+.compare-table th{text-align:left;padding:10px 16px;background:var(--surface2);color:var(--text2);
+font-weight:700;font-size:.78rem;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);}
+.compare-table td{padding:11px 16px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.compare-table tr:last-child td{border-bottom:none;}
+.compare-table tr:hover td{background:rgba(255,255,255,.02);}
+.mono{font-family:var(--font-mono);font-size:.82rem;color:var(--accent3);}
+/* ── FOLDER TREE ────────────────────────────────────────── */
+.folder-tree{background:var(--code-bg);border:1px solid var(--border);border-radius:var(--radius);
+padding:20px 24px;font-family:var(--font-mono);font-size:.85rem;line-height:2;color:#abb2bf;}
+.ft-folder{color:#e5c07b;font-weight:600;}
+.ft-file{color:#98c379;}
+.ft-xml{color:#e06c75;}
+.ft-gray{color:var(--text2);}
+.ft-indent1{padding-left:20px;}
+.ft-indent2{padding-left:40px;}
+.ft-indent3{padding-left:60px;}
+.ft-indent4{padding-left:80px;}
+/* ── ACTION CARDS ───────────────────────────────────────── */
+.action-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin:18px 0 26px;}
+.action-card{background:var(--surface2);border:2px solid var(--border);border-radius:var(--radius);
+padding:18px;transition:all .2s;}
+.action-card:hover{transform:translateY(-2px);}
+.action-card.click-card{border-color:rgba(231,76,60,.4);}
+.action-card.send-card{border-color:rgba(79,163,224,.4);}
+.action-card.get-card{border-color:rgba(88,214,141,.4);}
+.action-card.hover-card{border-color:rgba(248,152,32,.4);}
+.ac-tag{font-size:.68rem;font-weight:700;padding:2px 8px;border-radius:5px;
+text-transform:uppercase;letter-spacing:.4px;display:inline-block;margin-bottom:10px;}
+.ac-tag.click{background:rgba(231,76,60,.15);color:var(--accent4);}
+.ac-tag.send{background:rgba(79,163,224,.15);color:var(--accent2);}
+.ac-tag.get{background:rgba(88,214,141,.15);color:var(--accent3);}
+.ac-tag.hover{background:rgba(248,152,32,.15);color:var(--accent);}
+.action-card h4{font-family:var(--font-mono);font-size:.9rem;font-weight:800;margin-bottom:6px;}
+.action-card p{font-size:.8rem;color:var(--text2);line-height:1.5;margin-bottom:8px;}
+.action-card .ac-ex{font-family:var(--font-mono);font-size:.76rem;background:var(--code-bg);
+padding:6px 10px;border-radius:6px;border:1px solid var(--border);color:#abb2bf;white-space:pre;}
+/* ── BROWSER SIM ────────────────────────────────────────── */
+.browser-sim-wrap{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+.browser-sim-header{display:flex;align-items:center;justify-content:space-between;
+padding:13px 20px;background:rgba(255,255,255,.03);border-bottom:1px solid var(--border);
+font-weight:700;font-size:.88rem;}
+.browser-sim-body{padding:24px;}
+/* Fake browser window */
+.fake-browser{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:18px;}
+.fb-titlebar{background:#1a1d23;padding:10px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);}
+.fb-dots{display:flex;gap:5px;}
+.fb-dot{width:12px;height:12px;border-radius:50%;}
+.fb-dot.red{background:#ff5f57;}.fb-dot.yel{background:#ffbd2e;}.fb-dot.grn{background:#28c840;}
+.fb-url{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:6px;
+padding:5px 12px;font-size:.78rem;color:var(--text2);font-family:var(--font-mono);}
+.fb-content{padding:28px 32px;min-height:220px;}
+.fb-page-title{font-size:1.1rem;font-weight:800;margin-bottom:24px;color:var(--text);}
+.fb-form-group{margin-bottom:16px;}
+.fb-label{font-size:.78rem;font-weight:600;color:var(--text2);margin-bottom:6px;display:block;}
+.fb-input{width:100%;max-width:320px;padding:10px 14px;border-radius:8px;
+border:2px solid var(--border);background:var(--surface);color:var(--text);
+font-size:.9rem;font-family:var(--font-mono);outline:none;transition:border-color .2s;}
+.fb-input:focus{border-color:var(--accent2);}
+.fb-input.success{border-color:var(--accent3);}
+.fb-btn{padding:10px 28px;border-radius:8px;background:var(--accent2);color:#fff;
+border:none;font-weight:800;font-size:.9rem;cursor:pointer;transition:all .2s;
+margin-top:4px;}
+.fb-btn:hover{opacity:.88;transform:translateY(-1px);}
+.fb-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.fb-msg{padding:12px 16px;border-radius:8px;font-size:.875rem;font-weight:600;
+margin-top:14px;display:none;animation:fadeIn .3s;}
+.fb-msg.success{background:rgba(88,214,141,.12);border:1px solid rgba(88,214,141,.35);color:var(--accent3);}
+.fb-msg.error{background:rgba(231,76,60,.1);border:1px solid rgba(231,76,60,.3);color:var(--accent4);}
+/* Command log */
+.cmd-log{background:var(--code-bg);border:1px solid var(--border);border-radius:var(--radius);
+overflow:hidden;margin-bottom:18px;}
+.cmd-log-bar{padding:9px 16px;background:rgba(255,255,255,.03);border-bottom:1px solid var(--border);
+font-size:.78rem;color:var(--text2);font-weight:600;display:flex;align-items:center;gap:8px;}
+.cmd-log-body{padding:14px 18px;font-family:var(--font-mono);font-size:.84rem;
+min-height:100px;max-height:180px;overflow-y:auto;line-height:1.9;white-space:pre-wrap;color:#abb2bf;}
+.c-sel{color:#43b02a;}.c-dim{color:#555;}.c-info{color:#7ec8e3;}.c-ok{color:#a8ff78;}
+/* Sim controls */
+.sim-controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;}
+.btn-sim{background:linear-gradient(135deg,var(--accent2),#2980b9);color:#fff;border:none;
+border-radius:8px;padding:10px 24px;font-weight:800;font-size:.875rem;cursor:pointer;
+transition:opacity .2s,transform .2s;}
+.btn-sim:hover{opacity:.88;transform:translateY(-1px);}
+.btn-sim:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.btn-reset-sim{background:none;border:1px solid var(--border);color:var(--text2);
+border-radius:8px;padding:10px 18px;font-size:.875rem;cursor:pointer;transition:all .2s;}
+.btn-reset-sim:hover{border-color:var(--text2);color:var(--text);}
+.btn-run-all{background:linear-gradient(135deg,var(--sel),#1e6b0e);color:#fff;border:none;
+border-radius:8px;padding:10px 24px;font-weight:800;font-size:.875rem;cursor:pointer;
+transition:opacity .2s,transform .2s;}
+.btn-run-all:hover{opacity:.88;transform:translateY(-1px);}
+.btn-run-all:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+/* Validation checklist in playground */
+.chk-item {
+display: flex;
+align-items: center;
+gap: 10px;
+font-size: 0.85rem;
+color: var(--text2);
+padding: 8px 12px;
+border-radius: 6px;
+background: var(--surface2);
+border: 1px solid var(--border);
+margin-top: 6px;
+transition: all 0.2s;
+}
+.chk-item.pass {
+border-color: var(--accent3);
+color: var(--text);
+background: rgba(88,214,141,0.06);
+}
+.chk-item.fail {
+border-color: var(--accent4);
+color: var(--accent4);
+background: rgba(231,76,60,0.06);
+}
+.chk-item.skipped {
+opacity: 0.44;
+}
+/* Result pills */
+.result-pills{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px;min-height:34px;}
+.rpill{display:flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;
+font-size:.82rem;font-weight:600;border:1px solid;animation:fadeIn .2s;}
+.rpill-success{background:rgba(88,214,141,.12);border-color:rgba(88,214,141,.4);color:var(--accent3);}
+.rpill-error{background:rgba(231,76,60,.12);border-color:rgba(231,76,60,.4);color:var(--accent4);}
+.rpill-info{background:rgba(79,163,224,.12);border-color:rgba(79,163,224,.4);color:var(--accent2);}
+.rpill-warn{background:rgba(248,152,32,.12);border-color:rgba(248,152,32,.4);color:var(--accent);}
+/* ── ERROR PANEL ─────────────────────────────────────────── */
+.err-sim-btns{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px;}
+.err-btn{padding:8px 18px;border-radius:8px;border:1px solid var(--border);
+background:var(--surface2);color:var(--text);font-size:.84rem;font-weight:600;
+cursor:pointer;transition:all .2s;}
+.err-btn:hover{border-color:var(--accent4);color:var(--accent4);}
+.err-btn.active{background:rgba(231,76,60,.15);border-color:var(--accent4);color:var(--accent4);}
+.err-panel{display:none;background:var(--surface2);border:1px solid var(--border);
+border-radius:var(--radius);overflow:hidden;}
+.err-panel.active{display:block;animation:fadeIn .2s ease;}
+.err-hdr{display:flex;align-items:center;gap:10px;padding:12px 18px;
+background:rgba(231,76,60,.12);border-bottom:1px solid var(--border);
+font-size:.875rem;font-weight:700;color:var(--accent4);}
+.err-body{padding:20px;}
+.err-body h4{font-size:.9rem;font-weight:700;margin-bottom:8px;}
+.err-body p{font-size:.85rem;color:var(--text2);margin-bottom:12px;}
+.err-msg{font-family:var(--font-mono);font-size:.8rem;background:var(--code-bg);
+border:1px solid rgba(231,76,60,.3);border-radius:7px;padding:12px 16px;
+color:#ff6b6b;margin-bottom:14px;white-space:pre;overflow-x:auto;}
+.code-diff{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0;}
+.diff-wrong,.diff-right{border-radius:8px;overflow:hidden;border:1px solid var(--border);}
+.diff-lbl{padding:7px 12px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
+.diff-wrong .diff-lbl{background:rgba(231,76,60,.15);color:var(--accent4);}
+.diff-right .diff-lbl{background:rgba(88,214,141,.15);color:var(--accent3);}
+.diff-code{padding:12px 14px;font-family:var(--font-mono);font-size:.8rem;background:var(--code-bg);line-height:1.7;color:#abb2bf;white-space:pre;overflow-x:auto;margin:0;border:none;}
+/* ── QUIZ ───────────────────────────────────────────────── */
+.quiz-container{display:flex;flex-direction:column;gap:24px;}
+.quiz-block{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:22px 24px;}
+.quiz-num{font-size:.72rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;}
+.quiz-q{font-weight:700;font-size:.92rem;margin-bottom:14px;line-height:1.5;}
+.quiz-opts{display:flex;flex-direction:column;gap:9px;}
+.quiz-opt{padding:10px 16px;border-radius:8px;border:1px solid var(--border);
+background:var(--bg);font-size:.875rem;cursor:pointer;transition:all .2s;
+display:flex;align-items:flex-start;gap:10px;text-align:left;}
+.quiz-opt:hover:not(.correct):not(.wrong){border-color:var(--accent2);background:rgba(79,163,224,.04);}
+.quiz-opt.correct{border-color:var(--accent3);background:rgba(88,214,141,.1);color:var(--accent3);pointer-events:none;}
+.quiz-opt.wrong{border-color:var(--accent4);background:rgba(231,76,60,.08);color:var(--accent4);pointer-events:none;}
+.quiz-opt.disabled{pointer-events:none;opacity:.5;}
+.quiz-feedback{margin-top:12px;font-size:.845rem;padding:10px 14px;border-radius:7px;display:none;}
+.quiz-feedback.show{display:block;animation:fadeIn .2s;}
+.quiz-feedback.correct{background:rgba(88,214,141,.1);color:var(--accent3);border:1px solid rgba(88,214,141,.25);}
+.quiz-feedback.wrong{background:rgba(231,76,60,.08);color:var(--accent4);border:1px solid rgba(231,76,60,.2);}
+.quiz-code{font-family:var(--font-mono);background:var(--code-bg);padding:1px 7px;
+border-radius:4px;font-size:.85em;color:var(--text);border:1px solid var(--border);}
+.score-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);
+padding:28px;text-align:center;display:none;margin-top:24px;}
+.score-box.show{display:block;animation:fadeIn .3s;}
+.score-num{font-size:3rem;font-weight:900;line-height:1;}
+.score-label{color:var(--text2);font-size:.9rem;margin-top:6px;margin-bottom:16px;}
+.btn-retake{background:var(--surface2);border:1px solid var(--border);color:var(--text);
+border-radius:8px;padding:9px 24px;font-size:.875rem;font-weight:700;cursor:pointer;transition:all .2s;}
+.btn-retake:hover{border-color:var(--accent2);color:var(--accent2);}
+/* ── RESPONSIVE ─────────────────────────────────────────── */
+@media(max-width:700px){
+.hero{flex-direction:column;padding:24px 20px;}
+.tab-btn{padding:12px 11px;font-size:.77rem;}
+.tab-content{padding:20px 16px;}
+.hero-text h1{font-size:1.35rem;}
+.code-diff{grid-template-columns:1fr;}
+.action-grid{grid-template-columns:1fr;}
+}
+.course-nav{
+position:sticky;
+bottom:0;
+background:var(--surface, var(--bg-primary));
+z-index:999;
+display:flex;
+justify-content:space-between;
+align-items:center;
+flex-wrap:wrap;
+gap:12px;
+margin-top:18px;
+padding:14px 20px 12px;
+border-top:.5px solid var(--border);
+}
+.course-nav-left,
+.course-nav-right{
+display:flex;
+align-items:center;
+gap:10px;
+}
+.course-nav a{
+display:inline-flex;
+align-items:center;
+justify-content:center;
+text-decoration:none;
+padding:7px 15px;
+border:.5px solid var(--border);
+border-radius:8px;
+color:var(--text);
+background:var(--surface2);
+font-size:.86rem;
+font-weight:600;
+line-height:1.25;
+transition:all .2s ease;
+}
+.course-nav a:hover{
+border-color:var(--accent2);
+}
+.course-topic{
+font-size:.8rem;
+color:var(--text2);
+}
+</style>
+</head>
+<body>
+<header>
+<div class="logo">
+<div class="logo-icon">Te</div>
+TestNG Training
+</div>
+<button id="themeToggle" onclick="toggleTheme()">🌙 Dark</button>
+</header>
+<div class="container">
+<div class="breadcrumb-row">
+<div class="breadcrumb">
+Automation Series <span style="color:var(--border)">›</span> Week 4 <span style="color:var(--border)">›</span> <span>TestNG Assertions &amp; Verification</span>
+</div>
+<span class="watermark">Ronak Shah — Automation Training Content</span>
+</div>
+<div class="hero">
+<div class="hero-icon">🎯</div>
+<div class="hero-text">
+<h1>TestNG Assertions &amp; <span>Verification State</span></h1>
+<p>Establish automated testing checkpoints, validate complex UI and API systems, and manage hard vs. soft test lifecycles.</p>
+<div class="hero-pills">
+<span class="pill pill-orange">🔴 Hard Assertions</span>
+<span class="pill pill-blue">🟡 Soft Assertions</span>
+<span class="pill pill-green">🕹️ Interactive Sim</span>
+<span class="pill pill-purple">🧠 MCQ Check</span>
+</div>
+</div>
+</div>
+<div class="tabs-wrapper">
+<div class="tab-nav">
+<button class="tab-btn active" onclick="switchTab('intro',this)"><span>🎯</span> Introduction</button>
+<button class="tab-btn" onclick="switchTab('hard',this)"><span>🔴</span> Hard Assertions</button>
+<button class="tab-btn" onclick="switchTab('soft',this)"><span>🟡</span> Soft Assertions</button>
+<button class="tab-btn" onclick="switchTab('playground',this)"><span>🕹️</span> Live Playground</button>
+<button class="tab-btn" onclick="switchTab('realworld',this)"><span>💼</span> Real World Examples</button>
+<button class="tab-btn" onclick="switchTab('mistakes',this)"><span>❌</span> Common Mistakes</button>
+<button class="tab-btn" onclick="switchTab('quiz',this)"><span>🧠</span> Quick Check</button>
+</div>
+<!-- ══════════════ TAB 1: INTRODUCTION ══════════════ -->
+<div class="tab-content active" id="tab-intro">
+<div class="section-title"><span class="dot"></span> What are Assertions?</div>
+<p class="section-sub">Assertions are verification checkpoints in your test script that confirm whether the application's actual behavior matches the expected outcome.</p>
+<div class="info-box blue">
+<span class="ib-icon">💡</span>
+<div><strong>Why Assertions?</strong> Without assertions, a Selenium script that navigates through a page and triggers no internal Java exceptions will always be reported as <strong>PASSED</strong> — even if the page loads completely empty or displays a critical error screen. Selenium interacts; TestNG Assertions decide success or failure.</div>
+</div>
+<div class="cards">
+<div class="card">
+<div class="card-icon">🚀</div>
+<h3>Verification</h3>
+<p>Evaluating whether a specific component acts as intended (e.g. <em>does clicking 'checkout' lead to payment?</em>). Assertions check logic.</p>
+</div>
+<div class="card">
+<div class="card-icon">📋</div>
+<h3>Validation</h3>
+<p>Determining whether the high-level business workflow fulfills requirements (e.g. <em>does the system allow a guest user to buy items?</em>).</p>
+</div>
+<div class="card">
+<div class="card-icon">🧠</div>
+<h3>Assertion Lifecycle</h3>
+<p>Step-by-step evaluation where mismatches throw an <code>AssertionError</code>, causing the framework to fail the running test method instantly.</p>
+</div>
+</div>
+<div class="section-title" style="margin-top:14px;"><span class="dot"></span> Selenium Alone is Not Enough</div>
+<p class="section-sub">Selenium is exclusively an automation tool, not a testing tool. Learn the distinction below:</p>
+<div class="iter-steps">
+<div class="iter-row"><div class="iter-num">1</div><div class="iter-body"><h4>Actions vs Checkpoints</h4><p>Selenium can write text into fields using <code>sendKeys()</code> and click buttons using <code>click()</code>. It cannot evaluate whether the resultant greeting text is grammatically correct or if the landing dashboard values are accurate.</p></div></div>
+<div class="iter-row"><div class="iter-num">2</div><div class="iter-body"><h4>Framework Governance</h4><p>TestNG reads the resulting <code>AssertionError</code> stacktraces. This enables custom execution control, parallel thread execution, test reporting, and Jenkins build pipelines to read the exit statuses.</p></div></div>
+</div>
+<div class="section-title" style="margin-top:20px;"><span class="dot"></span> Types of Assertions: Hard vs Soft</div>
+<p class="section-sub">TestNG structures verification into two categories based on their termination policies.</p>
+<table class="compare-table">
+<thead>
+<tr>
+<th>Feature</th>
+<th>Hard Assertion</th>
+<th>Soft Assertion</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="mono">Class Name</td>
+<td><code>org.testng.Assert</code></td>
+<td><code>org.testng.asserts.SoftAssert</code></td>
+</tr>
+<tr>
+<td class="mono">Failure Impact</td>
+<td>Terminates test execution <strong>instantly</strong></td>
+<td>Collects failure, continues executing test steps</td>
+</tr>
+<tr>
+<td class="mono">Throw Exception</td>
+<td>At the line of failure</td>
+<td>Only at the end when calling <code>.assertAll()</code></td>
+</tr>
+<tr>
+<td class="mono">Usage Scenario</td>
+<td>Blocking checkpoints (Login fails, DB down)</td>
+<td>Independent checks (Cart list, field styling)</td>
+</tr>
+</tbody>
+</table>
+<div class="section-title" style="margin-top:24px;"><span class="dot"></span> Real-World Validation Contexts</div>
+<p class="section-sub">Choosing between Hard and Soft assertions is a critical skill for design reliability.</p>
+<div class="cards">
+<div class="card" style="border-left: 3px solid var(--accent4);">
+<h3 style="color:var(--accent4);">🔴 Hard Assert Contexts</h3>
+<p><strong>Login Verification</strong>: If login fails, subsequent steps (searching, checkout) cannot run. Stopping early saves server overhead.</p>
+</div>
+<div class="card" style="border-left: 3px solid var(--accent3);">
+<h3 style="color:var(--accent3);">🟢 Soft Assert Contexts</h3>
+<p><strong>Dashboard Fields</strong>: Verify account balance, username, recent statements, and interest rate simultaneously. Check all before failing.</p>
+</div>
+</div>
+</div>
+<!-- ══════════════ TAB 2: HARD ASSERTIONS ══════════════ -->
+<div class="tab-content" id="tab-hard">
+<div class="section-title"><span class="dot"></span> Hard Assertions (The Assert Class)</div>
+<p class="section-sub">Methods inside <code>org.testng.Assert</code> operate statically. If an assertion condition evaluates to false, an <code>AssertionError</code> is thrown immediately, bypassing all remaining lines of code in that specific test method.</p>
+<div class="info-box orange">
+<span class="ib-icon">⚠</span>
+<div><strong>Immediate Termination:</strong> Once a Hard Assertion fails, the test method is marked as FAILED, and the execution jump-exits. Any cleanup steps inside the method are skipped. <em>Best Practice: Always perform cleanup inside <code>@AfterMethod</code> hooks to ensure they run regardless of test failures.</em></div>
+</div>
+<!-- Execution Flow Diagram -->
+<div class="section-title" style="font-size:1rem;margin-top:10px;"><span class="dot"></span> Hard Assertion Failure Flow</div>
+<div class="flow-pipe">
+<div class="fp-row"><div class="fp-box done"><div class="fp-icon">🚀</div><div class="fp-info"><div class="fp-label">Step 1</div><div class="fp-title">Navigate and Enter credentials</div></div></div></div>
+<div class="fp-arrow lit">↓</div>
+<div class="fp-row"><div class="fp-box active" style="border-color: var(--accent4);"><div class="fp-icon">🔴</div><div class="fp-info"><div class="fp-label">Step 2</div><div class="fp-title">Assert.assertEquals(actualUrl, dashboardUrl) -> FAIL</div></div></div></div>
+<div class="fp-arrow">↓</div>
+<div class="fp-row" style="opacity: 0.4;"><div class="fp-box"><div class="fp-icon">🔒</div><div class="fp-info"><div class="fp-label">Step 3 (Skipped)</div><div class="fp-title">Assert.assertTrue(userGreeting.isDisplayed())</div></div></div></div>
+<div class="fp-arrow">↓</div>
+<div class="fp-row"><div class="fp-box" style="border-color: var(--accent4); background:rgba(231,76,60,0.08);"><div class="fp-icon">💥</div><div class="fp-info"><div class="fp-label">Final State</div><div class="fp-title">Throws AssertionError — Exit Method</div></div></div></div>
+</div>
+<div class="section-title" style="font-size:1rem;margin-top:20px;"><span class="dot"></span> Core Hard Assertion Methods</div>
+<table class="compare-table">
+<thead>
+<tr>
+<th>Assertion Method</th>
+<th>Validation logic</th>
+<th>TestNG Parameter Signature</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="mono">assertEquals()</td>
+<td>Compares actual and expected objects via <code>equals()</code></td>
+<td><code>assertEquals(actual, expected, String message)</code></td>
+</tr>
+<tr>
+<td class="mono">assertNotEquals()</td>
+<td>Asserts that two values are not equal</td>
+<td><code>assertNotEquals(actual, expected, String message)</code></td>
+</tr>
+<tr>
+<td class="mono">assertTrue()</td>
+<td>Ensures that a boolean expression returns true</td>
+<td><code>assertTrue(boolean condition, String message)</code></td>
+</tr>
+<tr>
+<td class="mono">assertFalse()</td>
+<td>Ensures that a boolean expression returns false</td>
+<td><code>assertFalse(boolean condition, String message)</code></td>
+</tr>
+<tr>
+<td class="mono">assertNull()</td>
+<td>Asserts that the object reference is null</td>
+<td><code>assertNull(Object object, String message)</code></td>
+</tr>
+<tr>
+<td class="mono">assertNotNull()</td>
+<td>Asserts that the object reference is initialized</td>
+<td><code>assertNotNull(Object object, String message)</code></td>
+</tr>
+<tr>
+<td class="mono">assertSame()</td>
+<td>Asserts that both refer to the exact same memory object</td>
+<td><code>assertSame(actual, expected, String message)</code></td>
+</tr>
+<tr>
+<td class="mono">assertThrows()</td>
+<td>Validates that calling the lambda function throws an exception</td>
+<td><code>assertThrows(Class&lt;T&gt; expectedThrowable, ThrowingRunnable runnable)</code></td>
+</tr>
+</tbody>
+</table>
+<div class="section-title" style="font-size:1rem;margin-top:20px;"><span class="dot"></span> Enterprise Hard Assertion Script</div>
+<div class="code-wrap">
+<div class="code-header"><div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><span class="code-lang">☕ LoginHardTest.java</span></div>
+<pre class="code-pre"><span class="kw">package</span> com.enterprise.tests;
+<span class="kw">import</span> org.openqa.selenium.<span class="cls">By</span>;
+<span class="kw">import</span> org.openqa.selenium.<span class="cls">WebDriver</span>;
+<span class="kw">import</span> org.openqa.selenium.chrome.<span class="cls">ChromeDriver</span>;
+<span class="kw">import</span> org.testng.<span class="cls">Assert</span>;
+<span class="kw">import</span> org.testng.annotations.<span class="cls">Test</span>;
+<span class="kw">public class</span> <span class="cls">LoginHardTest</span> {
+code
+Code
+<span class="kw">@Test</span>
+<span class="kw">public void</span> <span class="fn">verifyUserLoginFlow</span>() {
+    <span class="cls">WebDriver</span> driver <span class="op">=</span> <span class="kw">new</span> <span class="cls">ChromeDriver</span>();
+    driver.<span class="fn">get</span>(<span class="str">"https://bank.com/login"</span>);
+
+    <span class="cmt">// Step 1: Submit Credentials</span>
+    driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"username"</span>)).<span class="fn">sendKeys</span>(<span class="str">"admin"</span>);
+    driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"password"</span>)).<span class="fn">sendKeys</span>(<span class="str">"secret"</span>);
+    driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"loginBtn"</span>)).<span class="fn">click</span>();
+
+    <span class="cmt">// Step 2: Validate current landing URL</span>
+    <span class="cls">String</span> actualUrl <span class="op">=</span> driver.<span class="fn">getCurrentUrl</span>();
+    <span class="cls">String</span> expectedUrl <span class="op">=</span> <span class="str">"https://bank.com/dashboard"</span>;
+    
+    <span class="cmt">// Parameters: Assert.assertEquals(actual, expected, customMessageOnFailure)</span>
+    <span class="cls">Assert</span>.<span class="fn">assertEquals</span>(actualUrl, expectedUrl, <span class="str">"Landing Page URL mismatch after login redirection!"</span>);
+
+    <span class="cmt">// Step 3: Check Welcome Message displays (Only run if URL matches!)</span>
+    <span class="cls">boolean</span> greetingStatus <span class="op">=</span> driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"welcome"</span>)).<span class="fn">isDisplayed</span>();
+    <span class="cls">Assert</span>.<span class="fn">assertTrue</span>(greetingStatus, <span class="str">"The user welcome dashboard message is absent!"</span>);
+
+    driver.<span class="fn">quit</span>();
+}
+}</pre>
+</div>
+<div class="section-title" style="font-size:1rem;margin-top:20px;"><span class="dot"></span> Syntax and Parameter Deep-Dive</div>
+<p class="section-sub">Notice the parameter order: <strong>TestNG asserts actual first, then expected.</strong> This is the reverse of JUnit.</p>
+<div class="iter-steps">
+<div class="iter-row"><div class="iter-num">1</div><div class="iter-body"><h4><code>assertEquals(actual, expected, message)</code></h4><p>Compiles string representation comparison. If it fails, reports <em>"Landing Page URL mismatch after login redirection! expected [https://bank.com/dashboard] but found [https://bank.com/login]"</em>.</p></div></div>
+<div class="iter-row"><div class="iter-num">2</div><div class="iter-body"><h4><code>assertTrue(condition, message)</code></h4><p>Validates a boolean statement. In this test, it ensures <code>greetingStatus</code> is true. If false, it drops a clean <code>AssertionError</code> with your custom descriptive message.</p></div></div>
+</div>
+</div>
+<!-- ══════════════ TAB 3: SOFT ASSERTIONS ══════════════ -->
+<div class="tab-content" id="tab-soft">
+<div class="section-title"><span class="dot"></span> Soft Assertions (The SoftAssert Class)</div>
+<p class="section-sub">Sometimes, you want to perform multiple validations on a page (e.g. checking several elements on a profile page) without stopping the entire test at the first failed check. This is where <code>SoftAssert</code> is used.</p>
+<div class="info-box blue">
+<span class="ib-icon">🔑</span>
+<div><strong>How it works:</strong> Soft Assertions are not static. You must instantiate a new object: <code>SoftAssert soft = new SoftAssert();</code>. If a soft assertion fails, it logs the failure but allows execution to continue. To report all compiled failures and fail the test, you must call <code>soft.assertAll();</code> at the very end.</div>
+</div>
+<!-- Execution Flow Diagram -->
+<div class="section-title" style="font-size:1rem;margin-top:10px;"><span class="dot"></span> Soft Assertion Lifecycle Flow</div>
+<div class="flow-pipe">
+<div class="fp-row"><div class="fp-box done"><div class="fp-icon">🚀</div><div class="fp-info"><div class="fp-label">Step 1</div><div class="fp-title">Navigate to Profile Page</div></div></div></div>
+<div class="fp-arrow lit">↓</div>
+<div class="fp-row"><div class="fp-box done" style="border-color: var(--accent);"><div class="fp-icon">🟡</div><div class="fp-info"><div class="fp-label">Step 2</div><div class="fp-title">soft.assertEquals(profileEmail, expected) -> FAILS (logged, continues)</div></div></div></div>
+<div class="fp-arrow lit">↓</div>
+<div class="fp-row"><div class="fp-box done" style="border-color: var(--accent3);"><div class="fp-icon">🧪</div><div class="fp-info"><div class="fp-label">Step 3</div><div class="fp-title">soft.assertTrue(avatar.isDisplayed()) -> PASS</div></div></div></div>
+<div class="fp-arrow lit">↓</div>
+<div class="fp-row"><div class="fp-box active" style="border-color: var(--accent4);"><div class="fp-icon">⚡</div><div class="fp-info"><div class="fp-label">Step 4</div><div class="fp-title">soft.assertAll() -> Checks compiled history</div></div></div></div>
+<div class="fp-arrow">↓</div>
+<div class="fp-row"><div class="fp-box" style="border-color: var(--accent4); background:rgba(231,76,60,0.08);"><div class="fp-icon">💥</div><div class="fp-info"><div class="fp-label">Result</div><div class="fp-title">Test fails now, reporting Step 2 as the failure reason.</div></div></div></div>
+</div>
+<div class="info-box red" style="margin-top:20px;">
+<span class="ib-icon">🚨</span>
+<div><strong>The Silent Danger:</strong> If you forget to invoke <code>soft.assertAll();</code> at the end of your test method, <strong>the test will pass</strong> even if every single assertion inside it failed. Always ensure <code>assertAll()</code> is the absolute last line of execution.</div>
+</div>
+<div class="section-title" style="font-size:1rem;margin-top:20px;"><span class="dot"></span> Complete Soft Assertion Example</div>
+<div class="code-wrap">
+<div class="code-header"><div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><span class="code-lang">☕ ProfileSoftTest.java</span></div>
+<pre class="code-pre"><span class="kw">package</span> com.enterprise.tests;
+<span class="kw">import</span> org.openqa.selenium.<span class="cls">By</span>;
+<span class="kw">import</span> org.openqa.selenium.<span class="cls">WebDriver</span>;
+<span class="kw">import</span> org.openqa.selenium.chrome.<span class="cls">ChromeDriver</span>;
+<span class="kw">import</span> org.testng.annotations.<span class="cls">Test</span>;
+<span class="kw">import</span> org.testng.asserts.<span class="cls">SoftAssert</span>;
+<span class="kw">public class</span> <span class="cls">ProfileSoftTest</span> {
+code
+Code
+<span class="kw">@Test</span>
+<span class="kw">public void</span> <span class="fn">verifyUserProfileDetails</span>() {
+    <span class="cls">WebDriver</span> driver <span class="op">=</span> <span class="kw">new</span> <span class="cls">ChromeDriver</span>();
+    driver.<span class="fn">get</span>(<span class="str">"https://bank.com/profile"</span>);
+
+    <span class="cmt">// 1. Instantiate the SoftAssert object locally</span>
+    <span class="cls">SoftAssert</span> soft <span class="op">=</span> <span class="kw">new</span> <span class="cls">SoftAssert</span>();
+
+    <span class="cmt">// 2. Validate Profile Email</span>
+    <span class="cls">String</span> actualEmail <span class="op">=</span> driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"email"</span>)).<span class="fn">getText</span>();
+    soft.<span class="fn">assertEquals</span>(actualEmail, <span class="str">"user@bank.com"</span>, <span class="str">"Profile Email mismatch!"</span>);
+
+    <span class="cmt">// 3. Validate Account Holder Name (Continues running even if email verification fails!)</span>
+    <span class="cls">String</span> actualName <span class="op">=</span> driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"holder"</span>)).<span class="fn">getText</span>();
+    soft.<span class="fn">assertEquals</span>(actualName, <span class="str">"John Doe"</span>, <span class="str">"Holder Name mismatch!"</span>);
+
+    <span class="cmt">// 4. Validate Premium Member Status</span>
+    <span class="cls">boolean</span> isPremium <span class="op">=</span> driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"premium"</span>)).<span class="fn">isSelected</span>();
+    soft.<span class="fn">assertTrue</span>(isPremium, <span class="str">"User is not marked as premium!"</span>);
+
+    driver.<span class="fn">quit</span>();
+
+    <span class="cmt">// 5. Compile and throw any exceptions gathered</span>
+    soft.<span class="fn">assertAll</span>();
+}
+}</pre>
+</div>
+</div>
+<!-- ══════════════ TAB 4: LIVE PLAYGROUND ══════════════ -->
+<div class="tab-content" id="tab-playground">
+<div class="section-title"><span class="dot"></span> Live Assertion Simulator</div>
+<p class="section-sub">Choose a scenario and execution mode to observe exactly how Hard and Soft assertions govern test completion and failure logging.</p>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+<!-- Left Side: Simulation Control Panel -->
+<div>
+<div style="background:var(--surface2); border:1px solid var(--border); padding:20px; border-radius:10px; margin-bottom:16px;">
+<h3 style="font-size:1rem; margin-bottom:12px;">🛠️ Simulation Options</h3>
+code
+Code
+<div style="margin-bottom:12px;">
+    <label class="fb-label">1. Choose Site Scenario</label>
+    <select class="fb-input" id="sim-scenario" onchange="changeScenario(this.value)" style="width:100%; max-width:100%;">
+      <option value="success">✅ All Fields Valid (Redirection Successful)</option>
+      <option value="user_fail">❌ Invalid Login Credentials (Stay on Login URL)</option>
+      <option value="multiple_bugs">💥 Redirection Bug + Bad Title + Lost Greeting</option>
+    </select>
+  </div>
+
+  <div style="margin-bottom:16px;">
+    <label class="fb-label">2. Assertion Strategy</label>
+    <select class="fb-input" id="sim-strategy" onchange="changeStrategy(this.value)" style="width:100%; max-width:100%;">
+      <option value="hard">🔴 Hard Assertions (Terminate test on failure)</option>
+      <option value="soft">🟡 Soft Assertions (Execute all, explode on assertAll)</option>
+    </select>
+  </div>
+
+  <div class="sim-controls">
+    <button class="btn-run-all" onclick="playAllSim()">▶ Run Full Test</button>
+    <button class="btn-sim" onclick="stepSim()" id="btn-next-step">⏭ Next Step</button>
+    <button class="btn-reset-sim" onclick="resetPlayground()">↺ Reset</button>
+  </div>
+</div>
+
+<!-- Live simulated web page -->
+<div class="fake-browser">
+  <div class="fb-titlebar">
+    <div class="fb-dots"><div class="fb-dot red"></div><div class="fb-dot yel"></div><div class="fb-dot grn"></div></div>
+    <div class="fb-url" id="fb-url-field">about:blank</div>
+  </div>
+  <div class="fb-content" id="browser-viewport" style="background:var(--bg); min-height:220px; border-bottom:1px solid var(--border); padding:20px;">
+    <!-- Filled dynamically -->
+  </div>
+</div>
+
+<div class="cmd-log" style="margin-bottom:0;">
+  <div class="cmd-log-bar">📋 Local TestNG Assertion Console Log</div>
+  <div class="cmd-log-body" id="play-log">// Output stream will render steps here...</div>
+</div>
+</div>
+<!-- Right Side: Validations & Live Code Highlighter (Fixed span classes) -->
+<div>
+<!-- Checkpoint Display -->
+<div style="background:var(--surface); border:1px solid var(--border); padding:20px; border-radius:10px; margin-bottom:16px;">
+<h3 style="font-size:0.95rem; margin-bottom:12px;">🧪 Validation Checkpoints Status</h3>
+<div class="chk-item" id="chk-url"><span class="chk-icon">⚪</span> <strong>Redirection Check:</strong> expected: <span class="mono">.../dashboard</span> | actual: <span class="chk-act mono">Pending</span></div>
+<div class="chk-item" id="chk-title"><span class="chk-icon">⚪</span> <strong>Page Title Check:</strong> expected: <span class="mono">Dashboard</span> | actual: <span class="chk-act mono">Pending</span></div>
+<div class="chk-item" id="chk-greet"><span class="chk-icon">⚪</span> <strong>User Greeting Check:</strong> expected: <span class="mono">Welcome!</span> | actual: <span class="chk-act mono">Pending</span></div>
+</div>
+code
+Code
+<!-- Active Java Code Highlight -->
+<div class="code-wrap" style="margin-top:0;">
+  <div class="code-header"><span class="code-lang">☕ Running Java Snippet</span></div>
+  
+  <!-- Hard Assertion Code block -->
+  <pre class="code-pre" id="snippet-hard">
+<span class="pl-line" id="hl-h-1"><span class="kw">@Test</span></span>
+<span class="pl-line" id="hl-h-2"><span class="kw">public void</span> <span class="fn">testLoginHardAssert</span>() {</span>
+<span class="pl-line" id="hl-h-3"> driver.<span class="fn">get</span>(<span class="str">"https://bank.com/login"</span>);</span>
+<span class="pl-line" id="hl-h-4"> driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"btn"</span>)).<span class="fn">click</span>();</span>
+<span class="pl-line" id="hl-h-5"> </span>
+<span class="pl-line" id="hl-h-6"> <span class="cmt">// URL Verification Check</span></span>
+<span class="pl-line" id="hl-h-7"> <span class="cls">Assert</span>.<span class="fn">assertEquals</span>(driver.<span class="fn">getCurrentUrl</span>(), <span class="str">"https://bank.com/dashboard"</span>);</span>
+<span class="pl-line" id="hl-h-8"> </span>
+<span class="pl-line" id="hl-h-9"> <span class="cmt">// Title Verification Check</span></span>
+<span class="pl-line" id="hl-h-10"> <span class="cls">Assert</span>.<span class="fn">assertEquals</span>(driver.<span class="fn">getTitle</span>(), <span class="str">"Dashboard"</span>);</span>
+<span class="pl-line" id="hl-h-11"> </span>
+<span class="pl-line" id="hl-h-12"> <span class="cmt">// Welcome Greeting Check</span></span>
+<span class="pl-line" id="hl-h-13"> <span class="cls">Assert</span>.<span class="fn">assertTrue</span>(driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"greeting"</span>)).<span class="fn">isDisplayed</span>());</span>
+<span class="pl-line" id="hl-h-14"> driver.<span class="fn">quit</span>();</span>
+<span class="pl-line" id="hl-h-15">}</span></pre>
+code
+Code
+<!-- Soft Assertion Code block -->
+  <pre class="code-pre" id="snippet-soft" style="display:none;">
+<span class="pl-line" id="hl-s-1"><span class="kw">@Test</span></span>
+<span class="pl-line" id="hl-s-2"><span class="kw">public void</span> <span class="fn">testLoginSoftAssert</span>() {</span>
+<span class="pl-line" id="hl-s-3"> <span class="cls">SoftAssert</span> soft <span class="op">=</span> <span class="kw">new</span> <span class="cls">SoftAssert</span>();</span>
+<span class="pl-line" id="hl-s-4"> driver.<span class="fn">get</span>(<span class="str">"https://bank.com/login"</span>);</span>
+<span class="pl-line" id="hl-s-5"> driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"btn"</span>)).<span class="fn">click</span>();</span>
+<span class="pl-line" id="hl-s-6"> </span>
+<span class="pl-line" id="hl-s-7"> <span class="cmt">// Soft URL Check</span></span>
+<span class="pl-line" id="hl-s-8"> soft.<span class="fn">assertEquals</span>(driver.<span class="fn">getCurrentUrl</span>(), <span class="str">"https://bank.com/dashboard"</span>);</span>
+<span class="pl-line" id="hl-s-9"> </span>
+<span class="pl-line" id="hl-s-10"> <span class="cmt">// Soft Title Check</span></span>
+<span class="pl-line" id="hl-s-11"> soft.<span class="fn">assertEquals</span>(driver.<span class="fn">getTitle</span>(), <span class="str">"Dashboard"</span>);</span>
+<span class="pl-line" id="hl-s-12"> </span>
+<span class="pl-line" id="hl-s-13"> <span class="cmt">// Soft Welcome Check</span></span>
+<span class="pl-line" id="hl-s-14"> soft.<span class="fn">assertTrue</span>(driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"greeting"</span>)).<span class="fn">isDisplayed</span>());</span>
+<span class="pl-line" id="hl-s-15"> </span>
+<span class="pl-line" id="hl-s-16"> driver.<span class="fn">quit</span>();</span>
+<span class="pl-line" id="hl-s-17"> soft.<span class="fn">assertAll</span>();</span>
+<span class="pl-line" id="hl-s-18">}</span></pre>
+</div>
+</div>
+</div>
+</div>
+<!-- ══════════════ TAB 5: REAL WORLD EXAMPLES ══════════════ -->
+<div class="tab-content" id="tab-realworld">
+<div class="section-title"><span class="dot"></span> Real World E-Commerce Checkout Validation</div>
+<p class="section-sub">This enterprise-level test validation ensures the entire cart total math remains correct after a customer checks out.</p>
+<div class="code-wrap">
+<div class="code-header"><div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><span class="code-lang">☕ CartValidationTest.java</span></div>
+<pre class="code-pre"><span class="kw">package</span> com.ecommerce.checkout;
+<span class="kw">import</span> org.openqa.selenium.<span class="cls">By</span>;
+<span class="kw">import</span> org.openqa.selenium.<span class="cls">WebDriver</span>;
+<span class="kw">import</span> org.openqa.selenium.chrome.<span class="cls">ChromeDriver</span>;
+<span class="kw">import</span> org.testng.asserts.<span class="cls">SoftAssert</span>;
+<span class="kw">import</span> org.testng.annotations.<span class="cls">Test</span>;
+<span class="kw">public class</span> <span class="cls">CartValidationTest</span> {
+code
+Code
+<span class="kw">@Test</span>
+<span class="kw">public void</span> <span class="fn">validateCartSummaryInvoiceMath</span>() {
+    <span class="cls">WebDriver</span> driver <span class="op">=</span> <span class="kw">new</span> <span class="cls">ChromeDriver</span>();
+    driver.<span class="fn">get</span>(<span class="str">"https://ecommerce-shop.com/checkout"</span>);
+
+    <span class="cls">SoftAssert</span> soft <span class="op">=</span> <span class="kw">new</span> <span class="cls">SoftAssert</span>();
+
+    <span class="cmt">// Fetch details</span>
+    <span class="cls">String</span> priceText <span class="op">=</span> driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"subtotal"</span>)).<span class="fn">getText</span>(); <span class="cmt">// "$100.00"</span>
+    <span class="cls">String</span> taxText <span class="op">=</span> driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"tax"</span>)).<span class="fn">getText</span>();         <span class="cmt">// "$8.00"</span>
+    <span class="cls">String</span> totalText <span class="op">=</span> driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"grandtotal"</span>)).<span class="fn">getText</span>(); <span class="cmt">// "$108.00"</span>
+
+    <span class="cmt">// Execute asserts: soft validations ensures mismatches on subtotal doesn't prevent grandtotal analysis</span>
+    soft.<span class="fn">assertEquals</span>(priceText, <span class="str">"$100.00"</span>, <span class="str">"Base Subtotal price verification failed!"</span>);
+    soft.<span class="fn">assertEquals</span>(taxText, <span class="str">"$8.00"</span>, <span class="str">"Calculated tax mismatch!"</span>);
+    soft.<span class="fn">assertEquals</span>(totalText, <span class="str">"$108.00"</span>, <span class="str">"Invoice grand total summary mismatch!"</span>);
+
+    driver.<span class="fn">quit</span>();
+    soft.<span class="fn">assertAll</span>();
+}
+}</pre>
+</div>
+<div class="cards" style="margin-top:20px;">
+<div class="card">
+<div class="card-icon">💡</div>
+<h3>Line-By-Line Breakdown</h3>
+<p>Each string output from selectors is soft-asserted. Even if subtotal displays incorrectly, the test continues to check the computed tax, compiling a comprehensive failure log.</p>
+</div>
+<div class="card">
+<div class="card-icon">🎤</div>
+<h3>Interview Tip</h3>
+<p>If an interviewer asks: <em>How do you assert that parallel execution runs safely with SoftAssert?</em> Explain that you must instantiate it locally inside each test method to prevent cross-thread contamination.</p>
+</div>
+</div>
+</div>
+<!-- ══════════════ TAB 6: COMMON MISTAKES ══════════════ -->
+<div class="tab-content" id="tab-mistakes">
+<div class="section-title"><span class="dot"></span> Common Assertion Pitfalls</div>
+<p class="section-sub">Review common errors in automation design that lead to fragile suites and misleading test results.</p>
+<div class="err-sim-btns">
+<button class="err-btn active" onclick="showPitfall('assertall',this)">⚠ Forgetting assertAll()</button>
+<button class="err-btn" onclick="showPitfall('static_soft',this)">⚠ Global Static SoftAssert</button>
+<button class="err-btn" onclick="showPitfall('param_order',this)">⚠ Confusing JUnit Parameter Order</button>
+</div>
+<!-- Mistake 1 Panel (Fixed diff-code blocks formatting) -->
+<div class="err-panel active" id="p-assertall">
+<div class="err-hdr">🔴 Error: Forgotten assertAll() inside SoftAssert tests</div>
+<div class="err-body">
+<h4>What happened?</h4>
+<p>By executing soft validations without invoking <code>assertAll()</code>, the test class processes errors internally but never notifies TestNG. The test method returns a false success state, hiding critical product defects.</p>
+<div class="code-diff">
+<div class="diff-wrong">
+<div class="diff-lbl">❌ Incorrect (Passes Silently)</div>
+<pre class="diff-code"><span class="cls">SoftAssert</span> soft <span class="op">=</span> <span class="kw">new</span> <span class="cls">SoftAssert</span>();
+soft.<span class="fn">assertEquals</span>(actualText, expectedText);
+<span class="cmt">// Missing soft.assertAll()!</span></pre>
+</div>
+<div class="diff-right">
+<div class="diff-lbl">✅ Correct</div>
+<pre class="diff-code"><span class="cls">SoftAssert</span> soft <span class="op">=</span> <span class="kw">new</span> <span class="cls">SoftAssert</span>();
+soft.<span class="fn">assertEquals</span>(actualText, expectedText);
+soft.<span class="fn">assertAll</span>();</pre>
+</div>
+</div>
+</div>
+</div>
+<!-- Mistake 2 Panel -->
+<div class="err-panel" id="p-static_soft">
+<div class="err-hdr">🔴 Error: Declaring SoftAssert as a Static Class-Level Variable</div>
+<div class="err-body">
+<h4>What happened?</h4>
+<p>Declaring a single static <code>SoftAssert</code> instance causes tests executing in parallel threads to write to the same assertion history. This leads to leaked failure states across completely unrelated test executions.</p>
+<div class="code-diff">
+<div class="diff-wrong">
+<div class="diff-lbl">❌ Incorrect (Leakage Hazard)</div>
+<pre class="diff-code"><span class="kw">public class</span> <span class="cls">ProfileTest</span> {
+<span class="kw">static</span> <span class="cls">SoftAssert</span> soft <span class="op">=</span> <span class="kw">new</span> <span class="cls">SoftAssert</span>();
+<span class="cmt">// Sharing state across parallel runs!</span>
+}</pre>
+</div>
+<div class="diff-right">
+<div class="diff-lbl">✅ Correct (Thread-Safe)</div>
+<pre class="diff-code"><span class="kw">@Test</span>
+<span class="kw">public void</span> <span class="fn">testProfile</span>() {
+<span class="cls">SoftAssert</span> soft <span class="op">=</span> <span class="kw">new</span> <span class="cls">SoftAssert</span>();
+<span class="cmt">// local instance per thread</span>
+}</pre>
+</div>
+</div>
+</div>
+</div>
+<!-- Mistake 3 Panel -->
+<div class="err-panel" id="p-param_order">
+<div class="err-hdr">🔴 Error: Swapping expected and actual arguments</div>
+<div class="err-body">
+<h4>What happened?</h4>
+<p>TestNG uses the parameter structure <code>assertEquals(actual, expected)</code>. Confusing this with JUnit's structure <code>assertEquals(expected, actual)</code> will produce confusing reports when assertions fail, reversing the expected and actual values.</p>
+<div class="code-diff">
+<div class="diff-wrong">
+<div class="diff-lbl">❌ Incorrect (JUnit Order)</div>
+<pre class="diff-code"><span class="cls">Assert</span>.<span class="fn">assertEquals</span>(<span class="str">"Dashboard"</span>, driver.<span class="fn">getTitle</span>());
+<span class="cmt">// Reports: expected [actualTitle] but found [Dashboard]</span></pre>
+</div>
+<div class="diff-right">
+<div class="diff-lbl">✅ Correct (TestNG Order)</div>
+<pre class="diff-code"><span class="cls">Assert</span>.<span class="fn">assertEquals</span>(driver.<span class="fn">getTitle</span>(), <span class="str">"Dashboard"</span>);
+<span class="cmt">// Reports: expected [Dashboard] but found [actualTitle]</span></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- ══════════════ TAB 7: QUIZ ══════════════ -->
+<div class="tab-content" id="tab-quiz">
+<div class="section-title"><span class="dot"></span> Assertion Skills Assessment</div>
+<p class="section-sub">Validate your understanding of TestNG state controls with this quick 10-question check.</p>
+<div class="quiz-container" id="quiz-container">
+<!-- Content is generated dynamically to provide full quality with feedback -->
+</div>
+<div class="score-box" id="score-box">
+<div class="score-num" id="score-num">0/10</div>
+<div class="score-label" id="score-lbl">Complete the questions to check your score.</div>
+<button class="btn-retake" onclick="resetQuiz()">↺ Retake Assessment</button>
+</div>
+</div>
+</div><!-- /tabs-wrapper -->
+<div class="course-nav">
+<div class="course-nav-left">
+<a href="w4_t0_testng_annotations.html">← Previous</a>
+<a href="../index.html">🏠 Home</a>
+</div>
+<div class="course-nav-right">
+<a href="w4_t2_testng_xml_basics.html">Next →</a>
+</div>
+</div>
+</div><!-- /container -->
+<script>
+/* ══ THEME ══════════════════════════════════════════════════ */
+function toggleTheme(){
+var h=document.documentElement, b=document.getElementById('themeToggle');
+h.dataset.theme = h.dataset.theme === 'dark' ? 'light' : 'dark';
+b.textContent = h.dataset.theme === 'dark' ? '☀ Light' : '🌙 Dark';
+}
+
+/* ══ TABS ════════════════════════════════════════════════════ */
+function switchTab(id, btn){
+document.querySelectorAll('.tab-content').forEach(function(t){ t.classList.remove('active'); });
+document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+document.getElementById('tab-' + id).classList.add('active');
+btn.classList.add('active');
+}
+
+/* ══ COMMON PITFALLS CONTROLS ═══════════════════════════════ */
+function showPitfall(id, btn){
+document.querySelectorAll('.err-panel').forEach(function(p){ p.classList.remove('active'); });
+document.querySelectorAll('.err-btn').forEach(function(b){ b.classList.remove('active'); });
+document.getElementById('p-' + id).classList.add('active');
+btn.classList.add('active');
+}
+
+/* ══ SIMULATOR DATA AND PROCESSES ══════════════════════════ */
+var simState = {
+activeStep: 0,
+scenario: 'success',
+strategy: 'hard',
+running: false,
+failuresCount: 0,
+logs: []
+};
+
+// Simulated data dictionary for the playground
+var simData = {
+success: {
+url: "https://bank.com/dashboard",
+title: "Dashboard",
+greeting: "Welcome!",
+loginSuccess: true,
+view: 'dashboard'
+},
+user_fail: {
+url: "https://bank.com/login",
+title: "Login Screen",
+greeting: "Error",
+loginSuccess: false,
+view: 'login'
+},
+multiple_bugs: {
+url: "https://bank.com/maintenance",
+title: "Under Repair",
+greeting: "Fatal Error",
+loginSuccess: true,
+view: 'repair'
+}
+};
+
+function changeScenario(val) {
+simState.scenario = val;
+resetPlayground();
+}
+
+function changeStrategy(val) {
+simState.strategy = val;
+var sh = document.getElementById('snippet-hard');
+var ss = document.getElementById('snippet-soft');
+if(val === 'hard'){
+sh.style.display = 'block';
+ss.style.display = 'none';
+} else {
+sh.style.display = 'none';
+ss.style.display = 'block';
+}
+resetPlayground();
+}
+
+function writeLog(text, level) {
+var logBox = document.getElementById('play-log');
+var classMap = { info: 'c-info', ok: 'c-ok', sel: 'c-sel', dim: 'c-dim' };
+var cssCls = classMap[level] || '';
+logBox.innerHTML += `<span class="${cssCls}">${text}</span>\n`;
+logBox.scrollTop = logBox.scrollHeight;
+}
+
+function resetPlayground() {
+simState.activeStep = 0;
+simState.running = false;
+simState.failuresCount = 0;
+document.getElementById('play-log').innerHTML = '// Simulation reset. Choose credentials and strategy then run.\n';
+
+// Reset validations status UI
+var items = ['chk-url', 'chk-title', 'chk-greet'];
+items.forEach(id => {
+var el = document.getElementById(id);
+el.className = "chk-item";
+el.querySelector('.chk-icon').textContent = "⚪";
+el.querySelector('.chk-act').textContent = "Pending";
+});
+
+// Reset lines highlights
+clearSnippetLines();
+
+// Load simulator initial frame
+renderBrowserState('init');
+}
+
+function clearSnippetLines() {
+document.querySelectorAll('.code-pre .pl-line').forEach(span => {
+span.classList.remove('active-line');
+});
+}
+
+function highlightSnippetLine(lineId) {
+clearSnippetLines();
+var el = document.getElementById(lineId);
+if(el) el.classList.add('active-line');
+}
+
+function renderBrowserState(state) {
+var viewPort = document.getElementById('browser-viewport');
+var urlBar = document.getElementById('fb-url-field');
+
+if (state === 'init') {
+urlBar.textContent = "https://bank.com/login";
+viewPort.innerHTML = `
+<div id="sim-login-form">
+<h3 style="font-size:1.15rem; margin-bottom:12px; color:var(--text);">Secure Core Login</h3>
+<div style="margin-bottom:8px;">
+<label style="font-size:0.75rem; color:var(--text2); display:block;">Sign-In ID</label>
+<input type="text" class="fb-input" style="padding:6px 10px; width:100%; max-width:260px;" value="admin" readonly>
+</div>
+<div style="margin-bottom:14px;">
+<label style="font-size:0.75rem; color:var(--text2); display:block;">Password Token</label>
+<input type="password" class="fb-input" style="padding:6px 10px; width:100%; max-width:260px;" value="••••••••" readonly>
+</div>
+<button class="fb-btn" style="padding:6px 20px; font-size:0.82rem;" id="sim-btn-target" disabled>Login</button>
+</div>`;
+} else if (state === 'dashboard') {
+urlBar.textContent = "https://bank.com/dashboard";
+viewPort.innerHTML = `
+<div id="sim-dashboard">
+<h3 style="color:var(--accent3); font-size:1.1rem; margin-bottom:6px;">🏦 Secure Asset System</h3>
+<p style="font-size:0.8rem; color:var(--text2); margin-bottom:12px;">Validated System Redirection: ✅ Success</p>
+<div style="background:var(--surface2); padding:10px 14px; border:1px solid var(--border); border-radius:6px; font-size:0.85rem; margin-bottom:10px;">
+💰 Account Balance: <strong>$824,195.00 USD</strong>
+</div>
+<div id="sim-welcome-banner" style="font-size:0.82rem; font-weight:bold; color:var(--text);">
+Welcome back, admin! Last sign-in: Today, 6:51 PM
+</div>
+</div>`;
+} else if (state === 'login_remain') {
+urlBar.textContent = "https://bank.com/login";
+viewPort.innerHTML = `
+<div id="sim-login-form">
+<div style="background:rgba(231,76,60,0.1); color:var(--accent4); padding:8px 12px; border:1px solid rgba(231,76,60,0.3); border-radius:6px; font-size:0.78rem; margin-bottom:12px;">
+⚠️ Authentication Token Rejected.
+</div>
+<h3 style="font-size:1.15rem; margin-bottom:12px; color:var(--text);">Secure Core Login</h3>
+<button class="fb-btn" style="padding:6px 20px; font-size:0.82rem;" disabled>Login</button>
+</div>`;
+} else if (state === 'repair') {
+urlBar.textContent = "https://bank.com/maintenance";
+viewPort.innerHTML = `
+<div id="sim-error-page" style="text-align:center; padding:15px 0;">
+<div style="font-size:2rem; margin-bottom:4px;">🚧</div>
+<h3 style="color:var(--accent4); font-size:1.05rem; margin-bottom:4px;">Under Repair</h3>
+<p style="font-size:0.8rem; color:var(--text2);">Fatal System Redirect Error #500</p>
+</div>`;
+}
+}
+
+function stepSim() {
+if (simState.activeStep === 0) {
+// Navigating and clicking
+simState.activeStep = 1;
+writeLog("[STEP 1] Browser instance initialized. Requesting https://bank.com/login", "info");
+if(simState.strategy === 'hard'){
+highlightSnippetLine('hl-h-3');
+} else {
+highlightSnippetLine('hl-s-4');
+}
+renderBrowserState('init');
+return;
+}
+
+if (simState.activeStep === 1) {
+simState.activeStep = 2;
+writeLog("[STEP 2] Submitting user security credentials to server.", "info");
+if(simState.strategy === 'hard'){
+highlightSnippetLine('hl-h-4');
+} else {
+highlightSnippetLine('hl-s-5');
+}
+
+// Animate button click state
+var btn = document.getElementById('sim-btn-target');
+if (btn) btn.style.transform = "scale(0.95)";
+return;
+}
+
+if (simState.activeStep === 2) {
+simState.activeStep = 3;
+writeLog("[STEP 3] Login clicked. Fetching server navigation state...", "info");
+
+// Transition UI based on target scenario
+var activeScenarioData = simData[simState.scenario];
+renderBrowserState(activeScenarioData.view);
+
+if(simState.strategy === 'hard'){
+highlightSnippetLine('hl-h-7');
+} else {
+highlightSnippetLine('hl-s-8');
+}
+return;
+}
+
+// URL VALIDATION STEP
+if (simState.activeStep === 3) {
+var activeScenarioData = simData[simState.scenario];
+var actualUrl = activeScenarioData.url;
+var expectedUrl = "https://bank.com/dashboard";
+
+var el = document.getElementById('chk-url');
+el.querySelector('.chk-act').textContent = actualUrl;
+
+if (actualUrl === expectedUrl) {
+el.className = "chk-item pass";
+el.querySelector('.chk-icon').textContent = "✔";
+writeLog(`[PASS] URL Assert passed: "${actualUrl}" matches expected Dashboard path.`, "ok");
+simState.activeStep = 4;
+if(simState.strategy === 'hard'){
+highlightSnippetLine('hl-h-10');
+} else {
+highlightSnippetLine('hl-s-11');
+}
+} else {
+el.className = "chk-item fail";
+el.querySelector('.chk-icon').textContent = "✖";
+simState.failuresCount++;
+writeLog(`[FAIL] AssertionError: URL Check Mismatch. Expected [${expectedUrl}] but found [${actualUrl}]`, "sel");
+
+if (simState.strategy === 'hard') {
+writeLog("[FATAL] Hard Assertion Failed! Aborting further verification immediately.", "sel");
+writeLog("❌ Test Outcome: FAILED", "sel");
+skipRemainingSteps(['chk-title', 'chk-greet']);
+clearSnippetLines();
+simState.activeStep = 99; // Stop
+} else {
+writeLog("[WARN] Soft Assertion failed. State captured. Continuing execution chain...", "sel");
+simState.activeStep = 4;
+highlightSnippetLine('hl-s-11');
+}
+}
+return;
+}
+
+// TITLE VALIDATION STEP
+if (simState.activeStep === 4) {
+var activeScenarioData = simData[simState.scenario];
+var expectedTitle = "Dashboard";
+var actualTitle = activeScenarioData.title;
+
+var el = document.getElementById('chk-title');
+el.querySelector('.chk-act').textContent = actualTitle;
+
+if (actualTitle === expectedTitle) {
+el.className = "chk-item pass";
+el.querySelector('.chk-icon').textContent = "✔";
+writeLog(`[PASS] Title Assert passed: "${actualTitle}" matches expectations.`, "ok");
+simState.activeStep = 5;
+if(simState.strategy === 'hard'){
+highlightSnippetLine('hl-h-13');
+} else {
+highlightSnippetLine('hl-s-14');
+}
+} else {
+el.className = "chk-item fail";
+el.querySelector('.chk-icon').textContent = "✖";
+simState.failuresCount++;
+writeLog(`[FAIL] AssertionError: Page Title Mismatch. Expected [${expectedTitle}] but found [${actualTitle}]`, "sel");
+
+if (simState.strategy === 'hard') {
+writeLog("[FATAL] Hard Assertion Failed! Ending execution.", "sel");
+writeLog("❌ Test Outcome: FAILED", "sel");
+skipRemainingSteps(['chk-greet']);
+clearSnippetLines();
+simState.activeStep = 99;
+} else {
+writeLog("[WARN] Soft Assertion failed. Continuing thread flow...", "sel");
+simState.activeStep = 5;
+highlightSnippetLine('hl-s-14');
+}
+}
+return;
+}
+
+// GREETING VALIDATION STEP
+if (simState.activeStep === 5) {
+var activeScenarioData = simData[simState.scenario];
+var expectedGreet = "Welcome!";
+var actualGreet = activeScenarioData.greeting;
+
+var el = document.getElementById('chk-greet');
+el.querySelector('.chk-act').textContent = actualGreet;
+
+if (actualGreet === expectedGreet) {
+el.className = "chk-item pass";
+el.querySelector('.chk-icon').textContent = "✔";
+writeLog(`[PASS] Greeting check passed: "${actualGreet}" matches expectation.`, "ok");
+} else {
+el.className = "chk-item fail";
+el.querySelector('.chk-icon').textContent = "✖";
+simState.failuresCount++;
+writeLog(`[FAIL] AssertionError: Dashboard greeting verification failed. Expected keyword [${expectedGreet}] but found [${actualGreet}]`, "sel");
+}
+
+if (simState.strategy === 'hard') {
+simState.activeStep = 99;
+clearSnippetLines();
+if(simState.failuresCount === 0) {
+writeLog("🎉 Test Outcome: PASSED", "ok");
+} else {
+writeLog("❌ Test Outcome: FAILED", "sel");
+}
+} else {
+simState.activeStep = 6;
+highlightSnippetLine('hl-s-17');
+}
+return;
+}
+
+// SOFTASSERT ASSERTALL CHECK STEP
+if (simState.activeStep === 6) {
+simState.activeStep = 99;
+clearSnippetLines();
+writeLog("[STEP 7] Calling softAssert.assertAll() checkpoints analyzer...", "info");
+
+if (simState.failuresCount > 0) {
+writeLog(`[FAIL] softAssert.assertAll() exploded! compiled error logs:\n----------------------------------------\n${simState.failuresCount} failures occurred:\n- Error checking URL redirection\n- Error checking Dashboard elements`, "sel");
+writeLog("❌ Test Outcome: FAILED", "sel");
+} else {
+writeLog("[PASS] softAssert.assertAll() processed. All checkpoints clean.", "ok");
+writeLog("🎉 Test Outcome: PASSED", "ok");
+}
+}
+}
+
+function skipRemainingSteps(ids) {
+ids.forEach(id => {
+var el = document.getElementById(id);
+el.className = "chk-item skipped";
+el.querySelector('.chk-icon').textContent = "➖";
+el.querySelector('.chk-act').textContent = "Skipped (Blocked)";
+});
+}
+
+function playAllSim() {
+resetPlayground();
+var timer = 100;
+function scheduleStep() {
+if (simState.activeStep < 99) {
+stepSim();
+setTimeout(scheduleStep, 1000);
+}
+}
+scheduleStep();
+}
+
+/* ══ ASSESSMENT LOGIC (TAB 7) ══════════════════════════════ */
+var questions = [
+{
+q: "What exception does a failed TestNG assertion throw to indicate mismatch?",
+o: ["java.lang.NullPointerException", "java.lang.AssertionError", "org.openqa.selenium.WebDriverException", "java.lang.IllegalArgumentException"],
+a: 1,
+e: "TestNG asserts throw an AssertionError when expected and actual values do not match."
+},
+{
+q: "If a Hard Assertion fails inside a test method containing 10 lines of validations, which statement is true?",
+o: [
+"The remaining 9 lines continue execution silently",
+"Execution of the current test method halts immediately at the failed line",
+"The test method passes, but prints warnings in the report",
+"Execution transfers to the next soft assertion statement"
+],
+a: 1,
+e: "A Hard Assertion failure throws an AssertionError immediately, terminating the current test method instantly."
+},
+{
+q: "Which final step is mandatory to report gathered exceptions in Soft Assertions?",
+o: ["soft.assertAll()", "soft.quit()", "Assert.compile()", "soft.flush()"],
+a: 0,
+e: "Without invoking soft.assertAll() as the final command, no recorded failures are reported, and the test will falsely pass."
+},
+{
+q: "What is the correct parameter sequence for assertEquals() in org.testng.Assert?",
+o: [
+"Assert.assertEquals(expected, actual, message)",
+"Assert.assertEquals(actual, expected, message)",
+"Assert.assertEquals(message, expected, actual)",
+"Assert.assertEquals(expected, message, actual)"
+],
+a: 1,
+e: "Unlike JUnit, TestNG Assert uses the natural order: assertEquals(actual, expected, optionalMessage)."
+},
+{
+q: "What is the major risk of sharing a single static SoftAssert instance across multiple @Test methods?",
+o: [
+"The test execution speeds up excessively",
+"Failure history leaks from one test method into completely unrelated test executions",
+"The driver session closes automatically",
+"Selenium fails to locate web elements"
+],
+a: 1,
+e: "Sharing SoftAssert instances across tests causes assertion history contamination. Always initialize SoftAssert locally within each test method."
+},
+{
+q: "To assert that a specific warning pop-up element is completely absent from the DOM, which approach is preferred?",
+o: [
+"Assert.assertTrue(element.isDisplayed())",
+"Assert.assertFalse(driver.findElements(By.id('warning')).size() > 0)",
+"Assert.assertNull(driver.findElement(By.id('warning')))",
+"Assert.assertSame(element, null)"
+],
+a: 1,
+e: "driver.findElement() throws NoSuchElementException if an element is absent. Using findElements().size() == 0 avoids exceptions and checks presence cleanly."
+},
+{
+q: "When comparing two separate object instances that represent equal string text, what is the core difference between assertEquals() and assertSame()?",
+o: [
+"assertEquals checks value equality via equals(); assertSame checks memory reference equality using the == operator",
+"assertSame is faster than assertEquals",
+"assertEquals is only for numbers; assertSame is for objects",
+"There is no difference"
+],
+a: 0,
+e: "assertEquals compares actual characters/values; assertSame checks memory addresses."
+},
+{
+q: "How can you validate that a specific method execution throws an Expected Exception?",
+o: [
+"Using Assert.assertThrows() passing the target Exception class and action lambda",
+"Using soft.assertTrue() with a try-catch block",
+"Using Assert.assertNull() inside the catch block",
+"TestNG cannot validate exceptions"
+],
+a: 0,
+e: "Assert.assertThrows(Exception.class, () -> action) is TestNG's built-in mechanism for validating expected exceptions."
+},
+{
+q: "Where should driver.quit() normally be invoked in tests that use Assertions to ensure clean environment teardown?",
+o: [
+"Immediately before the assertion line inside the @Test method",
+"Inside a dedicated @AfterMethod teardown method",
+"Inside a catch block of the test class",
+"Always on the first line of the next class"
+],
+a: 1,
+e: "Placing teardown scripts inside @AfterMethod ensures clean closures run even if assertions throw errors mid-test."
+},
+{
+q: "In what scenario is a Soft Assertion preferred over a Hard Assertion?",
+o: [
+"Checking successful database connection",
+"Validating elements of an independent multi-field form layout",
+"Validating standard account login redirection success",
+"Handling a critical API authentication token handshake"
+],
+a: 1,
+e: "Validating independent layout elements, tables, or non-blocking parameters should use Soft Assertions so all failures are captured in a single run."
+}
+];
+
+var userAnswers = {};
+var correctAnswersCount = 0;
+
+function buildQuiz() {
+var container = document.getElementById('quiz-container');
+container.innerHTML = "";
+
+questions.forEach((q, qIdx) => {
+var block = document.createElement('div');
+block.className = "quiz-block";
+block.id = `q-block-${qIdx}`;
+
+var optionsHtml = q.o.map((opt, optIdx) => `
+<div class="quiz-opt" onclick="submitAnswer(${qIdx}, ${optIdx}, this)">
+<span>⬜</span> ${opt}
+</div>
+`).join('');
+
+block.innerHTML = `
+<div class="quiz-num">Question ${qIdx + 1} of 10</div>
+<div class="quiz-q">${q.q}</div>
+<div class="quiz-opts">
+${optionsHtml}
+</div>
+<div class="quiz-feedback" id="q-feedback-${qIdx}"></div>
+`;
+container.appendChild(block);
+});
+}
+
+function submitAnswer(qIdx, optIdx, element) {
+if (userAnswers[qIdx] !== undefined) return; // Prevent double clicking
+
+var correctOpt = questions[qIdx].a;
+var isCorrect = (optIdx === correctOpt);
+userAnswers[qIdx] = optIdx;
+
+if (isCorrect) correctAnswersCount++;
+
+// Disable all options under current question block
+var block = document.getElementById(`q-block-${qIdx}`);
+block.querySelectorAll('.quiz-opt').forEach(opt => {
+opt.classList.add('disabled');
+});
+
+// Highlight choices
+element.classList.add(isCorrect ? 'correct' : 'wrong');
+if(!isCorrect) {
+// Highlight the correct option as well
+var correctElement = block.querySelectorAll('.quiz-opt')[correctOpt];
+correctElement.classList.add('correct');
+}
+
+// Display feedback panel
+var feedbackEl = document.getElementById(`q-feedback-${qIdx}`);
+feedbackEl.className = `quiz-feedback show ${isCorrect ? 'correct' : 'wrong'}`;
+feedbackEl.innerHTML = isCorrect ?
+`<strong>✔ Correct!</strong> ${questions[qIdx].e}` :
+`<strong>✖ Wrong!</strong> ${questions[qIdx].e}`;
+
+// Evaluate final score if all questions answered
+if (Object.keys(userAnswers).length === questions.length) {
+showFinalResults();
+}
+}
+
+function showFinalResults() {
+var scoreBox = document.getElementById('score-box');
+var scoreNum = document.getElementById('score-num');
+var scoreLbl = document.getElementById('score-lbl');
+
+scoreNum.textContent = `${correctAnswersCount} / 10`;
+
+if(correctAnswersCount === 10) {
+scoreNum.style.color = "var(--accent3)";
+scoreLbl.textContent = "🎉 Outstanding! You have mastered TestNG validation mechanics completely.";
+} else if (correctAnswersCount >= 7) {
+scoreNum.style.color = "var(--accent2)";
+scoreLbl.textContent = "👍 Solid work! Review the questions you missed to sharpen your assertions knowledge.";
+} else {
+scoreNum.style.color = "var(--accent4)";
+scoreLbl.textContent = "📖 Keep studying the core distinctions of Soft and Hard Assertions and try again.";
+}
+scoreBox.classList.add('show');
+scoreBox.scrollIntoView({ behavior: 'smooth' });
+}
+
+function resetQuiz() {
+userAnswers = {};
+correctAnswersCount = 0;
+document.getElementById('score-box').classList.remove('show');
+buildQuiz();
+}
+
+// Initializers
+window.onload = function() {
+buildQuiz();
+renderBrowserState('init');
+};
+</script>
+</body>
+</html>

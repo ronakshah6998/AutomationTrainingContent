@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Automation Testing Bootcamp — Home</title>
+<style>
+/* ── TOKENS ─────────────────────────────────────────────── */
+:root {
+  --bg:#0d1117; --surface:#161b22; --surface2:#1f2937; --border:#30363d;
+  --accent:#f89820; --accent2:#4fa3e0; --accent3:#58d68d; --accent4:#e74c3c; --accent5:#c678dd;
+  --text:#e6edf3; --text2:#8b949e; --text3:#c9d1d9;
+  --radius:10px; --font-mono:'Courier New',Courier,monospace;
+  --sel:#43b02a;
+  --shadow-sm:0 2px 8px rgba(0,0,0,0.5);
+  --shadow-md:0 8px 24px rgba(0,0,0,0.6);
+  --transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+[data-theme="light"]{
+  --bg:#f0f4f8; --surface:#ffffff; --surface2:#e8eef5; --border:#d1d9e0;
+  --text:#1a202c; --text2:#4a5568; --text3:#2d3748;
+  --shadow-sm:0 2px 8px rgba(0,0,0,0.06);
+  --shadow-md:0 8px 24px rgba(0,0,0,0.08);
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html { scroll-behavior: smooth; }
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);
+  min-height:100vh;transition:background .3s,color .3s;line-height:1.65;
+  user-select:none;-webkit-user-select:none;}
+
+/* ── WATERMARK ─────────────────────────────────────────── */
+#watermark{position:fixed;bottom:14px;right:18px;font-size:.7rem;color:var(--text2);
+  opacity:.44;pointer-events:none;z-index:800;letter-spacing:.2px;white-space:nowrap;}
+
+/* ── HEADER & NAVIGATION ────────────────────────────────── */
+header{background:var(--surface);border-bottom:1px solid var(--border);
+  padding:0 32px;display:flex;align-items:center;justify-content:space-between;
+  height:66px;position:sticky;top:0;z-index:1000;box-shadow:var(--shadow-sm);transition:var(--transition);}
+.logo{display:flex;align-items:center;gap:10px;font-size:1.05rem;font-weight:700;}
+.logo-icon{width:32px;height:32px;border-radius:8px;
+  background:linear-gradient(135deg,#43b02a,#26890c);
+  display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:#fff;}
+.badge{font-size:.68rem;font-weight:600;padding:2px 8px;border-radius:20px;
+  background:var(--accent2);color:#000;text-transform:uppercase;letter-spacing:.5px;}
+  
+.nav-menu { display: flex; align-items: center; gap: 24px; }
+.nav-link { color: var(--text2); text-decoration: none; font-size: 0.9rem; font-weight: 600; transition: var(--transition); }
+.nav-link:hover, .nav-link.active { color: var(--accent2); }
+
+.nav-actions { display: flex; align-items: center; gap: 16px; }
+#themeToggle{background:var(--surface2);border:1px solid var(--border);color:var(--text);
+  border-radius:8px;padding:6px 14px;cursor:pointer;font-size:.85rem;transition:all .2s;}
+#themeToggle:hover{border-color:var(--accent);color:var(--accent);}
+
+/* ── LAYOUT ─────────────────────────────────────────────── */
+.container{max-width:1140px;margin:0 auto;padding:0 20px;}
+section { padding: 64px 0; border-bottom: 1px solid var(--border); }
+section:last-of-type { border-bottom: none; }
+
+/* ── HERO BANNER ────────────────────────────────────────── */
+.hero-sec { padding-top: 48px; border-bottom: 1px solid var(--border); }
+.hero{background:linear-gradient(135deg,var(--surface),var(--surface2));
+  border:1px solid var(--border);border-radius:14px;padding:48px;
+  display:flex;align-items:center;gap:28px;
+  position:relative;overflow:hidden;box-shadow:var(--shadow-md);}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:240px;height:240px;
+  border-radius:50%;background:radial-gradient(circle,rgba(79,163,224,.14) 0%,transparent 70%);
+  pointer-events:none;}
+.hero-icon{font-size:72px;flex-shrink:0;filter:drop-shadow(0 4px 16px rgba(79,163,224,.4));}
+.hero-text h1{font-size:2.2rem;font-weight:800;line-height:1.2; letter-spacing: -0.5px;}
+.hero-text h1 span{color:var(--accent2);}
+.hero-text p{color:var(--text2);margin-top:12px;font-size:1.05rem; max-width: 650px;}
+.hero-pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px;}
+.pill{padding:4px 12px;border-radius:20px;font-size:.78rem;font-weight:600;
+  border:1px solid;display:flex;align-items:center;gap:5px;}
+.pill-orange{color:var(--accent);border-color:rgba(248,152,32,.35);background:rgba(248,152,32,.08);}
+.pill-blue{color:var(--accent2);border-color:rgba(79,163,224,.35);background:rgba(79,163,224,.08);}
+.pill-green{color:var(--accent3);border-color:rgba(88,214,141,.35);background:rgba(88,214,141,.08);}
+.pill-purple{color:var(--accent5);border-color:rgba(198,120,221,.35);background:rgba(198,120,221,.08);}
+
+.hero-actions { display: flex; gap: 16px; margin-top: 28px; flex-wrap: wrap; }
+.btn-primary, .btn-secondary { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; font-weight: 700; font-size: 0.9rem; padding: 12px 24px; border-radius: 8px; transition: var(--transition); }
+.btn-primary { background: var(--accent2); color: #000; box-shadow: 0 4px 12px rgba(79,163,224,0.3); }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(79,163,224,0.4); opacity: 0.95; }
+.btn-secondary { background: var(--surface2); border: 1px solid var(--border); color: var(--text); }
+.btn-secondary:hover { border-color: var(--accent2); background: var(--surface); color: var(--accent2); transform: translateY(-2px); }
+
+/* ── QUICK STATS ────────────────────────────────────────── */
+.section-title{font-size:1.4rem;font-weight:800;margin-bottom:6px;display:flex;align-items:center;gap:9px;}
+.section-title .dot{width:10px;height:10px;border-radius:50%;background:var(--accent2);}
+.section-sub{color:var(--text2);font-size:.9rem;margin-bottom:28px;}
+
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; }
+.stat-card { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; text-align: center; transition: var(--transition); }
+.stat-card:hover { transform: translateY(-4px); border-color: var(--accent2); box-shadow: var(--shadow-md); }
+.stat-val { font-size: 1.8rem; font-weight: 800; color: var(--accent2); margin-bottom: 4px; }
+.stat-lbl { font-size: 0.8rem; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* ── COURSE ROADMAP GRID ────────────────────────────────── */
+.phase-heading { font-size: 1.15rem; font-weight: 700; color: var(--text); margin: 32px 0 16px; display: flex; align-items: center; gap: 8px; }
+.phase-heading span { font-size: 0.75rem; text-transform: uppercase; padding: 2px 10px; border-radius: 12px; font-weight: 800; }
+.phase-free { border: 1px solid var(--accent3); color: var(--accent3); background: rgba(88,214,141,0.06); }
+.phase-paid { border: 1px solid var(--accent5); color: var(--accent5); background: rgba(198,120,221,0.06); }
+
+.roadmap-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 20px; }
+.rm-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; display: flex; flex-direction: column; justify-content: space-between; transition: var(--transition); position: relative; }
+.rm-card:hover { transform: translateY(-4px); border-color: var(--accent2); box-shadow: var(--shadow-md); }
+.rm-hdr { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+.rm-week { font-family: var(--font-mono); font-size: 0.75rem; font-weight: 700; color: var(--accent); text-transform: uppercase; border: 1px solid rgba(248,152,32,0.3); background: rgba(248,152,32,0.06); padding: 2px 8px; border-radius: 4px; }
+.rm-duration { font-size: 0.75rem; color: var(--text2); font-weight: 600; display: flex; align-items: center; gap: 4px; }
+.rm-title { font-size: 1.05rem; font-weight: 800; margin-bottom: 8px; color: var(--text); }
+.rm-desc { font-size: 0.83rem; color: var(--text2); margin-bottom: 16px; line-height: 1.5; height: 38px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+.rm-topics-title { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; color: var(--text3); margin-bottom: 8px; letter-spacing: 0.4px; }
+.rm-topics { list-style: none; margin-bottom: 20px; display: flex; flex-direction: column; gap: 6px; }
+.rm-topic-item { font-size: 0.8rem; color: var(--text3); display: flex; align-items: center; gap: 8px; }
+.rm-topic-item::before { content: '•'; color: var(--accent2); font-weight: 900; }
+
+.rm-btn { display: block; text-align: center; text-decoration: none; background: var(--surface2); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 10px 16px; font-size: 0.82rem; font-weight: 700; transition: var(--transition); }
+.rm-card:hover .rm-btn { background: var(--accent2); border-color: var(--accent2); color: #000; }
+
+/* ── LEARNING JOURNEY TIMELINE ──────────────────────────── */
+.journey-scroller { overflow-x: auto; padding: 20px 0; margin: 16px 0; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+.journey-timeline { display: flex; align-items: center; min-width: 1000px; padding: 0 40px; position: relative; }
+.journey-timeline::before { content: ''; position: absolute; top: 50%; left: 40px; right: 40px; height: 3px; background: var(--border); transform: translateY(-50%); z-index: 1; }
+.journey-node { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; flex: 1; text-align: center; }
+.jn-bubble { width: 44px; height: 44px; border-radius: 50%; background: var(--surface2); border: 3px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; font-weight: 800; color: var(--text2); transition: var(--transition); cursor: pointer; }
+.jn-label { margin-top: 12px; font-size: 0.82rem; font-weight: 700; color: var(--text2); white-space: nowrap; transition: var(--transition); }
+.journey-node:hover .jn-bubble { border-color: var(--accent2); color: var(--accent2); transform: scale(1.15); box-shadow: 0 0 12px rgba(79,163,224,0.3); }
+.journey-node:hover .jn-label { color: var(--text); }
+
+.journey-node.active .jn-bubble { border-color: var(--accent3); color: var(--accent3); background: var(--surface); box-shadow: 0 0 14px rgba(88,214,141,0.25); }
+.journey-node.active .jn-label { color: var(--accent3); font-weight: 800; }
+
+/* ── BOOTCAMP OUTCOMES ──────────────────────────────────── */
+.outcomes-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+.outcome-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; display: flex; gap: 14px; align-items: flex-start; transition: var(--transition); }
+.outcome-card:hover { border-color: var(--accent3); transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+.outcome-icon { font-size: 1.3rem; background: rgba(88,214,141,0.08); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--accent3); border: 1px solid rgba(88,214,141,0.2); }
+.outcome-body h4 { font-size: 0.92rem; font-weight: 700; margin-bottom: 4px; color: var(--text); }
+.outcome-body p { font-size: 0.82rem; color: var(--text2); line-height: 1.5; }
+
+/* ── CONTINUE LEARNING ──────────────────────────────────── */
+.continue-card { background: linear-gradient(135deg, var(--surface), var(--surface2)); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; display: flex; align-items: center; justify-content: space-between; gap: 24px; position: relative; overflow: hidden; box-shadow: var(--shadow-md); }
+.continue-card::after { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--accent3); }
+.continue-info { display: flex; flex-direction: column; gap: 6px; }
+.continue-tag { font-family: var(--font-mono); font-size: 0.72rem; font-weight: 800; text-transform: uppercase; color: var(--accent3); letter-spacing: 0.5px; }
+.continue-title { font-size: 1.2rem; font-weight: 800; color: var(--text); }
+.continue-progress-wrap { display: flex; align-items: center; gap: 12px; margin-top: 6px; }
+.continue-bar-outer { width: 150px; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.continue-bar-inner { height: 100%; width: 0%; background: var(--accent3); border-radius: 3px; }
+.continue-pct { font-size: 0.78rem; font-weight: 700; color: var(--text2); }
+
+/* ── RESOURCES ──────────────────────────────────────────── */
+.resources-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; }
+.resource-card { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; display: flex; flex-direction: column; justify-content: space-between; transition: var(--transition); text-decoration: none; color: inherit; }
+.resource-card:hover { border-color: var(--accent2); transform: translateY(-3px); box-shadow: var(--shadow-sm); }
+.rc-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+.rc-icon { font-size: 1.6rem; }
+.rc-arrow { font-size: 0.85rem; color: var(--text2); transition: var(--transition); }
+.resource-card:hover .rc-arrow { color: var(--accent2); transform: translateX(3px); }
+.rc-title { font-size: 0.9rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.rc-desc { font-size: 0.78rem; color: var(--text2); line-height: 1.4; }
+
+/* ── FOOTER ─────────────────────────────────────────────── */
+footer { background: var(--surface); border-top: 1px solid var(--border); padding: 40px 0; text-align: center; }
+.footer-logo { display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700; font-size: 0.95rem; margin-bottom: 8px; }
+.footer-logo .logo-icon { width: 24px; height: 24px; font-size: 14px; border-radius: 6px; }
+.footer-text { font-size: 0.82rem; color: var(--text2); margin-bottom: 12px; }
+.footer-author { font-size: 0.78rem; font-weight: 600; color: var(--text3); }
+
+/* ── SCROLL REVEAL ANIMATION ────────────────────────────── */
+.scroll-reveal { opacity: 0; transform: translateY(18px); transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+.scroll-reveal.reveal-active { opacity: 1; transform: translateY(0); }
+
+/* ── RESPONSIVE DESIGN ──────────────────────────────────── */
+@media (max-width: 820px) {
+  header { padding: 0 16px; }
+  .nav-menu { display: none; } /* On simple landing, standard collapse or hiding links */
+  .hero { flex-direction: column; padding: 32px 24px; text-align: center; }
+  .hero-icon { font-size: 56px; }
+  .hero-text h1 { font-size: 1.75rem; }
+  .hero-pills, .hero-actions { justify-content: center; }
+  .continue-card { flex-direction: column; align-items: stretch; text-align: center; padding: 20px; }
+  .continue-progress-wrap { justify-content: center; }
+  .continue-card::after { width: 100%; height: 4px; bottom: auto; }
+}
+</style>
+</head>
+<body>
+<div id="watermark">Ronak Shah — Automation Training Content</div>
+
+<!-- SECTION 1: STICKY NAVIGATION -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">Se</div>
+    Automation Series
+    <span class="badge">LMS Home</span>
+  </div>
+  <nav class="nav-menu">
+    <a href="#" class="nav-link active">Home</a>
+    <a href="#roadmap" class="nav-link">Course Roadmap</a>
+    <a href="#outcomes" class="nav-link">Outcomes</a>
+    <a href="#resources" class="nav-link">Resources</a>
+  </nav>
+  <div class="nav-actions">
+    <button id="themeToggle" onclick="toggleTheme()">☀ Light</button>
+  </div>
+</header>
+
+<div class="container">
+  
+  <!-- SECTION 2: HERO BANNER -->
+  <section class="hero-sec">
+    <div class="hero">
+      <div class="hero-icon">🚀</div>
+      <div class="hero-text">
+        <h1>Selenium + Java + TestNG <span>Bootcamp</span></h1>
+        <p>From Zero to Interview-Ready Automation Engineer. Learn manual testing fundamentals, program clean code, build enterprise-grade frameworks, and crack technical screening rounds.</p>
+        <div class="hero-pills">
+          <span class="pill pill-orange">Manual Testing</span>
+          <span class="pill pill-blue">Selenium WebDriver</span>
+          <span class="pill pill-green">Java OOPs &amp; Collections</span>
+          <span class="pill pill-purple">API &amp; Cucumber BDD</span>
+        </div>
+        <div class="hero-actions">
+          <a href="{{WEEK2}}" class="btn-primary">▶ Start / Continue Learning</a>
+          <a href="#roadmap" class="btn-secondary">📚 Explore Roadmap</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 7: CONTINUE LEARNING (placed high to guide returning students) -->
+  <section class="scroll-reveal">
+    <div class="continue-card">
+      <div class="continue-info">
+        <span class="continue-tag">In Progress Module</span>
+        <h3 class="continue-title">Resume Your Automation Journey</h3>
+        <div class="continue-progress-wrap">
+          <div class="continue-bar-outer">
+            <div class="continue-bar-inner"></div>
+          </div>
+          <span class="continue-pct">Continue from where you left off</span>
+        </div>
+      </div>
+      <a href="{{WEEK2}}" class="btn-primary" style="background:var(--accent3); box-shadow:0 4px 12px rgba(88,214,141,0.2);">Continue Learning</a>
+    </div>
+  </section>
+
+  <!-- SECTION 3: QUICK STATS -->
+  <section class="scroll-reveal">
+    <div class="section-title"><span class="dot"></span> Platform Overview</div>
+    <p class="section-sub">Everything you need to master automation in one high-performance learning dashboard.</p>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-val">13</div>
+        <div class="stat-lbl">Weeks</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val">70+</div>
+        <div class="stat-lbl">Lessons</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val">Interactive</div>
+        <div class="stat-lbl">Simulators</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val">Practical</div>
+        <div class="stat-lbl">Assignments</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val">E2E</div>
+        <div class="stat-lbl">Projects</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val">100%</div>
+        <div class="stat-lbl">Interview Ready</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 5: LEARNING JOURNEY -->
+  <section class="scroll-reveal">
+    <div class="section-title"><span class="dot"></span> Your Technical Progression</div>
+    <p class="section-sub">See how each stage of the bootcamp builds into complete expert proficiency.</p>
+    <div class="journey-scroller">
+      <div class="journey-timeline">
+        <div class="journey-node active">
+          <div class="jn-bubble">1</div>
+          <div class="jn-label">Manual Base</div>
+        </div>
+        <div class="journey-node">
+          <div class="jn-bubble">2</div>
+          <div class="jn-label">Java Booster</div>
+        </div>
+        <div class="journey-node">
+          <div class="jn-bubble">3</div>
+          <div class="jn-label">Selenium Foundations</div>
+        </div>
+        <div class="journey-node">
+          <div class="jn-bubble">4</div>
+          <div class="jn-label">XPath Mastery</div>
+        </div>
+        <div class="journey-node">
+          <div class="jn-bubble">5</div>
+          <div class="jn-label">TestNG Suite</div>
+        </div>
+        <div class="journey-node">
+          <div class="jn-bubble">6</div>
+          <div class="jn-label">Page Object Model</div>
+        </div>
+        <div class="journey-node">
+          <div class="jn-bubble">7</div>
+          <div class="jn-label">E2E Project</div>
+        </div>
+        <div class="journey-node">
+          <div class="jn-bubble">8</div>
+          <div class="jn-label">Framework Design</div>
+        </div>
+        <div class="journey-node">
+          <div class="jn-bubble">9</div>
+          <div class="jn-label">API RestAssured</div>
+        </div>
+        <div class="journey-node">
+          <div class="jn-bubble">10</div>
+          <div class="jn-label">BDD Cucumber</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 4: COURSE ROADMAP -->
+  <section id="roadmap" class="scroll-reveal">
+    <div class="section-title"><span class="dot"></span> Training Roadmap</div>
+    <p class="section-sub">Thorough step-by-step syllabus dividing core fundamentals from framework building.</p>
+
+    <!-- Phase 1 -->
+    <div class="phase-heading">Phase 1: Free Bootcamp <span class="phase-free">Manual to Mini Project</span></div>
+    <div class="roadmap-grid">
+      
+      <!-- Pre Bootcamp -->
+      <div class="rm-card">
+        <div>
+          <div class="rm-hdr">
+            <span class="rm-week">Pre Bootcamp</span>
+            <span class="rm-duration">⏱️ 3 Hours</span>
+          </div>
+          <h3 class="rm-title">Manual Testing Fundamentals</h3>
+          <p class="rm-desc">Learn core software testing concepts, writing test cases, and tracking bugs.</p>
+          <div class="rm-topics-title">Core Topics Covered</div>
+          <ul class="rm-topics">
+            <li class="rm-topic-item">SDLC &amp; STLC processes</li>
+            <li class="rm-topic-item">Functional, smoke, regression testing</li>
+            <li class="rm-topic-item">Structured test case writing</li>
+            <li class="rm-topic-item">Bug Life Cycle &amp; Jira usage</li>
+          </ul>
+        </div>
+			<a href="Week0/w0_t1_what_is_testing.html" class="rm-btn">Go to Lesson</a>
+      </div>
+
+      <!-- Week 0 -->
+      <div class="rm-card">
+        <div>
+          <div class="rm-hdr">
+            <span class="rm-week">Week 0</span>
+            <span class="rm-duration">⏱️ 2 Hours</span>
+          </div>
+          <h3 class="rm-title">Java Booster Session</h3>
+          <p class="rm-desc">Essential Java programming fundamentals for absolute beginners setting up IDEs.</p>
+          <div class="rm-topics-title">Core Topics Covered</div>
+          <ul class="rm-topics">
+            <li class="rm-topic-item">IntelliJ &amp; Eclipse configuration</li>
+            <li class="rm-topic-item">Variables &amp; Data Types</li>
+            <li class="rm-topic-item">If-Else conditionals &amp; Loops</li>
+            <li class="rm-topic-item">Methods &amp; basic class structure</li>
+          </ul>
+        </div>
+        <a href="Week1/w1_t0_java-intro.html" class="rm-btn">Go to Lesson</a>
+      </div>
+
+      <!-- Week 1 -->
+      <div class="rm-card">
+        <div>
+          <div class="rm-hdr">
+            <span class="rm-week">Week 1</span>
+            <span class="rm-duration">⏱️ 1 Week</span>
+          </div>
+          <h3 class="rm-title">Selenium Foundations</h3>
+          <p class="rm-desc">Initialize browser scripts, understand architecture, and implement timing waits.</p>
+          <div class="rm-topics-title">Core Topics Covered</div>
+          <ul class="rm-topics">
+            <li class="rm-topic-item">Selenium Architecture overview</li>
+            <li class="rm-topic-item">Maven + IntelliJ project setup</li>
+            <li class="rm-topic-item">WebDriver basics &amp; navigation</li>
+            <li class="rm-topic-item">Implicit &amp; Explicit Waits</li>
+          </ul>
+        </div>
+        <a href="Week2/w2_t0_selenium-intro.html" class="rm-btn">Go to Lesson</a>
+      </div>
+
+      <!-- Week 2 -->
+      <div class="rm-card">
+        <div>
+          <div class="rm-hdr">
+            <span class="rm-week">Week 2</span>
+            <span class="rm-duration">⏱️ 1 Week</span>
+          </div>
+          <h3 class="rm-title">Locators &amp; XPath Mastery</h3>
+          <p class="rm-desc">Master identifying any elements on a dynamic page with stable queries.</p>
+          <div class="rm-topics-title">Core Topics Covered</div>
+          <ul class="rm-topics">
+            <li class="rm-topic-item">ID, Name, Class locators</li>
+            <li class="rm-topic-item">Dynamic CSS &amp; custom XPath</li>
+            <li class="rm-topic-item">Handling Dropdowns (Select class)</li>
+            <li class="rm-topic-item">Window &amp; Frame switching</li>
+          </ul>
+        </div>
+        <a href="Week3/w3_t1_selenium-locators.html" class="rm-btn">Go to Lesson</a>
+      </div>
+
+      <!-- Week 3 -->
+      <div class="rm-card">
+        <div>
+          <div class="rm-hdr">
+            <span class="rm-week">Week 3</span>
+            <span class="rm-duration">⏱️ 1 Week</span>
+          </div>
+          <h3 class="rm-title">TestNG &amp; Assertions</h3>
+          <p class="rm-desc">Structure tests, pass dynamic data provider inputs, and track reports.</p>
+          <div class="rm-topics-title">Core Topics Covered</div>
+          <ul class="rm-topics">
+            <li class="rm-topic-item">TestNG Annotations flow</li>
+            <li class="rm-topic-item">Hard &amp; Soft assertions</li>
+            <li class="rm-topic-item">DataProviders config</li>
+            <li class="rm-topic-item">Running tests via testng.xml</li>
+          </ul>
+        </div>
+        <a href="Week4/w4_t0_testng_annotations.html" class="rm-btn">Go to Lesson</a>
+      </div>
+
+      <!-- Week 4 -->
+      <div class="rm-card">
+        <div>
+          <div class="rm-hdr">
+            <span class="rm-week">Week 4</span>
+            <span class="rm-duration">⏱️ 1 Week</span>
+          </div>
+          <h3 class="rm-title">Page Object Model</h3>
+          <p class="rm-desc">Keep code decoupled by separating functional action methods from locators.</p>
+          <div class="rm-topics-title">Core Topics Covered</div>
+          <ul class="rm-topics">
+            <li class="rm-topic-item">Introduction to POM pattern</li>
+            <li class="rm-topic-item">Page class architecture</li>
+            <li class="rm-topic-item">Separating test logic from actions</li>
+            <li class="rm-topic-item">Refactoring existing workflows</li>
+          </ul>
+        </div>
+        <a href="{{WEEK4}}" class="rm-btn">Go to Lesson</a>
+      </div>
+
+      <!-- Week 5 -->
+      <div class="rm-card" style="grid-column: span 1; max-width: none;">
+        <div>
+          <div class="rm-hdr">
+            <span class="rm-week">Week 5</span>
+            <span class="rm-duration">⏱️ 1 Week</span>
+          </div>
+          <h3 class="rm-title">End-to-End Mini Project</h3>
+          <p class="rm-desc">Automate a complete purchase or authentication workflow and review your codebase.</p>
+          <div class="rm-topics-title">Core Topics Covered</div>
+          <ul class="rm-topics">
+            <li class="rm-topic-item">Full e-commerce automation flow</li>
+            <li class="rm-topic-item">End-to-end POM architecture</li>
+            <li class="rm-topic-item">Generating Extent Reports</li>
+            <li class="rm-topic-item">Review &amp; walkthrough sessions</li>
+          </ul>
+        </div>
+        <a href="{{WEEK5}}" class="rm-btn">Go to Lesson</a>
+      </div>
+
+    </div>
+
+    <!-- Phase 2 -->
+    <div class="phase-heading">Phase 2: Advanced Automation <span class="phase-paid">Frameworks &amp; Enterprise Skills</span></div>
+    <div class="roadmap-grid">
+
+      <!-- Week 6-7 -->
+      <div class="rm-card">
+        <div>
+          <div class="rm-hdr">
+            <span class="rm-week">Week 6–7</span>
+            <span class="rm-duration">⏱️ 2 Weeks</span>
+          </div>
+          <h3 class="rm-title">Java Deep Dive — Core Concepts</h3>
+          <p class="rm-desc">Dive into key programming practices tested heavily in technical coding interviews.</p>
+          <div class="rm-topics-title">Core Topics Covered</div>
+          <ul class="rm-topics">
+            <li class="rm-topic-item">Object-Oriented Programming principles</li>
+            <li class="rm-topic-item">Interfaces &amp; Abstract Classes</li>
+            <li class="rm-topic-item">Custom Exceptions handling</li>
+            <li class="rm-topic-item">Collections Framework (List, Map, Set)</li>
+          </ul>
+        </div>
+        <a href="{{WEEK6_7}}" class="rm-btn">Go to Lesson</a>
+      </div>
+
+      <!-- Week 8-9 -->
+      <div class="rm-card">
+        <div>
+          <div class="rm-hdr">
+            <span class="rm-week">Week 8–9</span>
+            <span class="rm-duration">⏱️ 2 Weeks</span>
+          </div>
+          <h3 class="rm-title">Framework Building</h3>
+          <p class="rm-desc">Build a production-grade custom test frame reading dynamic inputs seamlessly.</p>
+          <div class="rm-topics-title">Core Topics Covered</div>
+          <ul class="rm-topics">
+            <li class="rm-topic-item">Data-driven configs via Excel / JSON</li>
+            <li class="rm-topic-item">TestNG custom Listeners</li>
+            <li class="rm-topic-item">Branching &amp; merges with Git</li>
+            <li class="rm-topic-item">Multi-browser parameterization</li>
+          </ul>
+        </div>
+        <a href="{{WEEK8_9}}" class="rm-btn">Go to Lesson</a>
+      </div>
+
+      <!-- Week 10 -->
+      <div class="rm-card">
+        <div>
+          <div class="rm-hdr">
+            <span class="rm-week">Week 10</span>
+            <span class="rm-duration">⏱️ 1 Week</span>
+          </div>
+          <h3 class="rm-title">API Automation with RestAssured</h3>
+          <p class="rm-desc">Integrate backend endpoints validations inside your core regression frameworks.</p>
+          <div class="rm-topics-title">Core Topics Covered</div>
+          <ul class="rm-topics">
+            <li class="rm-topic-item">REST HTTP methods (GET, POST, etc.)</li>
+            <li class="rm-topic-item">Postman environment setup</li>
+            <li class="rm-topic-item">RestAssured requests parsing</li>
+            <li class="rm-topic-item">JSON schema validations</li>
+          </ul>
+        </div>
+        <a href="{{WEEK10}}" class="rm-btn">Go to Lesson</a>
+      </div>
+
+      <!-- Week 11 -->
+      <div class="rm-card">
+        <div>
+          <div class="rm-hdr">
+            <span class="rm-week">Week 11</span>
+            <span class="rm-duration">⏱️ 1 Week</span>
+          </div>
+          <h3 class="rm-title">Cucumber BDD &amp; Parallel Tests</h3>
+          <p class="rm-desc">Link plain-English scenarios to technical step definitions with multi-threading.</p>
+          <div class="rm-topics-title">Core Topics Covered</div>
+          <ul class="rm-topics">
+            <li class="rm-topic-item">Gherkin syntax formatting</li>
+            <li class="rm-topic-item">Feature files &amp; Step definitions</li>
+            <li class="rm-topic-item">Running tests in parallel</li>
+            <li class="rm-topic-item">Multi-browser execution grid</li>
+          </ul>
+        </div>
+        <a href="{{WEEK11}}" class="rm-btn">Go to Lesson</a>
+      </div>
+
+      <!-- Week 12 -->
+      <div class="rm-card" style="grid-column: span 1; max-width: none;">
+        <div>
+          <div class="rm-hdr">
+            <span class="rm-week">Week 12</span>
+            <span class="rm-duration">⏱️ 1 Week</span>
+          </div>
+          <h3 class="rm-title">Mock Interviews &amp; Job Readiness</h3>
+          <p class="rm-desc">Polish your professional developer profiles, resumes, and project presentations.</p>
+          <div class="rm-topics-title">Core Topics Covered</div>
+          <ul class="rm-topics">
+            <li class="rm-topic-item">2 Full mock technical rounds</li>
+            <li class="rm-topic-item">Resume reviews &amp; LinkedIn updates</li>
+            <li class="rm-topic-item">Framework walkthrough delivery</li>
+            <li class="rm-topic-item">Job application screening advice</li>
+          </ul>
+        </div>
+        <a href="{{WEEK12}}" class="rm-btn">Go to Lesson</a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SECTION 6: BOOTCAMP OUTCOMES -->
+  <section id="outcomes" class="scroll-reveal">
+    <div class="section-title"><span class="dot"></span> What You'll Be Able to Do</div>
+    <p class="section-sub">Acquire verifiable technical abilities that meet real-world enterprise demands.</p>
+    <div class="outcomes-grid">
+      <div class="outcome-card">
+        <div class="outcome-icon">✓</div>
+        <div class="outcome-body">
+          <h4>Test Engineering Basics</h4>
+          <p>Understand manual testing, test lifecycle, and document clean defect sheets inside JIRA.</p>
+        </div>
+      </div>
+      <div class="outcome-card">
+        <div class="outcome-icon">✓</div>
+        <div class="outcome-body">
+          <h4>Build Production-Grade Frameworks</h4>
+          <p>Implement enterprise-ready, data-driven frameworks from scratch using Maven, TestNG, and Extent Reports.</p>
+        </div>
+      </div>
+      <div class="outcome-card">
+        <div class="outcome-icon">✓</div>
+        <div class="outcome-body">
+          <h4>Validate Backends Effortlessly</h4>
+          <p>Automate validation scenarios on application REST API endpoints using RestAssured structures.</p>
+        </div>
+      </div>
+      <div class="outcome-card">
+        <div class="outcome-icon">✓</div>
+        <div class="outcome-body">
+          <h4>Run High-Performance Suites</h4>
+          <p>Execute scripts concurrently across multiple browsers utilizing Cucumber BDD integration.</p>
+        </div>
+      </div>
+      <div class="outcome-card">
+        <div class="outcome-icon">✓</div>
+        <div class="outcome-body">
+          <h4>Confidently Answer Interviews</h4>
+          <p>Explain framework choices, coding questions, and architectural design patterns to technical leads.</p>
+        </div>
+      </div>
+      <div class="outcome-card">
+        <div class="outcome-icon">✓</div>
+        <div class="outcome-body">
+          <h4>Pass Screening Assessments</h4>
+          <p>Confidently complete take-home tests and coding evaluations featuring Java OOPs and Collections.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 8: RESOURCES -->
+  <section id="resources" class="scroll-reveal">
+    <div class="section-title"><span class="dot"></span> Essential Resources</div>
+    <p class="section-sub">Materials and platforms helpful for finishing tasks and preparing profiles.</p>
+    <div class="resources-grid">
+      <a href="#" class="resource-card">
+        <div class="rc-top">
+          <span class="rc-icon">📄</span>
+          <span class="rc-arrow">→</span>
+        </div>
+        <div>
+          <h4 class="rc-title">Course PDF Guide</h4>
+          <p class="rc-desc">Review the complete structures of Weeks 0-12 offline.</p>
+        </div>
+      </a>
+      <a href="#" class="resource-card">
+        <div class="rc-top">
+          <span class="rc-icon">📋</span>
+          <span class="rc-arrow">→</span>
+        </div>
+        <div>
+          <h4 class="rc-title">Assignments Module</h4>
+          <p class="rc-desc">Check your tasks, manual login reviews, and bug submissions.</p>
+        </div>
+      </a>
+      <a href="#" class="resource-card">
+        <div class="rc-top">
+          <span class="rc-icon">💻</span>
+          <span class="rc-arrow">→</span>
+        </div>
+        <div>
+          <h4 class="rc-title">Source Code</h4>
+          <p class="rc-desc">Clone the official workspace structures, templates, and utilities.</p>
+        </div>
+      </a>
+      <a href="#" class="resource-card">
+        <div class="rc-top">
+          <span class="rc-icon">❔</span>
+          <span class="rc-arrow">→</span>
+        </div>
+        <div>
+          <h4 class="rc-title">Platform FAQ</h4>
+          <p class="rc-desc">Find quick answers about course navigation or compiler setup.</p>
+        </div>
+      </a>
+      <a href="#" class="resource-card">
+        <div class="rc-top">
+          <span class="rc-icon">👥</span>
+          <span class="rc-arrow">→</span>
+        </div>
+        <div>
+          <h4 class="rc-title">Community Group</h4>
+          <p class="rc-desc">Collaborate on assignments and discuss coding errors with peers.</p>
+        </div>
+      </a>
+    </div>
+  </section>
+
+</div><!-- /container -->
+
+<!-- SECTION 9: FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-logo">
+      <div class="logo-icon">Se</div>
+      Automation Testing Bootcamp
+    </div>
+    <div class="footer-text">Helping engineers bridge manual processes and programming patterns.</div>
+    <div class="footer-author">Created by Ronak Shah</div>
+  </div>
+</footer>
+
+<script>
+/* ── LOCAL STORAGE SYSTEM THEME SYNC ────────────────────── */
+(function() {
+  var t = localStorage.getItem('theme') || 'dark';
+  document.documentElement.dataset.theme = t;
+  var btn = document.getElementById('themeToggle');
+  if(btn) btn.textContent = t === 'dark' ? '☀ Light' : '🌙 Dark';
+})();
+
+function toggleTheme(){
+  var h = document.documentElement;
+  var b = document.getElementById('themeToggle');
+  var current = h.dataset.theme;
+  var next = current === 'dark' ? 'light' : 'dark';
+  h.dataset.theme = next;
+  localStorage.setItem('theme', next);
+  b.textContent = next === 'dark' ? '☀ Light' : '🌙 Dark';
+}
+
+/* ── SCROLL REVEAL INTERSECTION OBSERVER ───────────────── */
+document.addEventListener("DOMContentLoaded", function() {
+  var items = document.querySelectorAll('.scroll-reveal');
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('reveal-active');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.05 });
+
+  items.forEach(function(item) {
+    observer.observe(item);
+  });
+});
+
+/* ── TIMELINE ACTIVE STATE ANIMATION INTERACTION ──────── */
+document.querySelectorAll('.journey-node').forEach(function(node) {
+  node.addEventListener('click', function() {
+    document.querySelectorAll('.journey-node').forEach(function(n) { n.classList.remove('active'); });
+    node.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

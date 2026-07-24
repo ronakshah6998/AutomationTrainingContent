@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html data-theme="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Week 3 - Handling iFrames &amp; Nested Frames</title>
+<style>
+/* ── TOKENS ─────────────────────────────────────────────── */
+:root {
+  --bg:#0d1117; --surface:#161b22; --surface2:#1f2937; --border:#30363d;
+  --accent:#f89820; --accent2:#4fa3e0; --accent3:#58d68d; --accent4:#e74c3c; --accent5:#c678dd;
+  --text:#e6edf3; --text2:#8b949e; --text3:#c9d1d9;
+  --tab-bg:#161b22; --tab-active:#1f2937; --code-bg:#0d1117;
+  --radius:10px; --font-mono:'Courier New',Courier,monospace;
+  --sel:#43b02a;
+}
+[data-theme="light"]{
+  --bg:#f0f4f8; --surface:#ffffff; --surface2:#e8eef5; --border:#d1d9e0;
+  --text:#1a202c; --text2:#4a5568; --text3:#2d3748;
+  --tab-bg:#e8eef5; --tab-active:#ffffff; --code-bg:#e2e8f0;
+}
+[data-theme="light"] pre,[data-theme="light"] .code-pre{color:#1a202c;background:#e2e8f0;}
+[data-theme="light"] .quiz-code,[data-theme="light"] .card code,
+[data-theme="light"] .info-box code,[data-theme="light"] code{background:#dde4ee;color:var(--text);border:1px solid var(--border);}
+[data-theme="light"] .kw{color:#7c3aed;}[data-theme="light"] .cls{color:#b45309;}
+[data-theme="light"] .fn{color:#1d4ed8;}[data-theme="light"] .str{color:#15803d;}
+[data-theme="light"] .cmt{color:#6b7280;}[data-theme="light"] .num{color:#c2410c;}
+[data-theme="light"] .xml-tag{color:#be185d;}[data-theme="light"] .xml-val{color:#15803d;}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);
+  min-height:100vh;transition:background .3s,color .3s;line-height:1.65;
+  user-select:none;-webkit-user-select:none;}
+
+/* ── WATERMARK ─────────────────────────────────────────── */
+#watermark{position:fixed;bottom:14px;right:18px;font-size:.7rem;color:var(--text2);
+  opacity:.44;pointer-events:none;z-index:800;letter-spacing:.2px;white-space:nowrap;}
+
+/* ── HEADER ─────────────────────────────────────────────── */
+header{background:var(--surface);border-bottom:1px solid var(--border);
+  padding:0 32px;display:flex;align-items:center;justify-content:space-between;
+  height:62px;position:sticky;top:0;z-index:100;box-shadow:0 1px 0 var(--border);}
+.logo{display:flex;align-items:center;gap:10px;font-size:1.05rem;font-weight:700;}
+.logo-icon{width:32px;height:32px;border-radius:8px;
+  background:linear-gradient(135deg,#43b02a,#26890c);
+  display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:#fff;}
+.badge{font-size:.68rem;font-weight:600;padding:2px 8px;border-radius:20px;
+  background:var(--accent2);color:#000;text-transform:uppercase;letter-spacing:.5px;}
+#themeToggle{background:var(--surface2);border:1px solid var(--border);color:var(--text);
+  border-radius:8px;padding:6px 14px;cursor:pointer;font-size:.85rem;transition:all .2s;}
+#themeToggle:hover{border-color:var(--accent);color:var(--accent);}
+
+/* ── LAYOUT ─────────────────────────────────────────────── */
+.container{max-width:1100px;margin:0 auto;padding:32px 20px 80px;}
+
+/* ── HERO ───────────────────────────────────────────────── */
+.hero{background:linear-gradient(135deg,var(--surface),var(--surface2));
+  border:1px solid var(--border);border-radius:14px;padding:36px 40px;
+  margin-bottom:28px;display:flex;align-items:center;gap:28px;
+  position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:240px;height:240px;
+  border-radius:50%;background:radial-gradient(circle,rgba(79,163,224,.14) 0%,transparent 70%);
+  pointer-events:none;}
+.hero-icon{font-size:64px;flex-shrink:0;filter:drop-shadow(0 4px 16px rgba(79,163,224,.4));}
+.hero-text h1{font-size:1.75rem;font-weight:800;line-height:1.2;}
+.hero-text h1 span{color:var(--accent2);}
+.hero-text p{color:var(--text2);margin-top:8px;font-size:.95rem;}
+.hero-pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;}
+.pill{padding:4px 12px;border-radius:20px;font-size:.78rem;font-weight:600;
+  border:1px solid;display:flex;align-items:center;gap:5px;}
+.pill-orange{color:var(--accent);border-color:rgba(248,152,32,.35);background:rgba(248,152,32,.08);}
+.pill-blue{color:var(--accent2);border-color:rgba(79,163,224,.35);background:rgba(79,163,224,.08);}
+.pill-green{color:var(--accent3);border-color:rgba(88,214,141,.35);background:rgba(88,214,141,.08);}
+.pill-purple{color:var(--accent5);border-color:rgba(198,120,221,.35);background:rgba(198,120,221,.08);}
+.pill-sel{color:var(--sel);border-color:rgba(67,176,42,.35);background:rgba(67,176,42,.08);}
+
+/* ── BREADCRUMB ROW ─────────────────────────────────────── */
+.breadcrumb-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.breadcrumb{display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--text2);}
+.breadcrumb span{color:var(--accent2);font-weight:600;}
+.watermark{font-size:.7rem;color:var(--text2);opacity:.52;letter-spacing:.3px;
+  white-space:nowrap;font-weight:500;}
+
+/* ── TABS ───────────────────────────────────────────────── */
+.tabs-wrapper{background:var(--tab-bg);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.tab-nav{display:flex;overflow-x:auto;border-bottom:1px solid var(--border);scrollbar-width:none;}
+.tab-nav::-webkit-scrollbar{display:none;}
+.tab-btn{flex-shrink:0;padding:13px 18px;background:none;border:none;color:var(--text2);
+  font-size:.83rem;font-weight:600;cursor:pointer;position:relative;transition:color .2s;
+  display:flex;align-items:center;gap:6px;}
+.tab-btn:hover{color:var(--text);}
+.tab-btn.active{color:var(--accent2);background:var(--tab-active);}
+.tab-btn.active::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+  background:var(--accent2);border-radius:2px 2px 0 0;}
+.tab-content{display:none;padding:32px;}
+.tab-content.active{display:block;animation:fadeIn .25s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ── SECTION HEADINGS ───────────────────────────────────── */
+.section-title{font-size:1.2rem;font-weight:800;margin-bottom:6px;display:flex;align-items:center;gap:9px;}
+.section-title .dot{width:10px;height:10px;border-radius:50%;background:var(--accent2);}
+.section-sub{color:var(--text2);font-size:.9rem;margin-bottom:22px;}
+
+/* ── CARDS ──────────────────────────────────────────────── */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px;margin-bottom:28px;}
+.card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);
+  padding:20px;transition:border-color .2s,transform .2s;}
+.card:hover{border-color:var(--accent2);transform:translateY(-2px);}
+.card-icon{font-size:1.6rem;margin-bottom:10px;}
+.card h3{font-size:.95rem;font-weight:700;margin-bottom:6px;}
+.card p{font-size:.83rem;color:var(--text2);line-height:1.55;}
+.card code{font-family:var(--font-mono);font-size:.78rem;background:var(--code-bg);
+  padding:1px 6px;border-radius:4px;color:var(--accent3);border:1px solid var(--border);}
+
+/* ── INFO BOX ───────────────────────────────────────────── */
+.info-box{border-radius:var(--radius);padding:16px 20px;font-size:.875rem;
+  margin-bottom:20px;border-left:4px solid;display:flex;gap:12px;align-items:flex-start;}
+.info-box .ib-icon{font-size:1.2rem;flex-shrink:0;margin-top:1px;}
+.info-box.blue{background:rgba(79,163,224,.1);border-color:var(--accent2);}
+.info-box.orange{background:rgba(248,152,32,.1);border-color:var(--accent);}
+.info-box.green{background:rgba(88,214,141,.1);border-color:var(--accent3);}
+.info-box.red{background:rgba(231,76,60,.1);border-color:var(--accent4);}
+.info-box.sel{background:rgba(67,176,42,.1);border-color:var(--sel);}
+.info-box code{font-family:var(--font-mono);font-size:.82rem;background:var(--code-bg);
+  padding:1px 6px;border-radius:4px;color:var(--accent3);border:1px solid var(--border);}
+
+/* ── CODE BLOCK ─────────────────────────────────────────── */
+.code-wrap{background:var(--code-bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin:16px 0;}
+.code-header{display:flex;align-items:center;justify-content:space-between;
+  padding:10px 16px;border-bottom:1px solid var(--border);background:rgba(255,255,255,.03);}
+.code-lang{font-size:.75rem;color:var(--text2);font-weight:600;}
+.code-dots{display:flex;gap:5px;}
+.code-dots span{width:11px;height:11px;border-radius:50%;}
+.code-dots .r{background:#ff5f57;}.code-dots .y{background:#ffbd2e;}.code-dots .g{background:#28c840;}
+.code-pre{padding:20px;overflow-x:auto;font-family:var(--font-mono);font-size:.85rem;line-height:1.75;color:#abb2bf;white-space:pre;}
+.kw{color:#c678dd;font-weight:600;}.cls{color:#e5c07b;}.fn{color:#61afef;}
+.str{color:#98c379;}.cmt{color:#5c6370;font-style:italic;}.num{color:#d19a66;}.op{color:#56b6c2;}
+.xml-tag{color:#e06c75;}.xml-attr{color:#d19a66;}.xml-val{color:#98c379;}
+
+/* ── FLOW PIPELINE ──────────────────────────────────────── */
+.flow-pipe{display:flex;flex-direction:column;gap:6px;margin:20px 0;}
+.fp-row{display:flex;align-items:center;gap:12px;}
+.fp-box{flex:1;background:var(--surface2);border:2px solid var(--border);border-radius:var(--radius);
+  padding:13px 18px;display:flex;align-items:center;gap:12px;transition:all .3s;}
+.fp-box.active{border-color:var(--accent2);background:rgba(79,163,224,.08);box-shadow:0 0 0 3px rgba(79,163,224,.15);}
+.fp-box.done{border-color:var(--accent3);background:rgba(88,214,141,.07);}
+.fp-icon{font-size:1.4rem;flex-shrink:0;}
+.fp-info .fp-label{font-size:.7rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.4px;}
+.fp-info .fp-title{font-size:.9rem;font-weight:700;margin-top:1px;}
+.fp-arrow{text-align:center;font-size:.8rem;color:var(--text2);padding:4px 0;}
+.fp-arrow.lit{color:var(--accent3);}
+
+/* ── ITER STEPS ─────────────────────────────────────────── */
+.iter-steps{display:flex;flex-direction:column;gap:10px;margin:16px 0;}
+.iter-row{display:flex;gap:14px;align-items:flex-start;background:var(--surface2);
+  border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;transition:border-color .2s;}
+.iter-row:hover{border-color:var(--accent2);}
+.iter-num{flex-shrink:0;width:28px;height:28px;border-radius:50%;background:var(--accent2);
+  color:#000;font-weight:800;font-size:.8rem;display:flex;align-items:center;justify-content:center;margin-top:1px;}
+.iter-body h4{font-size:.88rem;font-weight:700;margin-bottom:3px;}
+.iter-body p{font-size:.82rem;color:var(--text2);}
+.iter-body code{font-family:var(--font-mono);font-size:.8rem;background:var(--code-bg);
+  padding:1px 6px;border-radius:4px;color:var(--accent3);border:1px solid var(--border);}
+
+/* ── COMPARE TABLE ──────────────────────────────────────── */
+.compare-table{width:100%;border-collapse:collapse;font-size:.875rem;margin:16px 0;}
+.compare-table th{text-align:left;padding:10px 16px;background:var(--surface2);color:var(--text2);
+  font-weight:700;font-size:.78rem;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);}
+.compare-table td{padding:11px 16px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.compare-table tr:last-child td{border-bottom:none;}
+.compare-table tr:hover td{background:rgba(255,255,255,.02);}
+.mono{font-family:var(--font-mono);font-size:.82rem;color:var(--accent3);}
+
+/* ── FOLDER TREE ────────────────────────────────────────── */
+.folder-tree{background:var(--code-bg);border:1px solid var(--border);border-radius:var(--radius);
+  padding:20px 24px;font-family:var(--font-mono);font-size:.85rem;line-height:2;color:#abb2bf;}
+.ft-folder{color:#e5c07b;font-weight:600;}
+.ft-file{color:#98c379;}
+.ft-xml{color:#e06c75;}
+.ft-gray{color:var(--text2);}
+.ft-indent1{padding-left:20px;}
+.ft-indent2{padding-left:40px;}
+.ft-indent3{padding-left:60px;}
+.ft-indent4{padding-left:80px;}
+
+/* ── NAV PILL ROW ───────────────────────────────────────── */
+.nav-pills{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0;}
+.nav-pill{padding:7px 16px;border-radius:8px;background:var(--surface2);
+  border:1px solid var(--border);font-size:.83rem;font-weight:600;color:var(--text2);}
+.nav-pill.active{background:rgba(79,163,224,.12);border-color:var(--accent2);color:var(--accent2);}
+
+/* ── ACTION CARDS ───────────────────────────────────────── */
+.action-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin:18px 0 26px;}
+.action-card{background:var(--surface2);border:2px solid var(--border);border-radius:var(--radius);
+  padding:18px;transition:all .2s;}
+.action-card:hover{transform:translateY(-2px);}
+.action-card.click-card{border-color:rgba(231,76,60,.4);}
+.action-card.send-card{border-color:rgba(79,163,224,.4);}
+.action-card.get-card{border-color:rgba(88,214,141,.4);}
+.action-card.hover-card{border-color:rgba(248,152,32,.4);}
+.ac-tag{font-size:.68rem;font-weight:700;padding:2px 8px;border-radius:5px;
+  text-transform:uppercase;letter-spacing:.4px;display:inline-block;margin-bottom:10px;}
+.ac-tag.click{background:rgba(231,76,60,.15);color:var(--accent4);}
+.ac-tag.send{background:rgba(79,163,224,.15);color:var(--accent2);}
+.ac-tag.get{background:rgba(88,214,141,.15);color:var(--accent3);}
+.ac-tag.hover{background:rgba(248,152,32,.15);color:var(--accent);}
+.action-card h4{font-family:var(--font-mono);font-size:.9rem;font-weight:800;margin-bottom:6px;}
+.action-card p{font-size:.8rem;color:var(--text2);line-height:1.5;margin-bottom:8px;}
+.action-card .ac-ex{font-family:var(--font-mono);font-size:.76rem;background:var(--code-bg);
+  padding:6px 10px;border-radius:6px;border:1px solid var(--border);color:#abb2bf;white-space:pre;}
+
+/* ── BROWSER SIM ────────────────────────────────────────── */
+.browser-sim-wrap{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+.browser-sim-header{display:flex;align-items:center;justify-content:space-between;
+  padding:13px 20px;background:rgba(255,255,255,.03);border-bottom:1px solid var(--border);
+  font-weight:700;font-size:.88rem;}
+.browser-sim-body{padding:24px;}
+
+/* Fake browser window */
+.fake-browser{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:18px;}
+.fb-titlebar{background:#1a1d23;padding:10px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);}
+.fb-dots{display:flex;gap:5px;}
+.fb-dot{width:12px;height:12px;border-radius:50%;}
+.fb-dot.red{background:#ff5f57;}.fb-dot.yel{background:#ffbd2e;}.fb-dot.grn{background:#28c840;}
+.fb-url{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:6px;
+  padding:5px 12px;font-size:.78rem;color:var(--text2);font-family:var(--font-mono);}
+.fb-content{padding:28px 32px;min-height:220px;}
+.fb-page-title{font-size:1.1rem;font-weight:800;margin-bottom:24px;color:var(--text);}
+.fb-form-group{margin-bottom:16px;}
+.fb-label{font-size:.78rem;font-weight:600;color:var(--text2);margin-bottom:6px;display:block;}
+.fb-input{width:100%;max-width:320px;padding:10px 14px;border-radius:8px;
+  border:2px solid var(--border);background:var(--surface);color:var(--text);
+  font-size:.9rem;font-family:var(--font-mono);outline:none;transition:border-color .2s;}
+.fb-input:focus{border-color:var(--accent2);}
+.fb-input.success{border-color:var(--accent3);}
+.fb-btn{padding:10px 28px;border-radius:8px;background:var(--accent2);color:#fff;
+  border:none;font-weight:800;font-size:.9rem;cursor:pointer;transition:all .2s;
+  margin-top:4px;}
+.fb-btn:hover{opacity:.88;transform:translateY(-1px);}
+.fb-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.fb-msg{padding:12px 16px;border-radius:8px;font-size:.875rem;font-weight:600;
+  margin-top:14px;display:none;animation:fadeIn .3s;}
+.fb-msg.success{background:rgba(88,214,141,.12);border:1px solid rgba(88,214,141,.35);color:var(--accent3);}
+.fb-msg.error{background:rgba(231,76,60,.1);border:1px solid rgba(231,76,60,.3);color:var(--accent4);}
+
+/* Command log */
+.cmd-log{background:var(--code-bg);border:1px solid var(--border);border-radius:var(--radius);
+  overflow:hidden;margin-bottom:18px;}
+.cmd-log-bar{padding:9px 16px;background:rgba(255,255,255,.03);border-bottom:1px solid var(--border);
+  font-size:.78rem;color:var(--text2);font-weight:600;display:flex;align-items:center;gap:8px;}
+.cmd-log-body{padding:14px 18px;font-family:var(--font-mono);font-size:.84rem;
+  min-height:80px;line-height:1.9;white-space:pre-wrap;color:#abb2bf;}
+.c-sel{color:#43b02a;}.c-dim{color:#555;}.c-info{color:#7ec8e3;}.c-ok{color:#a8ff78;}
+
+/* Sim controls */
+.sim-controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;}
+.btn-sim{background:linear-gradient(135deg,var(--accent2),#2980b9);color:#fff;border:none;
+  border-radius:8px;padding:10px 24px;font-weight:800;font-size:.875rem;cursor:pointer;
+  transition:opacity .2s,transform .2s;}
+.btn-sim:hover{opacity:.88;transform:translateY(-1px);}
+.btn-sim:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.btn-reset-sim{background:none;border:1px solid var(--border);color:var(--text2);
+  border-radius:8px;padding:10px 18px;font-size:.875rem;cursor:pointer;transition:all .2s;}
+.btn-reset-sim:hover{border-color:var(--text2);color:var(--text);}
+.btn-run-all{background:linear-gradient(135deg,var(--sel),#1e6b0e);color:#fff;border:none;
+  border-radius:8px;padding:10px 24px;font-weight:800;font-size:.875rem;cursor:pointer;
+  transition:opacity .2s,transform .2s;}
+.btn-run-all:hover{opacity:.88;transform:translateY(-1px);}
+.btn-run-all:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+
+/* Result pills */
+.result-pills{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px;min-height:34px;}
+.rpill{display:flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;
+  font-size:.82rem;font-weight:600;border:1px solid;animation:fadeIn .2s;}
+.rpill-success{background:rgba(88,214,141,.12);border-color:rgba(88,214,141,.4);color:var(--accent3);}
+.rpill-error{background:rgba(231,76,60,.12);border-color:rgba(231,76,60,.4);color:var(--accent4);}
+.rpill-info{background:rgba(79,163,224,.12);border-color:rgba(79,163,224,.4);color:var(--accent2);}
+.rpill-warn{background:rgba(248,152,32,.12);border-color:rgba(248,152,32,.4);color:var(--accent);}
+
+/* ── ERROR PANEL ─────────────────────────────────────────── */
+.err-sim-btns{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px;}
+.err-btn{padding:8px 18px;border-radius:8px;border:1px solid var(--border);
+  background:var(--surface2);color:var(--text);font-size:.84rem;font-weight:600;
+  cursor:pointer;transition:all .2s;}
+.err-btn:hover{border-color:var(--accent4);color:var(--accent4);}
+.err-btn.active{background:rgba(231,76,60,.15);border-color:var(--accent4);color:var(--accent4);}
+.err-panel{display:none;background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--radius);overflow:hidden;}
+.err-panel.active{display:block;animation:fadeIn .2s ease;}
+.err-hdr{display:flex;align-items:center;gap:10px;padding:12px 18px;
+  background:rgba(231,76,60,.12);border-bottom:1px solid var(--border);
+  font-size:.875rem;font-weight:700;color:var(--accent4);}
+.err-body{padding:20px;}
+.err-body h4{font-size:.9rem;font-weight:700;margin-bottom:8px;}
+.err-body p{font-size:.85rem;color:var(--text2);margin-bottom:12px;}
+.err-msg{font-family:var(--font-mono);font-size:.8rem;background:var(--code-bg);
+  border:1px solid rgba(231,76,60,.3);border-radius:7px;padding:12px 16px;
+  color:#ff6b6b;margin-bottom:14px;white-space:pre;overflow-x:auto;}
+.code-diff{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0;}
+.diff-wrong,.diff-right{border-radius:8px;overflow:hidden;border:1px solid var(--border);}
+.diff-lbl{padding:7px 12px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
+.diff-wrong .diff-lbl{background:rgba(231,76,60,.15);color:var(--accent4);}
+.diff-right .diff-lbl{background:rgba(88,214,141,.15);color:var(--accent3);}
+.diff-code{padding:12px 14px;font-family:var(--font-mono);font-size:.8rem;background:var(--code-bg);line-height:1.7;color:#abb2bf;white-space:pre;}
+.fix-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(88,214,141,.1);
+  border:1px solid rgba(88,214,141,.3);color:var(--accent3);border-radius:6px;
+  padding:5px 12px;font-size:.82rem;font-weight:600;margin-top:4px;}
+
+/* ── QUIZ ───────────────────────────────────────────────── */
+.quiz-container{display:flex;flex-direction:column;gap:24px;}
+.quiz-block{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:22px 24px;}
+.quiz-num{font-size:.72rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;}
+.quiz-q{font-weight:700;font-size:.92rem;margin-bottom:14px;line-height:1.5;}
+.quiz-opts{display:flex;flex-direction:column;gap:9px;}
+.quiz-opt{padding:10px 16px;border-radius:8px;border:1px solid var(--border);
+  background:var(--bg);font-size:.875rem;cursor:pointer;transition:all .2s;
+  display:flex;align-items:flex-start;gap:10px;text-align:left;}
+.quiz-opt:hover:not(.correct):not(.wrong){border-color:var(--accent2);background:rgba(79,163,224,.04);}
+.quiz-opt.correct{border-color:var(--accent3);background:rgba(88,214,141,.1);color:var(--accent3);pointer-events:none;}
+.quiz-opt.wrong{border-color:var(--accent4);background:rgba(231,76,60,.08);color:var(--accent4);pointer-events:none;}
+.quiz-opt.disabled{pointer-events:none;opacity:.5;}
+.quiz-feedback{margin-top:12px;font-size:.845rem;padding:10px 14px;border-radius:7px;display:none;}
+.quiz-feedback.show{display:block;animation:fadeIn .2s;}
+.quiz-feedback.correct{background:rgba(88,214,141,.1);color:var(--accent3);border:1px solid rgba(88,214,141,.25);}
+.quiz-feedback.wrong{background:rgba(231,76,60,.08);color:var(--accent4);border:1px solid rgba(231,76,60,.2);}
+.quiz-code{font-family:var(--font-mono);background:var(--code-bg);padding:1px 7px;
+  border-radius:4px;font-size:.85em;color:var(--text);border:1px solid var(--border);}
+.score-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);
+  padding:28px;text-align:center;display:none;margin-top:24px;}
+.score-box.show{display:block;animation:fadeIn .3s;}
+.score-num{font-size:3rem;font-weight:900;line-height:1;}
+.score-label{color:var(--text2);font-size:.9rem;margin-top:6px;margin-bottom:16px;}
+.btn-retake{background:var(--surface2);border:1px solid var(--border);color:var(--text);
+  border-radius:8px;padding:9px 24px;font-size:.875rem;font-weight:700;cursor:pointer;transition:all .2s;}
+.btn-retake:hover{border-color:var(--accent2);color:var(--accent2);}
+
+/* ── PLAYGROUND LAYOUTS ──────────────────────────────────── */
+.sim-page{border:2px solid var(--border);padding:20px;border-radius:8px;background:var(--surface);position:relative;transition:all .3s;}
+.sim-iframe-outer{border:2px dashed var(--accent2);padding:20px;border-radius:8px;margin-top:16px;background:rgba(79,163,224,0.04);position:relative;transition:all .3s;}
+.sim-iframe-inner{border:2px dashed var(--accent5);padding:20px;border-radius:8px;margin-top:16px;background:rgba(198,120,221,0.04);position:relative;transition:all .3s;}
+.sim-badge{position:absolute;top:-10px;left:15px;font-size:0.65rem;font-weight:800;padding:2px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:0.4px;z-index:10;}
+.badge-main{background:var(--border);color:var(--text);}
+.badge-billing{background:var(--accent2);color:#fff;}
+.badge-otp{background:var(--accent5);color:#fff;}
+.focused-context{box-shadow:0 0 14px 4px rgba(67,176,42,0.45);border-color:var(--sel) !important;}
+
+/* ── RESPONSIVE ─────────────────────────────────────────── */
+@media(max-width:700px){
+  .hero{flex-direction:column;padding:24px 20px;}
+  .tab-btn{padding:12px 11px;font-size:.77rem;}
+  .tab-content{padding:20px 16px;}
+  .hero-text h1{font-size:1.35rem;}
+  .code-diff{grid-template-columns:1fr;}
+  .action-grid{grid-template-columns:1fr;}
+}
+
+.course-nav{
+    position:sticky;
+    bottom:0;
+    background:var(--surface, var(--bg-primary));
+    z-index:999;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:12px;
+    margin-top:18px;
+    padding:14px 20px 12px;
+    border-top:.5px solid var(--border);
+}
+
+.course-nav-left,
+.course-nav-right{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.course-nav a{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    text-decoration:none;
+    padding:7px 15px;
+    border:.5px solid var(--border);
+    border-radius:8px;
+    color:var(--text);
+    background:var(--surface2);
+    font-size:.86rem;
+    font-weight:600;
+    line-height:1.25;
+    transition:all .2s ease;
+}
+
+.course-nav a:hover{
+    border-color:var(--accent2);
+}
+
+.course-topic{
+    font-size:.8rem;
+    color:var(--text2);
+}
+</style>
+</head>
+<body>
+<header>
+<div class="logo">
+<div class="logo-icon">Se</div>
+    Selenium Training
+</div>
+<button id="themeToggle" onclick="toggleTheme()">🌙 Dark</button>
+</header>
+
+<div class="container">
+  <div class="breadcrumb-row">
+    <div class="breadcrumb">
+      Automation Series <span style="color:var(--border)">›</span> Week 3 <span style="color:var(--border)">›</span> <span>Handling iFrames &amp; Nested Frames</span>
+    </div>
+    <span class="watermark">Ronak Shah — Automation Training Content</span>
+  </div>
+
+<div class="hero">
+<div class="hero-icon">🖼️</div>
+<div class="hero-text">
+<h1>iFrames &amp; <span>Nested Frames</span> Handling</h1>
+<p>Master how WebDriver switches context between document structures, coordinates nested layers, and returns cleanly to main content.</p>
+<div class="hero-pills">
+<span class="pill pill-orange">🧱 Frame Hierarchy</span>
+<span class="pill pill-blue">🔄 Context Switching</span>
+<span class="pill pill-green">🎮 Interactive Demo</span>
+<span class="pill pill-purple">🪆 Nested iFrames</span>
+</div>
+</div>
+</div>
+
+<div class="tabs-wrapper">
+<div class="tab-nav">
+<button class="tab-btn active" onclick="switchTab('intro',this)"><span>📖</span> Introduction</button>
+<button class="tab-btn" onclick="switchTab('switching',this)"><span>🔄</span> Frame Switching</button>
+<button class="tab-btn" onclick="switchTab('nested',this)"><span>🪆</span> Nested Frames</button>
+<button class="tab-btn" onclick="switchTab('flow',this)"><span>▶</span> Execution Flow</button>
+<button class="tab-btn" onclick="switchTab('playground',this)"><span>🎮</span> Playground Simulator</button>
+<button class="tab-btn" onclick="switchTab('errors',this)"><span>❌</span> Common Errors</button>
+<button class="tab-btn" onclick="switchTab('quiz',this)"><span>🧠</span> Quick Check</button>
+</div>
+
+<!-- ══════════════ TAB 1: INTRODUCTION ══════════════ -->
+<div class="tab-content active" id="tab-intro">
+<div class="section-title"><span class="dot"></span> Understanding Inline Frames (iFrames)</div>
+<p class="section-sub">An iFrame (Inline Frame) is an HTML document embedded directly inside another HTML document.</p>
+
+<div class="info-box blue">
+<span class="ib-icon">💡</span>
+<div><strong>Why Do We Use iFrames?</strong> Modern web architectures leverage iFrames to sandbox third-party widgets, advertise securely, or embed segmented features. Standard enterprise examples include credit card panels (Stripe, PayPal), customer chat widgets, OAuth verification boxes, and rich text editors. These components live on isolated sub-domains, keeping confidential transaction details sandboxed from the parent document scope.</div>
+</div>
+
+<div class="section-title" style="font-size:1rem;margin-top:20px"><span class="dot"></span> The Automation Challenge</div>
+<p class="section-sub" style="margin-bottom:14px;">By default, WebDriver focuses solely on the top-level main window scope. When an element is inside an iFrame, WebDriver cannot see or interact with it directly. If you attempt a direct locator search, WebDriver throws a <code>NoSuchElementException</code>, even though the element is perfectly visible on screen. You must explicitly instruct the driver to shift focus into the frame context, execute the commands, and switch focus back out.</p>
+
+<div class="cards">
+  <div class="card">
+    <div class="card-icon">⚡</div>
+    <h3>Secure Scope</h3>
+    <p>Context sandboxing prevents external JavaScript files from sniffing keystrokes on critical inputs, like credit cards or OTP codes.</p>
+  </div>
+  <div class="card">
+    <div class="card-icon">🔒</div>
+    <h3>Cross-Domain Separation</h3>
+    <p>Frames often run on different origins (URLs), which prevents cross-document script execution under standard browser security guidelines.</p>
+  </div>
+  <div class="card">
+    <div class="card-icon">🚦</div>
+    <h3>Independent Loading</h3>
+    <p>iFrames load asynchronously, meaning your test might need to wait for the frame document to build completely before switching context.</p>
+  </div>
+</div>
+
+<div class="info-box orange">
+<span class="ib-icon">⚠️</span>
+<div><strong>Best Practice Guardrail:</strong> Always verify if an element is inside an <code>&lt;iframe&gt;</code> tag by inspecting the DOM hierarchy. Look up the ancestors of your target node. If you spot an <code>&lt;iframe&gt;</code> wrapper, your script will need a switching routine.</div>
+</div>
+</div>
+
+<!-- ══════════════ TAB 2: FRAME SWITCHING ══════════════ -->
+<div class="tab-content" id="tab-switching">
+<div class="section-title"><span class="dot"></span> Mastering WebDriver Frame Switches</div>
+<p class="section-sub">Selenium provides three distinct techniques to change your execution target. Choose the method that best balances stability and maintainability.</p>
+
+<div class="section-title" style="font-size:1rem;margin-top:8px"><span class="dot"></span> 1. Switching Strategies</div>
+<table class="compare-table">
+<thead><tr><th>Strategy</th><th>Syntax</th><th>When to Use It</th></tr></thead>
+<tbody>
+<tr><td class="mono">By Index</td><td class="mono">driver.switchTo().frame(int index)</td><td>When there is only one static frame on a simple page. (Generally discouraged in enterprise code due to fragility).</td></tr>
+<tr><td class="mono">By Name or ID</td><td class="mono">driver.switchTo().frame(String nameOrId)</td><td>The cleanest approach when the developer provides a unique, static <code style="font-family:var(--font-mono)">id</code> or <code style="font-family:var(--font-mono)">name</code> attribute.</td></tr>
+<tr><td class="mono">By WebElement</td><td class="mono">driver.switchTo().frame(WebElement element)</td><td>The most robust method. Essential when the frame has dynamic attributes but can be pinpointed via precise CSS or XPath locators.</td></tr>
+</tbody>
+</table>
+
+<div class="section-title" style="font-size:1rem;margin-top:24px"><span class="dot"></span> Returning to Main Scope</div>
+<p class="section-sub" style="margin-bottom:14px;">Once operations inside the frame are completed, the driver remains trapped within that frame's document structure. You must explicitly release the scope using one of these commands:</p>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;">
+  <div class="card" style="margin:0;">
+    <div class="card-icon" style="color:var(--accent2)">🏡</div>
+    <h3 style="color:var(--accent2)">defaultContent()</h3>
+    <p style="margin-bottom:6px;">Returns context to the primary parent window document, regardless of frame nesting depth.</p>
+    <code style="font-family:var(--font-mono);font-size:0.75rem;">driver.switchTo().defaultContent();</code>
+  </div>
+  <div class="card" style="margin:0;">
+    <div class="card-icon" style="color:var(--accent5)">⬆️</div>
+    <h3 style="color:var(--accent5)">parentFrame()</h3>
+    <p style="margin-bottom:6px;">Climbs up exactly one level. Best used in complex nested frameworks to escape sub-frames sequentially.</p>
+    <code style="font-family:var(--font-mono);font-size:0.75rem;">driver.switchTo().parentFrame();</code>
+  </div>
+</div>
+
+<div class="section-title" style="font-size:1rem;margin-top:12px"><span class="dot"></span> Code Implementation (Java)</div>
+<div class="code-wrap">
+<div class="code-header"><div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><span class="code-lang">☕ FrameSwitchTest.java</span></div>
+<pre class="code-pre"><span class="kw">import</span> org.openqa.selenium.By;
+<span class="kw">import</span> org.openqa.selenium.WebDriver;
+<span class="kw">import</span> org.openqa.selenium.WebElement;
+<span class="kw">import</span> org.openqa.selenium.chrome.ChromeDriver;
+
+<span class="kw">public class</span> <span class="cls">FrameSwitchTest</span> {
+    <span class="kw">public static void</span> <span class="fn">main</span>(<span class="cls">String</span>[] args) {
+        <span class="cls">WebDriver</span> driver <span class="op">=</span> <span class="kw">new</span> <span class="cls">ChromeDriver</span>();
+        driver.<span class="fn">get</span>(<span class="str">"https://enterprise-portal.com/payment"</span>);
+
+        <span class="cmt">// Strategy A: Switch using a unique Name or ID</span>
+        driver.<span class="fn">switchTo</span>().<span class="fn">frame</span>(<span class="str">"billing-gateway-frame"</span>);
+        
+        <span class="cmt">// Type card number in frame context</span>
+        driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"cardNum"</span>)).<span class="fn">sendKeys</span>(<span class="str">"4111222233334444"</span>);
+
+        <span class="cmt">// Switch back to the primary main layout context</span>
+        driver.<span class="fn">switchTo</span>().<span class="fn">defaultContent</span>();
+
+        <span class="cmt">// Strategy B: Switch using a WebElement locator (Highly stable)</span>
+        <span class="cls">WebElement</span> targetFrame <span class="op">=</span> driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">xpath</span>(<span class="str">"//iframe[contains(@class, 'secure-checkout')]"</span>));
+        driver.<span class="fn">switchTo</span>().<span class="fn">frame</span>(targetFrame);
+
+        <span class="cmt">// Perform action within the resolved element context</span>
+        driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"submitBtn"</span>)).<span class="fn">click</span>();
+
+        driver.<span class="fn">quit</span>();
+    }
+}</pre>
+</div>
+</div>
+
+<!-- ══════════════ TAB 3: NESTED FRAMES ══════════════ -->
+<div class="tab-content" id="tab-nested">
+<div class="section-title"><span class="dot"></span> Handling Multi-Layered (Nested) iFrames</div>
+<p class="section-sub">Some web structures place frames inside other frames. Handling these nested environments requires precise structural step-switching.</p>
+
+<div class="info-box sel">
+<span class="ib-icon">🪆</span>
+<div><strong>The Core Rule of Nested Navigation:</strong> You cannot jump directly from the main document to a nested child frame, nor can you bypass parent frame levels when returning up. To reach a child, you must switch step-by-step through each intermediary parent frame layer. To step backward, use <code style="font-family:var(--font-mono)">parentFrame()</code> to climb up one level, or <code style="font-family:var(--font-mono)">defaultContent()</code> to reset completely.</div>
+</div>
+
+<div class="section-title" style="font-size:1rem;margin-top:14px"><span class="dot"></span> Context Diagram</div>
+<div class="folder-tree" style="margin-top:10px; margin-bottom:20px;">
+<div><span class="ft-folder">🌐 MAIN DOCUMENT (Global Scope)</span></div>
+<div class="ft-indent1"><span class="ft-xml">📄 Main Coupon Input</span> <span class="ft-gray">← [Targetable directly]</span></div>
+<div class="ft-indent1"><span class="ft-folder">📁 iframe#billingFrame (Parent Frame Layer)</span></div>
+<div class="ft-indent2"><span class="ft-file">📄 Credit Card Number Input</span> <span class="ft-gray">← [Targetable only after switching to "billingFrame"]</span></div>
+<div class="ft-indent2"><span class="ft-folder">📁 iframe#secureOtpFrame (Nested Child Frame Layer)</span></div>
+<div class="ft-indent3"><span class="ft-file">📄 OTP Secure Code Input</span> <span class="ft-gray">← [Targetable only after switching through both frames]</span></div>
+</div>
+
+<div class="section-title" style="font-size:1rem"><span class="dot"></span> Nested switching implementation (Java)</div>
+<div class="code-wrap">
+<div class="code-header"><div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><span class="code-lang">☕ NestedFrameTest.java</span></div>
+<pre class="code-pre"><span class="cmt">// 1. We start automatically focused on the Main Document</span>
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"couponInput"</span>)).<span class="fn">sendKeys</span>(<span class="str">"SAVE20"</span>);
+
+<span class="cmt">// 2. Switch from Main Document to Parent Frame ("billingFrame")</span>
+driver.<span class="fn">switchTo</span>().<span class="fn">frame</span>(<span class="str">"billingFrame"</span>);
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"ccNum"</span>)).<span class="fn">sendKeys</span>(<span class="str">"4111222233334444"</span>);
+
+<span class="cmt">// 3. Switch from Parent Frame to Child Frame ("secureOtpFrame")</span>
+driver.<span class="fn">switchTo</span>().<span class="fn">frame</span>(<span class="str">"secureOtpFrame"</span>);
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"otpCode"</span>)).<span class="fn">sendKeys</span>(<span class="str">"9876"</span>);
+
+<span class="cmt">// 4. Attempting to locate 'ccNum' directly here will FAIL! Context is stuck inside child.</span>
+<span class="cmt">// We must step up one level to 'billingFrame'</span>
+driver.<span class="fn">switchTo</span>().<span class="fn">parentFrame</span>();
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"ccHolder"</span>)).<span class="fn">sendKeys</span>(<span class="str">"John Doe"</span>);
+
+<span class="cmt">// 5. Return all the way back to the top-level window document</span>
+driver.<span class="fn">switchTo</span>().<span class="fn">defaultContent</span>();
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"submitOrder"</span>)).<span class="fn">click</span>();</pre>
+</div>
+</div>
+
+<!-- ══════════════ TAB 4: EXECUTION FLOW ══════════════ -->
+<div class="tab-content" id="tab-flow">
+<div class="section-title"><span class="dot"></span> Nested Switch Execution Pipeline</div>
+<p class="section-sub">Observe how the driver transitions context step-by-step between hierarchical layers.</p>
+
+<div class="flow-pipe" id="setup-flow" style="margin-top:14px">
+<div class="fp-row"><div class="fp-box" id="fp1"><div class="fp-icon">🌐</div><div class="fp-info"><div class="fp-label">Level 0</div><div class="fp-title">Top-level Context (Main Page)</div></div></div></div>
+<div class="fp-arrow" id="fa1">↓</div>
+<div class="fp-row"><div class="fp-box" id="fp2"><div class="fp-icon">📂</div><div class="fp-info"><div class="fp-label">Level 1</div><div class="fp-title">Switch to Parent Frame (billingFrame)</div></div></div></div>
+<div class="fp-arrow" id="fa2">↓</div>
+<div class="fp-row"><div class="fp-box" id="fp3"><div class="fp-icon">📁</div><div class="fp-info"><div class="fp-label">Level 2</div><div class="fp-title">Switch to Nested Child Frame (secureOtpFrame)</div></div></div></div>
+<div class="fp-arrow" id="fa3">↓</div>
+<div class="fp-row"><div class="fp-box" id="fp4"><div class="fp-icon">🏡</div><div class="fp-info"><div class="fp-label">Reset</div><div class="fp-title">Return to Main (defaultContent)</div></div></div></div>
+</div>
+
+<div style="display:flex;gap:10px;margin-top:12px;margin-bottom:24px">
+<button class="btn-sim" id="btn-flow" onclick="animateSetupFlow()">▶ Animate Flow</button>
+<button class="btn-reset-sim" onclick="resetSetupFlow()">↺ Reset</button>
+</div>
+
+<div class="section-title" style="font-size:1rem"><span class="dot"></span> Framework Architecture Tip</div>
+<p class="section-sub" style="margin-bottom:14px;">In commercial testing frameworks, wrap iFrame switching routines in helper structures or leverage wait architectures. For example, rather than a raw switch, wait until the frame is available on page before jumping into it:</p>
+<div class="code-wrap" style="margin-top:4px;">
+<div class="code-header"><div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><span class="code-lang">☕ Explicit Wait Switching</span></div>
+<pre class="code-pre"><span class="cls">WebDriverWait</span> wait <span class="op">=</span> <span class="kw">new</span> <span class="cls">WebDriverWait</span>(driver, <span class="cls">Duration</span>.<span class="fn">ofSeconds</span>(<span class="num">10</span>));
+<span class="cmt">// This locates the frame, waits for loading, and switches scope automatically:</span>
+wait.<span class="fn">until</span>(<span class="cls">ExpectedConditions</span>.<span class="fn">frameToBeAvailableAndSwitchToIt</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"billingFrame"</span>)));</pre>
+</div>
+</div>
+
+<!-- ══════════════ TAB 5: PLAYGROUND SIMULATOR ══════════════ -->
+<div class="tab-content" id="tab-playground">
+<div class="section-title"><span class="dot"></span> Interactive Playground Simulator</div>
+<p class="section-sub">Interact with elements across three distinct scopes. Click switching commands, run keyboard inputs, and check the current active scope highlighted by the <span style="color:var(--sel);font-weight:700;">green glowing indicator</span>.</p>
+
+<div class="browser-sim-wrap">
+  <div class="browser-sim-header">
+    <span>🖥️ Sandbox Checkout Simulator</span>
+    <span style="font-size:.78rem;font-weight:400;color:var(--text2)">Simulate switching scopes real-time</span>
+  </div>
+
+  <div class="browser-sim-body">
+    <div class="sim-controls">
+      <button class="btn-run-all" id="btn-run-all" onclick="runAllSim()">▶ Run Full Test</button>
+      <button class="btn-sim" onclick="simSwitchToBilling()">switchTo().frame("billingFrame")</button>
+      <button class="btn-sim" onclick="simSwitchToOtp()">switchTo().frame("secureOtpFrame")</button>
+      <button class="btn-sim" onclick="simSwitchParent()">switchTo().parentFrame()</button>
+      <button class="btn-sim" onclick="simSwitchDefault()">switchTo().defaultContent()</button>
+      <button class="btn-reset-sim" onclick="resetPlayground()">↺ Reset</button>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
+      <button class="btn-sim" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);" onclick="typePromo()">Type Promo Code</button>
+      <button class="btn-sim" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);" onclick="typeCard()">Type Credit Card</button>
+      <button class="btn-sim" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);" onclick="typeOtp()">Type OTP</button>
+    </div>
+
+    <div class="result-pills" id="sim-pills"></div>
+
+    <!-- Active Browser Sim Frame -->
+    <div class="fake-browser">
+      <div class="fb-titlebar">
+        <div class="fb-dots"><div class="fb-dot red"></div><div class="fb-dot yel"></div><div class="fb-dot grn"></div></div>
+        <div class="fb-url" id="fb-url">https://secure-checkout.com/order-payment</div>
+      </div>
+      <div class="fb-content" style="padding:15px;">
+        
+        <!-- MAIN PAGE -->
+        <div class="sim-page focused-context" id="box-main">
+          <span class="sim-badge badge-main">Main Page Scope</span>
+          <h4 style="margin-top:4px;margin-bottom:8px;">🛒 E-Commerce Cart (Main Document)</h4>
+          <div class="fb-form-group">
+            <label class="fb-label">Promo Coupon Code <span style="font-size:0.7rem;color:var(--text2)">(By.id("promo"))</span></label>
+            <input class="fb-input" id="sim-input-promo" placeholder="Enter coupon..." readonly type="text"/>
+          </div>
+
+          <!-- BILLING IFRAME (PARENT) -->
+          <div class="sim-iframe-outer" id="box-billing">
+            <span class="sim-badge badge-billing">iFrame: billingFrame</span>
+            <h4 style="margin-top:4px;margin-bottom:8px;color:var(--accent2);">💳 Secure Payment Layer</h4>
+            <div class="fb-form-group">
+              <label class="fb-label">Credit Card Number <span style="font-size:0.7rem;color:var(--text2)">(By.id("ccNum"))</span></label>
+              <input class="fb-input" id="sim-input-cc" placeholder="4111 2222 3333 4444" readonly type="text"/>
+            </div>
+
+            <!-- OTP IFRAME (CHILD) -->
+            <div class="sim-iframe-inner" id="box-otp">
+              <span class="sim-badge badge-otp">Nested iFrame: secureOtpFrame</span>
+              <h4 style="margin-top:4px;margin-bottom:8px;color:var(--accent5);">🔐 2FA Verification</h4>
+              <div class="fb-form-group" style="margin-bottom:0;">
+                <label class="fb-label">Secure OTP <span style="font-size:0.7rem;color:var(--text2)">(By.id("otpCode"))</span></label>
+                <input class="fb-input" id="sim-input-otp" placeholder="Enter 4-Digit Code" readonly type="text"/>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Live Command Log -->
+    <div class="cmd-log">
+      <div class="cmd-log-bar">
+        <span>📋 Script Execution Trace Log</span>
+        <div style="display:flex;align-items:center;gap:6px">
+          <div id="log-dot" style="width:8px;height:8px;border-radius:50%;background:#555"></div>
+          <span id="log-status" style="font-size:.75rem">Ready</span>
+        </div>
+      </div>
+      <div class="cmd-log-body" id="cmd-log">
+<span class="c-dim">// Click operations to generate a path trace</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- ══════════════ TAB 6: COMMON ERRORS ══════════════ -->
+<div class="tab-content" id="tab-errors">
+<div class="section-title"><span class="dot"></span> Common iFrame Errors &amp; Fixes</div>
+<p class="section-sub">Review typical errors encountered by testers when managing document frame layouts.</p>
+
+<div class="err-sim-btns">
+<button class="err-btn active" onclick="showErr('no-such',this)">⚠ NoSuchElementException</button>
+<button class="err-btn" onclick="showErr('no-such-frame',this)">⚠ NoSuchFrameException</button>
+<button class="err-btn" onclick="showErr('context-lock',this)">⚠ Context Isolation Trap</button>
+<button class="err-btn" onclick="showErr('stale-ref',this)">⚠ Stale Frame References</button>
+</div>
+
+<!-- ERROR 1 -->
+<div class="err-panel active" id="err-no-such">
+<div class="err-hdr">🔴 Error: NoSuchElementException (Forgot to Switch Context)</div>
+<div class="err-body">
+<h4>What happened?</h4>
+<p>You attempted to locate an input field that resides inside an iFrame without switching the driver's focus into the frame context first. WebDriver cannot find it in the main page scope, so it throws an exception.</p>
+<div class="err-msg">org.openqa.selenium.NoSuchElementException: no such element: Unable to locate element: {"method":"id","selector":"ccNum"}</div>
+<div class="code-diff">
+<div class="diff-wrong"><div class="diff-lbl">❌ Wrong (Direct Access)</div><div class="diff-code"><span class="cmt">// Directly attempting access</span>
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"ccNum"</span>))
+      .<span class="fn">sendKeys</span>(<span class="str">"1234"</span>);</div></div>
+<div class="diff-right"><div class="diff-lbl">✅ Correct (With Switch)</div><div class="diff-code">driver.<span class="fn">switchTo</span>().<span class="fn">frame</span>(<span class="str">"billingFrame"</span>);
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"ccNum"</span>))
+      .<span class="fn">sendKeys</span>(<span class="str">"1234"</span>);</div></div>
+</div>
+<div class="fix-tag">✅ Fix: Always verify element coordinates in DevTools first and invoke switchTo().frame() prior to targeted operations.</div>
+</div>
+</div>
+
+<!-- ERROR 2 -->
+<div class="err-panel" id="err-no-such-frame">
+<div class="err-hdr">🔴 Error: NoSuchFrameException</div>
+<div class="err-body">
+<h4>What happened?</h4>
+<p>You passed an ID, index, or locator that matches no known frame layout, or specified an element target that is not configured as an iFrame wrapper.</p>
+<div class="err-msg">org.openqa.selenium.NoSuchFrameException: No frame element found by identifier: billingFrameDynamic</div>
+<div class="code-diff">
+<div class="diff-wrong"><div class="diff-lbl">❌ Wrong (Typo or Dynamic ID)</div><div class="diff-code"><span class="cmt">// ID changed on refresh</span>
+driver.<span class="fn">switchTo</span>().<span class="fn">frame</span>(<span class="str">"frame_8451"</span>);</div></div>
+<div class="diff-right"><div class="diff-lbl">✅ Correct (Stable Selector)</div><div class="diff-code"><span class="cls">WebElement</span> frameEl <span class="op">=</span> driver.<span class="fn">findElement</span>(
+  <span class="cls">By</span>.<span class="fn">xpath</span>(<span class="str">"//iframe[contains(@id,'frame_')]"</span>)
+);
+driver.<span class="fn">switchTo</span>().<span class="fn">frame</span>(frameEl);</div></div>
+</div>
+<div class="fix-tag">✅ Fix: Use partial matching locator patterns (e.g. xpath starting/containing attributes) or rely on tag-based lookups.</div>
+</div>
+</div>
+
+<!-- ERROR 3 -->
+<div class="err-panel" id="err-context-lock">
+<div class="err-hdr">🔴 Error: NoSuchElementException (Trapped Context Exception)</div>
+<div class="err-body">
+<h4>What happened?</h4>
+<p>You successfully entered the frame context to input details, but then attempted to click a "Submit" button on the main page while still trapped inside the frame document scope.</p>
+<div class="err-msg">org.openqa.selenium.NoSuchElementException: Unable to find element: By.id("submitOrderButton") (Trapped in iframe context)</div>
+<div class="code-diff">
+<div class="diff-wrong"><div class="diff-lbl">❌ Wrong (Missing Scope Exit)</div><div class="diff-code">driver.<span class="fn">switchTo</span>().<span class="fn">frame</span>(<span class="str">"billing"</span>);
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"cc"</span>)).<span class="fn">sendKeys</span>(<span class="str">"4111"</span>);
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"submit"</span>)).<span class="fn">click</span>();</div></div>
+<div class="diff-right"><div class="diff-lbl">✅ Correct (Context Reset)</div><div class="diff-code">driver.<span class="fn">switchTo</span>().<span class="fn">frame</span>(<span class="str">"billing"</span>);
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"cc"</span>)).<span class="fn">sendKeys</span>(<span class="str">"4111"</span>);
+driver.<span class="fn">switchTo</span>().<span class="fn">defaultContent</span>(); <span class="cmt">// Back to main page</span>
+driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"submit"</span>)).<span class="fn">click</span>();</div></div>
+</div>
+<div class="fix-tag">✅ Fix: Invoke defaultContent() or parentFrame() immediately after concluding tasks inside any isolated environment.</div>
+</div>
+</div>
+
+<!-- ERROR 4 -->
+<div class="err-panel" id="err-stale-ref">
+<div class="err-hdr">🔴 Error: StaleElementReferenceException (Frame Reload/Re-render)</div>
+<div class="err-body">
+<h4>What happened?</h4>
+<p>The host frame document reloads inside the page during step transitions. Any WebElement matching pointers collected prior to the reload is invalidated.</p>
+<div class="err-msg">org.openqa.selenium.StaleElementReferenceException: stale element reference: element is not attached to the page document</div>
+<div class="code-diff">
+<div class="diff-wrong"><div class="diff-lbl">❌ Wrong (Re-using Old Element)</div><div class="diff-code"><span class="cls">WebElement</span> field <span class="op">=</span> driver.<span class="fn">findElement</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"ccNum"</span>));
+<span class="cmt">// Page dynamically reloads the frame here...</span>
+field.<span class="fn">sendKeys</span>(<span class="str">"123"</span>); <span class="cmt">// Throws Exception</span></div></div>
+<div class="diff-right"><div class="diff-lbl">✅ Correct (Fresh Resolve)</div><div class="diff-code"><span class="cmt">// Refresh locator lookup or wait for visiblity</span>
+<span class="cls">WebDriverWait</span> wait <span class="op">=</span> <span class="kw">new</span> <span class="cls">WebDriverWait</span>(driver, <span class="cls">Duration</span>.<span class="fn">ofSeconds</span>(<span class="num">5</span>));
+wait.<span class="fn">until</span>(<span class="cls">ExpectedConditions</span>.<span class="fn">refreshed</span>(
+  <span class="cls">ExpectedConditions</span>.<span class="fn">visibilityOfElementLocated</span>(<span class="cls">By</span>.<span class="fn">id</span>(<span class="str">"ccNum"</span>))
+));</div></div>
+</div>
+<div class="fix-tag">✅ Fix: Locate elements freshly post-frame changes, or wrap switching execution within an ExpectedConditions wait architecture.</div>
+</div>
+</div>
+</div>
+
+<!-- ══════════════ TAB 7: QUIZ (8 MCQs) ══════════════ -->
+<div class="tab-content" id="tab-quiz">
+<div class="section-title"><span class="dot"></span> Frame Handling Assessment</div>
+<p class="section-sub">8 questions — complete the challenge to calculate your performance score.</p>
+
+<div class="quiz-container">
+  
+  <!-- Q1 -->
+  <div class="quiz-block">
+    <div class="quiz-num">Question 1 of 8</div>
+    <div class="quiz-q">Which command returns the driver context back to the topmost, primary main document layout?</div>
+    <div class="quiz-opts">
+      <div class="quiz-opt" onclick="answerQ(1,this,false)">⬜ driver.switchTo().parentFrame()</div>
+      <div class="quiz-opt" onclick="answerQ(1,this,true)">⬜ driver.switchTo().defaultContent()</div>
+      <div class="quiz-opt" onclick="answerQ(1,this,false)">⬜ driver.navigate().toDefault()</div>
+      <div class="quiz-opt" onclick="answerQ(1,this,false)">⬜ driver.switchTo().window(0)</div>
+    </div>
+    <div class="quiz-feedback" id="qf1"></div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="quiz-block">
+    <div class="quiz-num">Question 2 of 8</div>
+    <div class="quiz-q">What exception is thrown if you try to find an element inside an iFrame without calling <span class="quiz-code">switchTo().frame()</span> first?</div>
+    <div class="quiz-opts">
+      <div class="quiz-opt" onclick="answerQ(2,this,false)">⬜ NoSuchFrameException</div>
+      <div class="quiz-opt" onclick="answerQ(2,this,true)">⬜ NoSuchElementException</div>
+      <div class="quiz-opt" onclick="answerQ(2,this,false)">⬜ FrameNotReadyException</div>
+      <div class="quiz-opt" onclick="answerQ(2,this,false)">⬜ ElementNotInteractableException</div>
+    </div>
+    <div class="quiz-feedback" id="qf2"></div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="quiz-block">
+    <div class="quiz-num">Question 3 of 8</div>
+    <div class="quiz-q">Which parameter type is NOT supported by the overloaded method <span class="quiz-code">driver.switchTo().frame()</span>?</div>
+    <div class="quiz-opts">
+      <div class="quiz-opt" onclick="answerQ(3,this,false)">⬜ int (representing zero-based index)</div>
+      <div class="quiz-opt" onclick="answerQ(3,this,false)">⬜ String (representing the name or id attribute)</div>
+      <div class="quiz-opt" onclick="answerQ(3,this,false)">⬜ WebElement (representing resolved frame node)</div>
+      <div class="quiz-opt" onclick="answerQ(3,this,true)">⬜ By (representing a locator strategy)</div>
+    </div>
+    <div class="quiz-feedback" id="qf3"></div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="quiz-block">
+    <div class="quiz-num">Question 4 of 8</div>
+    <div class="quiz-q">In a nested structure (Main → ParentFrame → ChildFrame), which command switches focus from ChildFrame back up to ParentFrame?</div>
+    <div class="quiz-opts">
+      <div class="quiz-opt" onclick="answerQ(4,this,true)">⬜ driver.switchTo().parentFrame()</div>
+      <div class="quiz-opt" onclick="answerQ(4,this,false)">⬜ driver.switchTo().defaultContent()</div>
+      <div class="quiz-opt" onclick="answerQ(4,this,false)">⬜ driver.switchTo().frame("ParentFrame")</div>
+      <div class="quiz-opt" onclick="answerQ(4,this,false)">⬜ driver.navigate().back()</div>
+    </div>
+    <div class="quiz-feedback" id="qf4"></div>
+  </div>
+
+  <!-- Q5 -->
+  <div class="quiz-block">
+    <div class="quiz-num">Question 5 of 8</div>
+    <div class="quiz-q">Why is index-based frame switching (e.g., <span class="quiz-code">switchTo().frame(0)</span>) discouraged in enterprise-grade test automation?</div>
+    <div class="quiz-opts">
+      <div class="quiz-opt" onclick="answerQ(5,this,false)">⬜ Index switches are slower and consume more resources.</div>
+      <div class="quiz-opt" onclick="answerQ(5,this,true)">⬜ Frame positions can easily change when third-party tags or dynamic elements load, breaking the execution target.</div>
+      <div class="quiz-opt" onclick="answerQ(5,this,false)">⬜ Indices are only supported by Internet Explorer Driver.</div>
+      <div class="quiz-opt" onclick="answerQ(5,this,false)">⬜ It requires an administrative role inside the host framework environment.</div>
+    </div>
+    <div class="quiz-feedback" id="qf5"></div>
+  </div>
+
+  <!-- Q6 -->
+  <div class="quiz-block">
+    <div class="quiz-num">Question 6 of 8</div>
+    <div class="quiz-q">If you are inside Sibling-Frame A and need to switch focus to Sibling-Frame B under the same parent document scope, what must your script do?</div>
+    <div class="quiz-opts">
+      <div class="quiz-opt" onclick="answerQ(6,this,false)">⬜ Directly call driver.switchTo().frame("SiblingB")</div>
+      <div class="quiz-opt" onclick="answerQ(6,this,true)">⬜ Switch to parentFrame() or defaultContent() first, then switch to "SiblingB"</div>
+      <div class="quiz-opt" onclick="answerQ(6,this,false)">⬜ Call driver.switchTo().window() first</div>
+      <div class="quiz-opt" onclick="answerQ(6,this,false)">⬜ Use driver.navigate().refresh() first</div>
+    </div>
+    <div class="quiz-feedback" id="qf6"></div>
+  </div>
+
+  <!-- Q7 -->
+  <div class="quiz-block">
+    <div class="quiz-num">Question 7 of 8</div>
+    <div class="quiz-q">Which Explicit Wait ExpectedCondition is designed to check for frame presence and perform context transitions in one operation?</div>
+    <div class="quiz-opts">
+      <div class="quiz-opt" onclick="answerQ(7,this,false)">⬜ ExpectedConditions.elementToBeClickable()</div>
+      <div class="quiz-opt" onclick="answerQ(7,this,true)">⬜ ExpectedConditions.frameToBeAvailableAndSwitchToIt()</div>
+      <div class="quiz-opt" onclick="answerQ(7,this,false)">⬜ ExpectedConditions.visibilityOfElementLocated()</div>
+      <div class="quiz-opt" onclick="answerQ(7,this,false)">⬜ ExpectedConditions.presenceOfNestedElementsLocatedBy()</div>
+    </div>
+    <div class="quiz-feedback" id="qf7"></div>
+  </div>
+
+  <!-- Q8 -->
+  <div class="quiz-block">
+    <div class="quiz-num">Question 8 of 8</div>
+    <div class="quiz-q">What happens if a frame context reloads or dynamically updates mid-test and you try to act on a pre-loaded element ref?</div>
+    <div class="quiz-opts">
+      <div class="quiz-opt" onclick="answerQ(8,this,false)">⬜ Context automatically resets to default content.</div>
+      <div class="quiz-opt" onclick="answerQ(8,this,true)">⬜ It throws a StaleElementReferenceException since the DOM node is invalidated.</div>
+      <div class="quiz-opt" onclick="answerQ(8,this,false)">⬜ The browser window automatically reloads.</div>
+      <div class="quiz-opt" onclick="answerQ(8,this,false)">⬜ The driver automatically looks up the element structure again.</div>
+    </div>
+    <div class="quiz-feedback" id="qf8"></div>
+  </div>
+
+</div>
+
+<div class="score-box" id="score-box">
+<div class="score-num" id="score-num">0/8</div>
+<div class="score-label" id="score-lbl"></div>
+<button class="btn-retake" onclick="retakeQuiz()">↺ Retake Quiz</button>
+</div>
+</div>
+
+</div><!-- /tabs-wrapper -->
+
+<div class="course-nav">
+  <div class="course-nav-left">
+    <a href="w3_t5_windows_tabs_switch.html">← Previous</a>
+    <a href="../index.html">🏠 Home</a>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<script>
+/* ══ THEME ══════════════════════════════════════════════════ */
+function toggleTheme(){
+  var h=document.documentElement,b=document.getElementById('themeToggle');
+  h.dataset.theme=h.dataset.theme==='dark'?'light':'dark';
+  b.textContent=h.dataset.theme==='dark'?'☀ Light':'🌙 Dark';
+}
+
+/* ══ TABS ════════════════════════════════════════════════════ */
+function switchTab(id,btn){
+  document.querySelectorAll('.tab-content').forEach(function(t){t.classList.remove('active');});
+  document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
+  document.getElementById('tab-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ══ EXECUTION FLOW ANIMATION ════════════════════════════════ */
+var _flowTimer=null,_flowRunning=false;
+function animateSetupFlow(){
+  if(_flowRunning)return;
+  resetSetupFlow();
+  _flowRunning=true;
+  var btn=document.getElementById('btn-flow');
+  btn.disabled=true;btn.textContent='⏸ Animating...';
+  var boxes=['fp1','fp2','fp3','fp4'],arrows=['fa1','fa2','fa3'];
+  var d=0;
+  boxes.forEach(function(id,i){
+    setTimeout(function(){
+      document.getElementById(id).classList.add('active');
+      if(i<arrows.length)document.getElementById(arrows[i]).classList.add('lit');
+    },d);
+    d+=700;
+    setTimeout(function(){
+      if(i>0)document.getElementById(boxes[i-1]).classList.replace('active','done');
+    },d-150);
+  });
+  setTimeout(function(){
+    document.getElementById('fp4').classList.replace('active','done');
+    btn.disabled=false;btn.textContent='▶ Animate Flow';_flowRunning=false;
+  },d+200);
+}
+function resetSetupFlow(){
+  if(_flowTimer)clearTimeout(_flowTimer);
+  ['fp1','fp2','fp3','fp4'].forEach(function(id){
+    document.getElementById(id).classList.remove('active','done');
+  });
+  ['fa1','fa2','fa3'].forEach(function(id){
+    document.getElementById(id).classList.remove('lit');
+  });
+  var btn=document.getElementById('btn-flow');
+  btn.disabled=false;btn.innerHTML='▶ Animate Flow';_flowRunning=false;
+}
+
+/* ══ PLAYGROUND SIMULATOR ═════════════════════════════════════ */
+var simState = {
+  context: 'main', // 'main', 'billing', 'otp'
+  promoTyped: false,
+  ccTyped: false,
+  otpTyped: false
+};
+
+function logMsg(msg, type) {
+  var b=document.getElementById('cmd-log');
+  var d=document.getElementById('log-dot');
+  var s=document.getElementById('log-status');
+  var prefix = '// ';
+  var colorClass = 'c-dim';
+  
+  if(type === 'info') { colorClass = 'c-info'; prefix = '[INFO] '; d.style.background = 'var(--accent2)'; s.textContent = 'Busy'; }
+  else if(type === 'sel') { colorClass = 'c-sel'; prefix = 'driver.'; d.style.background = 'var(--accent)'; s.textContent = 'Executing'; }
+  else if(type === 'ok') { colorClass = 'c-ok'; prefix = '→ '; d.style.background = 'var(--accent3)'; s.textContent = 'Success'; }
+  else if(type === 'error') { colorClass = 'c-dim'; prefix = '❌ '; d.style.background = 'var(--accent4)'; s.textContent = 'Error'; }
+
+  var formatted = '<span class="' + colorClass + '">' + prefix + msg + '</span>';
+  b.innerHTML += formatted + '\n';
+  b.scrollTop = b.scrollHeight;
+}
+
+function updateVisualFocus() {
+  document.getElementById('box-main').classList.remove('focused-context');
+  document.getElementById('box-billing').classList.remove('focused-context');
+  document.getElementById('box-otp').classList.remove('focused-context');
+
+  if(simState.context === 'main') {
+    document.getElementById('box-main').classList.add('focused-context');
+  } else if(simState.context === 'billing') {
+    document.getElementById('box-billing').classList.add('focused-context');
+  } else if(simState.context === 'otp') {
+    document.getElementById('box-otp').classList.add('focused-context');
+  }
+}
+
+function addSimPill(text, type) {
+  var el=document.createElement('div');
+  el.className='rpill rpill-'+type;
+  el.innerHTML=text;
+  document.getElementById('sim-pills').appendChild(el);
+}
+
+function simSwitchToBilling() {
+  if (simState.context === 'main') {
+    simState.context = 'billing';
+    logMsg('switchTo().frame("billingFrame");', 'sel');
+    logMsg('Context switched to billingFrame scope successfully.', 'ok');
+    addSimPill('✓ Context: billingFrame', 'info');
+  } else {
+    logMsg('NoSuchFrameException: Cannot find frame "billingFrame" in current context scope.', 'error');
+    addSimPill('⚠ Switch Failed', 'warn');
+  }
+  updateVisualFocus();
+}
+
+function simSwitchToOtp() {
+  if (simState.context === 'billing') {
+    simState.context = 'otp';
+    logMsg('switchTo().frame("secureOtpFrame");', 'sel');
+    logMsg('Context switched deep into nested secureOtpFrame scope successfully.', 'ok');
+    addSimPill('✓ Context: secureOtpFrame', 'info');
+  } else {
+    logMsg('NoSuchFrameException: Unable to locate nested child frame while driver is at scope level: ' + simState.context.toUpperCase() + '.', 'error');
+    addSimPill('⚠ Switch Failed', 'warn');
+  }
+  updateVisualFocus();
+}
+
+function simSwitchParent() {
+  logMsg('switchTo().parentFrame();', 'sel');
+  if (simState.context === 'otp') {
+    simState.context = 'billing';
+    logMsg('Moved up exactly one level to billingFrame context.', 'ok');
+    addSimPill('✓ Parent Context Reset', 'success');
+  } else if (simState.context === 'billing') {
+    simState.context = 'main';
+    logMsg('Moved up to parent topmost Main Document level context.', 'ok');
+    addSimPill('✓ Parent Context Reset', 'success');
+  } else {
+    logMsg('Driver context is already at topmost window level. No change in target scope.', 'info');
+  }
+  updateVisualFocus();
+}
+
+function simSwitchDefault() {
+  logMsg('switchTo().defaultContent();', 'sel');
+  simState.context = 'main';
+  logMsg('Driver scope cleared and context switched back to topmost main layout document.', 'ok');
+  addSimPill('✓ defaultContent() Triggered', 'success');
+  updateVisualFocus();
+}
+
+function typePromo() {
+  if (simState.context === 'main') {
+    document.getElementById('sim-input-promo').value = 'SAVE20';
+    logMsg('findElement(By.id("promo")).sendKeys("SAVE20");', 'sel');
+    logMsg('Input successfully registered inside Main Document context.', 'ok');
+    addSimPill('✓ Typed Promo: SAVE20', 'success');
+    simState.promoTyped = true;
+  } else {
+    logMsg('NoSuchElementException: Unable to find element By.id("promo") inside active scope: ' + simState.context.toUpperCase() + '.', 'error');
+    addSimPill('⚠ Action Failed', 'error');
+  }
+}
+
+function typeCard() {
+  if (simState.context === 'billing') {
+    document.getElementById('sim-input-cc').value = '4111 2222 3333 4444';
+    logMsg('findElement(By.id("ccNum")).sendKeys("4111222233334444");', 'sel');
+    logMsg('Input securely typed into Payment Frame context.', 'ok');
+    addSimPill('✓ CC Number Verified', 'success');
+    simState.ccTyped = true;
+  } else {
+    logMsg('NoSuchElementException: Unable to find element By.id("ccNum") inside active scope: ' + simState.context.toUpperCase() + '.', 'error');
+    addSimPill('⚠ Action Failed', 'error');
+  }
+}
+
+function typeOtp() {
+  if (simState.context === 'otp') {
+    document.getElementById('sim-input-otp').value = '9876';
+    logMsg('findElement(By.id("otpCode")).sendKeys("9876");', 'sel');
+    logMsg('Input securely typed deep into Nested OTP Frame context.', 'ok');
+    addSimPill('✓ Secure OTP Approved', 'success');
+    simState.otpTyped = true;
+  } else {
+    logMsg('NoSuchElementException: Unable to locate element By.id("otpCode") inside active scope: ' + simState.context.toUpperCase() + '.', 'error');
+    addSimPill('⚠ Action Failed', 'error');
+  }
+}
+
+function resetPlayground() {
+  simState.context = 'main';
+  simState.promoTyped = false;
+  simState.ccTyped = false;
+  simState.otpTyped = false;
+
+  document.getElementById('sim-input-promo').value = '';
+  document.getElementById('sim-input-cc').value = '';
+  document.getElementById('sim-input-otp').value = '';
+
+  document.getElementById('sim-pills').innerHTML = '';
+  document.getElementById('cmd-log').innerHTML = '<span class="c-dim">// Playground variables cleared</span>';
+  
+  var d=document.getElementById('log-dot');
+  var s=document.getElementById('log-status');
+  d.style.background = '#555';
+  s.textContent = 'Ready';
+
+  updateVisualFocus();
+}
+
+function runAllSim() {
+  resetPlayground();
+  logMsg('Initiating automated full checkout pipeline...', 'info');
+  
+  setTimeout(typePromo, 600);
+  setTimeout(simSwitchToBilling, 1600);
+  setTimeout(typeCard, 2600);
+  setTimeout(simSwitchToOtp, 3600);
+  setTimeout(typeOtp, 4600);
+  setTimeout(simSwitchDefault, 5600);
+  setTimeout(function() {
+    logMsg('Pipeline Execution Completed successfully.', 'ok');
+    addSimPill('🎉 Full Run Succeeded', 'success');
+  }, 6400);
+}
+
+/* ══ ERROR TAB ══════════════════════════════════════════════ */
+function showErr(id,btn){
+  document.querySelectorAll('.err-panel').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.err-btn').forEach(function(b){b.classList.remove('active');});
+  document.getElementById('err-'+id).classList.add('active');btn.classList.add('active');
+}
+
+/* ══ QUIZ (8 MCQs) ═══════════════════════════════════════════ */
+var quizExp={
+  1:{c:'✅ Correct! defaultContent() returns the driver scope fully back to the topmost parent document, regardless of nested frames.',
+     w:'❌ Incorrect. parentFrame() climbs up one level. defaultContent() is required to reset completely to topmost page.'},
+  2:{c:'✅ Correct! Because WebDriver cannot find elements inside the separate context by searching the parent layout, it throws a standard NoSuchElementException.',
+     w:'❌ Incorrect. Though the element sits inside a frame, WebDriver simply reports it is missing by throwing a NoSuchElementException.'},
+  3:{c:'✅ Correct! frame() is overloaded to take an int, String, or WebElement. It does not accept a locator class representation.'},
+  4:{c:'✅ Correct! parentFrame() climbs up exactly one level, moving execution context back into the Parent Frame container.',
+     w:'❌ Incorrect. defaultContent() would skip parentFrame completely and transition straight back to topmost page root.'},
+  5:{c:'✅ Correct! Dynamic insertions and third-party script integrations shift physical index counts, rendering absolute numbers unreliable in testing.',
+     w:'❌ Incorrect. Index switching has nothing to do with execution speed or localized access restrictions.'},
+  6:{c:'✅ Correct! You cannot traverse directly from sibling A to B. You must ascend back up to the nearest common container element first.',
+     w:'❌ Incorrect. Direct jumps will raise a NoSuchFrameException because Sibling B is not located inside Sibling A.'},
+  7:{c:'✅ Correct! frameToBeAvailableAndSwitchToIt dynamically waits for page generation and handles switching routines in one transaction.',
+     w:'❌ Incorrect. elementToBeClickable only validates parameters without changing driver focus scopes.'},
+  8:{c:'✅ Correct! When a frame updates, all DOM nodes re-initialize. Pointers compiled prior to updates lose reference target values.',
+     w:'❌ Incorrect. Context persists across target definitions, but any attempt to act on older objects throws StaleElementReferenceException.'}
+};
+
+var qAns={},qCorrect=0;
+function answerQ(n,el,correct){
+  if(qAns[n]!==undefined)return;
+  qAns[n]=correct;if(correct)qCorrect++;
+  el.closest('.quiz-opts').querySelectorAll('.quiz-opt').forEach(function(o){o.classList.add('disabled');});
+  el.classList.add(correct?'correct':'wrong');
+  var fb=document.getElementById('qf'+n);
+  fb.innerHTML=correct?quizExp[n].c:quizExp[n].w;
+  fb.className='quiz-feedback show '+(correct?'correct':'wrong');
+  if(Object.keys(qAns).length===8)setTimeout(showScore,500);
+}
+
+function showScore(){
+  var box=document.getElementById('score-box'),num=document.getElementById('score-num'),lbl=document.getElementById('score-lbl');
+  num.textContent=qCorrect+'/8';
+  num.style.color=qCorrect===8?'var(--accent3)':qCorrect>=5?'var(--accent)':'var(--accent4)';
+  lbl.textContent=qCorrect===8?'🎉 Perfect! You possess comprehensive understanding of frame context hierarchies.':
+    qCorrect>=5?'👍 Good progress! Review the questions you missed.':'📖 Revisit the Interactive Playground and Frame Switching strategies.';
+  box.classList.add('show');
+}
+
+function retakeQuiz(){
+  qAns={};qCorrect=0;
+  document.getElementById('score-box').classList.remove('show');
+  document.querySelectorAll('.quiz-opt').forEach(function(o){o.className='quiz-opt';});
+  document.querySelectorAll('.quiz-feedback').forEach(function(f){f.className='quiz-feedback';f.innerHTML='';});
+}
+</script>
+</body>
+</html>
